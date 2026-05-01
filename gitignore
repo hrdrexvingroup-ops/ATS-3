@@ -1,0 +1,40 @@
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.atom/
+.project
+.pydevproject
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies (jika ada local install)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Local env
+.env
+.env.local
+.env.*.local
+
+# Temp files
+*.tmp
+.cache/
+dist/
+build/
+
+# Browser storage (local cache)
+.WebKit/
