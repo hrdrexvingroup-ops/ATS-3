@@ -2,843 +2,419 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rexvin CV Screener - Offline Smart Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Rexvin CV Screener - Professional Edition 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            padding: 16px 24px;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-        
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
-        }
-        
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .btn-success {
-            background: #10b981;
-            color: white;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        
-        .btn-success:hover {
-            background: #059669;
-        }
-        
-        .input-field {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: all 0.3s ease;
-        }
-        
-        .input-field:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        textarea.input-field {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            font-size: 12px;
-        }
-        
-        thead {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-right: 1px solid #334155;
-            font-size: 11px;
-        }
-        
-        th:last-child {
-            border-right: none;
-        }
-        
-        td {
-            padding: 16px;
-            border-bottom: 1px solid #e2e8f0;
-            border-right: 1px solid #e2e8f0;
-        }
-        
-        td:last-child {
-            border-right: none;
-        }
-        
-        tbody tr {
-            transition: background-color 0.2s;
-        }
-        
-        tbody tr:hover {
-            background-color: #f8fafc;
-        }
-        
-        .score-high {
-            background: #dcfce7;
-            color: #166534;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            text-align: center;
-            min-width: 60px;
-        }
-        
-        .score-medium {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            text-align: center;
-            min-width: 60px;
-        }
-        
-        .score-low {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            text-align: center;
-            min-width: 60px;
-        }
-        
-        .rec-pass {
-            background: #dcfce7;
-            color: #166534;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 11px;
-            text-align: center;
-        }
-        
-        .rec-fail {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 11px;
-            text-align: center;
-        }
-        
-        .rec-maybe {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 11px;
-            text-align: center;
-        }
-        
-        .progress-container {
-            display: none;
-            margin-top: 20px;
-        }
-        
-        .progress-container.active {
-            display: block;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-        .empty-state {
-            padding: 60px 20px;
-            text-align: center;
-            color: #94a3b8;
-            font-size: 14px;
-            font-style: italic;
-        }
-        
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 16px 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 9999;
-            max-width: 400px;
-            animation: slideIn 0.3s ease;
-            border-left: 4px solid #3b82f6;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        
-        .toast.success {
-            border-left-color: #10b981;
-            background: #f0fdf4;
-            color: #166534;
-        }
-        
-        .toast.error {
-            border-left-color: #ef4444;
-            background: #fef2f2;
-            color: #991b1b;
-        }
-        
-        .toast.warning {
-            border-left-color: #f59e0b;
-            background: #fffbeb;
-            color: #92400e;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-        
-        .label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            color: #475569;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        
-        .header-title h1 {
-            font-size: 24px;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: -0.5px;
-        }
-        
-        .header-title p {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 4px;
-        }
-        
-        .accent-blue {
-            color: #2563eb;
-        }
-        
-        .badge {
-            display: inline-block;
-            background: #dbeafe;
-            color: #1e40af;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 0;
-            }
-            
-            th, td {
-                padding: 10px 8px;
-                font-size: 10px;
-            }
-            
-            th {
-                font-size: 9px;
-            }
-            
-            table {
-                font-size: 10px;
-            }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+        * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background-color: #f0f4f8; }
+        /* custom scroll untuk tabel horizontal */
+        .table-container::-webkit-scrollbar { height: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        .table-container::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        .transition-smooth { transition: all 0.2s ease; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- HEADER & FORM -->
-        <div class="card p-8 mb-6">
-            <div class="header">
-                <div class="header-title">
-                    <h1>REXVIN <span class="accent-blue">RECRUITMENT AI</span></h1>
-                    <p>Sistem Skrining CV Offline (Tanpa API Limit) • Verified 2026</p>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <div class="max-w-[1600px] mx-auto space-y-6">
+        <!-- FORM SECTION: INPUT ATAS FULL WIDTH -->
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+            <div class="p-6 md:p-8">
+                <div class="flex flex-wrap justify-between items-start gap-4 mb-6">
+                    <div>
+                        <h1 class="text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-800">REXVIN <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-lg">RECRUITMENT AI</span></h1>
+                        <p class="text-slate-500 text-sm mt-1">Skrining strategis · Rekomendasi <span class="font-bold text-rose-600">TIDAK DISARANKAN</span> otomatis jika kriteria WAJIB gagal</p>
+                    </div>
+                    <button onclick="downloadExcelReport()" id="btnDownload" class="hidden bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+                        Ekspor Excel (.xlsx)
+                    </button>
                 </div>
-                <button onclick="downloadExcel()" id="btnDownload" class="hidden btn-success" style="background: #10b981;">
-                    📥 Download Excel
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">🔑 API Key Groq</label>
+                            <input type="password" id="apiKey" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="gsk_... (required)">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">📁 Upload CV (PDF/DOCX)</label>
+                            <input type="file" id="fileInput" multiple accept=".pdf,.docx" class="w-full text-sm text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <p class="text-[11px] text-slate-400 mt-1">Multi file, support PDF & DOCX</p>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">📋 Job Description (Tulis KRITERIA WAJIB dengan tegas)</label>
+                        <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Contoh WAJIB:&#10;• WAJIB pengalaman di Developer / Property min 2 tahun&#10;• WAJIB S1 Teknik Sipil atau Arsitektur&#10;• WAJIB domisili Jabodetabek"></textarea>
+                        <p class="text-[11px] text-amber-700 mt-1 font-medium">⚠️ AI akan menolak otomatis (skor &lt;50, rekomendasi TIDAK DISARANKAN) jika salah satu kriteria WAJIB tidak terpenuhi.</p>
+                    </div>
+                </div>
+
+                <button onclick="processAllCVs()" id="btnRun" class="mt-8 w-full bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.99] flex items-center justify-center gap-2 text-base">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2"/></svg>
+                    MULAI ANALISA KANDIDAT (AI VERIFIKASI WAJIB)
                 </button>
-            </div>
 
-            <div class="badge">⚡ Mode Offline (Unlimited Processing • No Rate Limit)</div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="label">Job Description</label>
-                    <textarea id="jobDesc" class="input-field" style="min-height: 100px;" placeholder="Contoh: WAJIB pengalaman Property Developer 3 tahun, WAJIB menguasai AutoCAD, WAJIB S1 Teknik Sipil, Lokasi Jakarta"></textarea>
-                </div>
-
-                <div>
-                    <label class="label">Upload CV (PDF/DOCX)</label>
-                    <input type="file" id="fileInput" multiple accept=".pdf,.docx,.doc" class="input-field" style="padding: 6px 12px;">
-                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">Max 20 file, unlimited processing</div>
-                </div>
-
-                <div>
-                    <label class="label">Scoring Mode</label>
-                    <select id="scoreMode" class="input-field">
-                        <option value="smart">🧠 Smart Parsing (Recommended)</option>
-                        <option value="strict">🔒 Strict Matching</option>
-                        <option value="loose">⚡ Lenient Matching</option>
-                    </select>
-                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">Adjusted untuk akurasi berbeda</div>
-                </div>
-            </div>
-
-            <button onclick="processFiles()" id="btnRun" class="btn-primary w-full mt-8">
-                🚀 MULAI ANALISA KANDIDAT (Unlimited)
-            </button>
-
-            <div id="progressBox" class="progress-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span id="statusLabel" style="font-size: 12px; font-weight: 600; color: #2563eb;">Processing...</span>
-                    <span id="progressText" style="font-size: 11px; font-weight: 600; color: #475569;">0/0</span>
-                </div>
-                <div class="progress-bar">
-                    <div id="progressBar" class="progress-fill"></div>
+                <div id="progressBox" class="hidden mt-6 bg-slate-50 p-4 rounded-xl">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span id="statusLabel" class="font-semibold text-blue-700">⚙️ Memproses...</span>
+                        <span id="progressText" class="font-mono text-slate-600">0/0</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                        <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-indigo-600 h-full w-0 transition-all duration-300 rounded-full"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- TABEL HASIL -->
-        <div class="card">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 180px;">Nama & Kontak</th>
-                            <th style="width: 70px; text-align: center;">Usia</th>
-                            <th style="width: 140px;">Domisili & Edukasi</th>
-                            <th style="min-width: 250px;">Pengalaman Relevan</th>
-                            <th style="min-width: 200px;">Catatan Kritis</th>
-                            <th style="width: 130px; text-align: center;">Rekomendasi</th>
-                            <th style="width: 70px; text-align: center;">Score</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultTable">
-                    </tbody>
-                </table>
-                <div id="emptyState" class="empty-state">📋 Data akan muncul di sini setelah proses selesai...</div>
-            </div>
+        <!-- TABEL HASIL: LEBAR MIN 1200px + SCROLL HORIZONTAL UNTUK NON-TERPOTONG -->
+        <div class="table-container w-full overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+            <table class="w-full min-w-[1200px] border-collapse text-left">
+                <thead>
+                    <tr class="bg-slate-800 text-white text-[11px] font-semibold uppercase tracking-wider">
+                        <th class="p-4 border-r border-slate-700 w-[200px]">Nama & Kontak</th>
+                        <th class="p-4 border-r border-slate-700 text-center w-[75px]">Usia (2026)</th>
+                        <th class="p-4 border-r border-slate-700 w-[200px]">Domisili & Edukasi</th>
+                        <th class="p-4 border-r border-slate-700 min-w-[260px]">Pengalaman Relevan</th>
+                        <th class="p-4 border-r border-slate-700 w-[240px]">Catatan Kritis</th>
+                        <th class="p-4 border-r border-slate-700 text-center w-[150px]">Rekomendasi</th>
+                        <th class="p-4 text-center w-[90px]">Skor</th>
+                    </tr>
+                </thead>
+                <tbody id="resultTable" class="text-[13px] bg-white divide-y divide-slate-100">
+                    <!-- baris dinamis -->
+                </tbody>
+            </table>
+            <div id="emptyState" class="py-20 text-center text-slate-400 italic bg-white">📄 Belum ada data. Unggah CV & API Key, lalu klik "MULAI ANALISA KANDIDAT".</div>
         </div>
     </div>
 
     <script>
-        // Setup PDF.js worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        // Konfigurasi Worker PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        
+        let globalResultsArray = [];   // menyimpan semua object hasil final untuk export Excel
+        let isProcessing = false;
 
-        let allResults = [];
-
-        // ========== SMART PARSING ENGINE ==========
-
-        // Dictionary untuk keahlian property
-        const propertyKeywords = [
-            'developer', 'property', 'real estate', 'realestate',
-            'developer property', 'property developer', 'property consultant',
-            'estate', 'residential', 'commercial', 'retail',
-            'marketing property', 'sales consultant'
-        ];
-
-        const technicalSkills = [
-            'autocad', 'sketchup', 'lumion', '3d', 'archicad',
-            'revit', 'cad', 'bim', 'photoshop', 'autocad 2d',
-            'microsoft office', 'excel', 'powerpoint'
-        ];
-
-        const educationLevels = {
-            's2': 90, 's1': 100, 'd3': 70, 'd4': 80,
-            'sarjana': 100, 'master': 90, 'diploma': 70,
-            'magister': 90, 'bachelor': 100, 'teknik': 50
-        };
-
-        const cities = [
-            'jakarta', 'bandung', 'surabaya', 'medan', 'semarang',
-            'makassar', 'tangerang', 'depok', 'bekasi', 'bogor',
-            'yogyakarta', 'malang', 'bali'
-        ];
-
-        // Extract text dari PDF
-        async function extractPDF(file) {
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let text = '';
-                
-                for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
-                    const page = await pdf.getPage(i);
-                    const content = await page.getTextContent();
-                    text += content.items.map(item => item.str).join(' ') + ' ';
-                }
-                
-                return text;
-            } catch (error) {
-                throw new Error(`Gagal membaca PDF: ${error.message}`);
+        // Helper extract teks PDF
+        async function extractPdfText(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(" ");
+                fullText += pageText + "\n";
             }
+            return fullText;
         }
 
-        // Extract text dari DOCX
-        async function extractDocx(file) {
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const result = await mammoth.extractRawText({ arrayBuffer });
-                return result.value;
-            } catch (error) {
-                throw new Error(`Gagal membaca DOCX: ${error.message}`);
-            }
+        // Helper extract DOCX
+        async function extractDocxText(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+            return result.value;
         }
 
-        // ========== SMART PARSING LOGIC ==========
-        function parseCV(text) {
-            const lower = text.toLowerCase();
+        // Core AI: panggil Groq dengan prompt yang DIPAKSA untuk kriteria WAJIB (tidak bisa memberi skor >49 jika WAJIB gagal)
+        async function analyzeCVWithAI(apiKey, jobDescription, cvText, fileName) {
+            // Batasi panjang CV agar tidak overflow (8000 karakter sudah aman)
+            const truncatedCV = cvText.substring(0, 7500);
             
+            const systemPrompt = `Anda adalah Senior HR Auditor dengan spesialisasi compliance. Tugas KRITIS:
+1. **Identifikasi kriteria WAJIB** dari Job Description: cari kata kunci "WAJIB", "harus", "minimal", "required". Jika JD menyebutkan kriteria absolut (contoh: "WAJIB pengalaman property 2 tahun", "WAJIB S1 Teknik", "WAJIB bisa Bahasa Inggris aktif").
+2. **Evaluasi CV** terhadap setiap kriteria WAJIB. Jika SATU SAJA kriteria WAJIB tidak terpenuhi:
+   - Rekomendasi HARUS = "TIDAK DISARANKAN"
+   - Score HARUS < 50 (beri angka 20-45 sesuai keparahan)
+   - Catatan harus menyebutkan kriteria WAJIB mana yang gagal.
+3. Jika semua kriteria WAJIB terpenuhi, rekomendasi bisa "SANGAT DISARANKAN" (score >=80) atau "DISARANKAN" (score 60-79).
+4. Hitung usia kandidat berdasarkan informasi tahun lahir atau usia sekarang, konversikan ke tahun 2026 (contoh: jika di CV usia 30 tahun pada 2024, maka usia di 2026 adalah 32).
+5. Ekstrak data format JSON: 
+   {
+     "name": "Nama lengkap",
+     "usia": "angka + tahun",
+     "hp": "nomor telepon (jika ada)",
+     "email": "email (jika ada)",
+     "domisili": "kota/domisili",
+     "pendidikan": "gelar & jurusan tertinggi",
+     "pengalaman": "ringkasan pengalaman relevan max 120 kata",
+     "catatan": "analisa kritis, sebutkan apakah memenuhi semua WAJIB atau tidak",
+     "rekomendasi": "TIDAK DISARANKAN / DISARANKAN / SANGAT DISARANKAN",
+     "score": (integer 0-100)
+   }
+6. **PENTING**: Jika terdapat kata "WAJIB" di JD dan CV tidak memenuhinya, jangan pernah memberikan skor >=50. Rekomendasi harus "TIDAK DISARANKAN". Backgroud merah akan muncul di UI.
+Gunakan logika ketat. Jangan meloloskan kandidat yang gagal di kriteria mandatory.`;
+
+            const userMessage = `JOB DESCRIPTION (perhatikan kata WAJIB):\n${jobDescription}\n\n---\nCV TEXT:\n${truncatedCV}\n\n---\nBerdasarkan kriteria WAJIB, berikan output JSON sesuai instruksi. Periksa setiap butir WAJIB. Jika gagal → TIDAK DISARANKAN + skor < 50.`;
+
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: userMessage }
+                    ],
+                    temperature: 0.1,
+                    response_format: { type: "json_object" }
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Groq API error: ${response.status} ${errText}`);
+            }
+            const data = await response.json();
+            const aiContent = data.choices[0].message.content;
+            const parsed = JSON.parse(aiContent);
+            
+            // Validasi dan koreksi tambahan (frontend safety): jika rekomendasi mengandung "TIDAK" tapi score>=50, paksa score 45
+            if (parsed.rekomendasi && parsed.rekomendasi.toUpperCase().includes("TIDAK DISARANKAN") && parsed.score >= 50) {
+                parsed.score = 45;
+                parsed.catatan = (parsed.catatan || "") + " [AI override: skor diturunkan karena kriteria WAJIB gagal]";
+            }
+            // Jika sebaliknya: rekomendasi baik tapi score absurd rendah (biarkan)
+            if (!parsed.rekomendasi) parsed.rekomendasi = "TIDAK DISARANKAN";
+            if (typeof parsed.score !== 'number') parsed.score = 0;
+            parsed.score = Math.min(100, Math.max(0, parsed.score));
+            
+            // Pastikan field standard selalu ada
             return {
-                name: extractName(text),
-                email: extractEmail(text),
-                phone: extractPhone(text),
-                age: extractAge(text),
-                city: extractCity(lower),
-                education: extractEducation(lower),
-                experience: extractExperience(text),
-                skills: extractSkills(lower)
+                name: parsed.name || "Tidak terdeteksi",
+                usia: parsed.usia || "?",
+                hp: parsed.hp || "-",
+                email: parsed.email || "-",
+                domisili: parsed.domisili || "-",
+                pendidikan: parsed.pendidikan || "-",
+                pengalaman: parsed.pengalaman || "Tidak ada ringkasan",
+                catatan: parsed.catatan || "Tidak ada analisa",
+                rekomendasi: parsed.rekomendasi,
+                score: parsed.score
             };
         }
 
-        function extractName(text) {
-            const lines = text.split('\n').filter(l => l.trim().length > 0);
-            for (let i = 0; i < Math.min(5, lines.length); i++) {
-                const line = lines[i].trim();
-                if (line.length > 5 && line.length < 100 && /^[A-Z]/.test(line)) {
-                    if (!line.match(/^(SUMMARY|OBJECTIVE|PROFESSIONAL|EXPERIENCE|EDUCATION|SKILL)/i)) {
-                        return line;
-                    }
-                }
-            }
-            return 'N/A';
-        }
-
-        function extractEmail(text) {
-            const match = text.match(/[\w\.-]+@[\w\.-]+\.\w+/);
-            return match ? match[0] : 'N/A';
-        }
-
-        function extractPhone(text) {
-            const match = text.match(/(\+62|0)[0-9\s\-]{8,}/);
-            return match ? match[0].trim() : 'N/A';
-        }
-
-        function extractAge(text) {
-            const ageMatch = text.match(/(?:age|usia|umur)\s*[:=]?\s*(\d{2})/i);
-            if (ageMatch) return ageMatch[1];
+        // Render satu baris ke tabel (dengan gaya tegas: rekomendasi TIDAK DISARANKAN background MERAH menyala)
+        function renderRowToTable(candidate) {
+            const tbody = document.getElementById('resultTable');
+            const emptyDiv = document.getElementById('emptyState');
+            if (emptyDiv) emptyDiv.classList.add('hidden');
             
-            const birthMatch = text.match(/(?:1[89]|20)\d{2}/);
-            if (birthMatch) {
-                const year = parseInt(birthMatch[0]);
-                return Math.max(18, Math.min(70, 2026 - year)).toString();
-            }
-            return 'N/A';
-        }
-
-        function extractCity(text) {
-            for (const city of cities) {
-                if (text.includes(city)) return city.charAt(0).toUpperCase() + city.slice(1);
-            }
-            return 'N/A';
-        }
-
-        function extractEducation(text) {
-            for (const [edu, score] of Object.entries(educationLevels)) {
-                if (text.includes(edu)) return edu.toUpperCase();
-            }
-            return 'N/A';
-        }
-
-        function extractExperience(text) {
-            const lines = text.split('\n');
-            for (const line of lines) {
-                if (line.match(/\d{4}\s*[-–]\s*(\d{4}|sekarang|present)/i)) {
-                    return line.trim().substring(0, 100);
-                }
-            }
+            // Tentukan warna score
+            let scoreBadgeClass = "";
+            if (candidate.score >= 80) scoreBadgeClass = "bg-emerald-100 text-emerald-800 border border-emerald-200";
+            else if (candidate.score >= 60) scoreBadgeClass = "bg-amber-100 text-amber-800 border border-amber-200";
+            else scoreBadgeClass = "bg-rose-100 text-rose-800 border border-rose-200";
             
-            const expMatch = text.match(/(?:pengalaman|experience)[\s:]+([^.\n]+)/i);
-            return expMatch ? expMatch[1].trim().substring(0, 100) : 'N/A';
-        }
-
-        function extractSkills(text) {
-            let found = [];
-            for (const skill of technicalSkills) {
-                if (text.includes(skill)) found.push(skill);
-            }
-            return found.length > 0 ? found.slice(0, 3).join(', ') : 'N/A';
-        }
-
-        // ========== SMART SCORING ==========
-        function scoreCandidate(cvData, jobDesc, mode) {
-            let score = 0;
-            const jdLower = jobDesc.toLowerCase();
-            const maxScore = 100;
-
-            // 1. Education scoring (30%)
-            const eduMatch = educationLevels[cvData.education.toLowerCase()];
-            if (eduMatch) {
-                score += (eduMatch / 100) * 30;
-            }
-
-            // 2. Experience relevance (40%)
-            const expKeywords = jdLower.match(/(\d+)\s*(?:tahun|year|thn)/g) || [];
-            if (expKeywords.length > 0) {
-                const requiredExp = parseInt(expKeywords[0]);
-                // Simplified: if "property developer" mentioned, add points
-                if (cvData.experience && cvData.experience.toLowerCase().includes('property')) {
-                    score += 25;
-                } else if (cvData.experience !== 'N/A') {
-                    score += 15;
-                }
-            }
-
-            // 3. Skills match (20%)
-            if (cvData.skills !== 'N/A') {
-                for (const keyword of technicalSkills) {
-                    if (cvData.skills.toLowerCase().includes(keyword)) {
-                        score += 10;
-                        break;
-                    }
-                }
-            }
-
-            // 4. Location bonus (10%)
-            if (cvData.city !== 'N/A' && jdLower.includes(cvData.city.toLowerCase())) {
-                score += 10;
-            }
-
-            // Apply mode multiplier
-            if (mode === 'strict') {
-                score *= 0.8;
-            } else if (mode === 'loose') {
-                score = Math.min(100, score * 1.2);
-            }
-
-            return Math.round(Math.min(maxScore, Math.max(0, score)));
-        }
-
-        // ========== RECOMMENDATION LOGIC ==========
-        function getRecommendation(score, jobDesc, cvData) {
-            const hasMustHave = jobDesc.toLowerCase().includes('wajib');
-            
-            if (score >= 75) {
-                return 'SANGAT DISARANKAN';
-            } else if (score >= 60) {
-                return 'LAYAK INTERVIEW';
-            } else if (score >= 40) {
-                return 'PERLU PERTIMBANGAN';
+            // REKOMENDASI background merah menyala jika "TIDAK DISARANKAN"
+            let recBgClass = "";
+            let recText = candidate.rekomendasi || "-";
+            if (recText.toUpperCase().includes("TIDAK DISARANKAN")) {
+                recBgClass = "bg-red-600 text-white shadow-sm";
+            } else if (recText.toUpperCase().includes("SANGAT DISARANKAN")) {
+                recBgClass = "bg-emerald-600 text-white";
             } else {
-                return 'TIDAK DISARANKAN';
+                recBgClass = "bg-slate-200 text-slate-800";
             }
-        }
-
-        // Toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
             
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // Escape HTML
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return String(text).replace(/[&<>"']/g, m => map[m]);
-        }
-
-        // Render table row
-        function renderRow(data) {
-            const scoreClass = data.score >= 75 ? 'score-high' : (data.score >= 60 ? 'score-medium' : 'score-low');
-            const recClass = data.rekomendasi.includes('SANGAT') ? 'rec-pass' : (data.rekomendasi.includes('TIDAK') ? 'rec-fail' : 'rec-maybe');
-
             const row = document.createElement('tr');
+            row.className = "hover:bg-slate-50 transition-all border-b border-slate-100";
             row.innerHTML = `
-                <td>
-                    <div style="font-weight: 700; color: #0f172a;">${escapeHtml(data.name)}</div>
-                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">${escapeHtml(data.phone)}</div>
-                    <div style="font-size: 10px; color: #94a3b8;">${escapeHtml(data.email)}</div>
+                <td class="p-4 align-top border-r border-slate-100">
+                    <div class="font-extrabold text-slate-800">${escapeHtml(candidate.name)}</div>
+                    <div class="text-[11px] text-slate-500 font-mono mt-0.5">📞 ${escapeHtml(candidate.hp)}</div>
+                    <div class="text-[11px] text-slate-400 break-all">✉️ ${escapeHtml(candidate.email)}</div>
                 </td>
-                <td style="text-align: center; font-weight: 700;">${escapeHtml(data.age)}</td>
-                <td>
-                    <div style="font-weight: 600; color: #0f172a;">${escapeHtml(data.city)}</div>
-                    <div style="font-size: 10px; color: #64748b; margin-top: 4px; font-style: italic;">${escapeHtml(data.education)}</div>
+                <td class="p-4 text-center align-top border-r border-slate-100 font-semibold text-slate-700">${escapeHtml(candidate.usia)}</td>
+                <td class="p-4 align-top border-r border-slate-100">
+                    <div class="font-medium">📍 ${escapeHtml(candidate.domisili)}</div>
+                    <div class="text-[11px] text-slate-500 mt-1 italic">🎓 ${escapeHtml(candidate.pendidikan)}</div>
                 </td>
-                <td style="line-height: 1.5; white-space: pre-wrap;">${escapeHtml(data.experience)}</td>
-                <td style="font-size: 11px; line-height: 1.5; color: #475569; font-style: italic;">${escapeHtml(data.skills)}</td>
-                <td style="text-align: center;">
-                    <div class="${recClass}">${escapeHtml(data.rekomendasi)}</div>
+                <td class="p-4 align-top border-r border-slate-100 text-slate-700 leading-relaxed text-[12px]">${escapeHtml(candidate.pengalaman)}</td>
+                <td class="p-4 align-top border-r border-slate-100 text-slate-600 text-[12px] italic max-w-[260px]">${escapeHtml(candidate.catatan)}</td>
+                <td class="p-4 text-center align-top border-r border-slate-100">
+                    <span class="px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide ${recBgClass} inline-block whitespace-nowrap">${escapeHtml(recText)}</span>
                 </td>
-                <td style="text-align: center;">
-                    <div class="${scoreClass}">${data.score}%</div>
+                <td class="p-4 text-center align-top">
+                    <span class="px-2 py-1 rounded-lg font-black text-sm ${scoreBadgeClass}">${candidate.score}%</span>
                 </td>
             `;
-
-            document.getElementById('resultTable').appendChild(row);
-            document.getElementById('emptyState').style.display = 'none';
+            tbody.appendChild(row);
+        }
+        
+        // simple escapeHtml
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+                return c;
+            });
         }
 
-        // Update progress
-        function updateProgress(current, total, label) {
-            const percent = (current / total) * 100;
-            document.getElementById('progressBar').style.width = percent + '%';
-            document.getElementById('progressText').textContent = `${current}/${total}`;
-            document.getElementById('statusLabel').textContent = label;
-        }
-
-        // ========== MAIN PROCESS ==========
-        async function processFiles() {
-            const jd = document.getElementById('jobDesc').value.trim();
-            const mode = document.getElementById('scoreMode').value;
+        // Proses utama semua file
+        async function processAllCVs() {
+            if (isProcessing) {
+                alert("Proses sedang berjalan, harap tunggu.");
+                return;
+            }
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const jobDesc = document.getElementById('jobDesc').value.trim();
             const files = Array.from(document.getElementById('fileInput').files);
-
-            // Validation
-            if (!jd) {
-                showToast('❌ Masukkan Job Description terlebih dahulu', 'error');
+            
+            if (!apiKey) {
+                alert("❌ Masukkan API Key Groq yang valid.");
                 return;
             }
-
+            if (!jobDesc) {
+                alert("❌ Job Description harus diisi, sertakan kriteria WAJIB agar rekomendasi tegas.");
+                return;
+            }
             if (files.length === 0) {
-                showToast('❌ Pilih minimal 1 file CV', 'error');
+                alert("❌ Upload minimal 1 file CV (PDF/DOCX).");
                 return;
             }
-
-            // Reset UI
-            allResults = [];
-            document.getElementById('resultTable').innerHTML = '';
-            document.getElementById('emptyState').style.display = 'block';
-            document.getElementById('progressBox').classList.add('active');
-            document.getElementById('btnRun').disabled = true;
+            
+            // Reset state
+            isProcessing = true;
+            globalResultsArray = [];
+            const tbody = document.getElementById('resultTable');
+            tbody.innerHTML = "";
+            const emptyDiv = document.getElementById('emptyState');
+            if (emptyDiv) emptyDiv.classList.add('hidden');
             document.getElementById('btnDownload').classList.add('hidden');
-
-            showToast(`✅ Memulai analisis ${files.length} CV (Mode Offline)...`, 'success');
-
-            // Process files
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                updateProgress(i, files.length, `Membaca: ${file.name}`);
-
-                try {
-                    // Extract text
-                    let text;
-                    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-                        text = await extractPDF(file);
-                    } else {
-                        text = await extractDocx(file);
-                    }
-
-                    if (!text || text.trim().length === 0) {
-                        showToast(`⚠️ File ${file.name} kosong`, 'warning');
-                        continue;
-                    }
-
-                    updateProgress(i, files.length, `Analisis: ${file.name}`);
-
-                    // Parse CV
-                    const cvData = parseCV(text);
-                    
-                    // Score
-                    const score = scoreCandidate(cvData, jd, mode);
-                    const rekomendasi = getRecommendation(score, jd, cvData);
-
-                    const result = {
-                        name: cvData.name,
-                        email: cvData.email,
-                        phone: cvData.phone,
-                        age: cvData.age,
-                        city: cvData.city,
-                        education: cvData.education,
-                        experience: cvData.experience,
-                        skills: cvData.skills,
-                        score: score,
-                        rekomendasi: rekomendasi
-                    };
-
-                    allResults.push(result);
-                    renderRow(result);
-
-                    showToast(`✅ ${file.name}`, 'success');
-
-                } catch (error) {
-                    console.error(`Error: ${error.message}`);
-                    showToast(`❌ ${file.name}: ${error.message}`, 'error');
-                }
-
-                // Small delay untuk smoothness
-                await new Promise(r => setTimeout(r, 200));
-            }
-
-            updateProgress(files.length, files.length, 'Selesai!');
-            document.getElementById('btnRun').disabled = false;
+            document.getElementById('progressBox').classList.remove('hidden');
+            document.getElementById('btnRun').disabled = true;
             
-            if (allResults.length > 0) {
-                document.getElementById('btnDownload').classList.remove('hidden');
-                showToast(`✅ Analisis selesai! ${allResults.length}/${files.length} berhasil`, 'success');
+            let successCount = 0;
+            const total = files.length;
+            
+            for (let i = 0; i < total; i++) {
+                const file = files[i];
+                const fileName = file.name;
+                updateProgressUI(i, total, `📄 Menganalisis: ${fileName.substring(0, 40)}...`);
+                
+                try {
+                    let extractedText = "";
+                    if (file.name.toLowerCase().endsWith('.pdf')) {
+                        extractedText = await extractPdfText(file);
+                    } else if (file.name.toLowerCase().endsWith('.docx')) {
+                        extractedText = await extractDocxText(file);
+                    } else {
+                        throw new Error("Format tidak didukung, gunakan PDF atau DOCX");
+                    }
+                    
+                    if (!extractedText || extractedText.trim().length < 20) {
+                        throw new Error("Teks CV terlalu pendek atau gagal ekstraksi");
+                    }
+                    
+                    const aiCandidate = await analyzeCVWithAI(apiKey, jobDesc, extractedText, fileName);
+                    // tambahkan fallback nama file jika nama tidak terdeteksi
+                    if (!aiCandidate.name || aiCandidate.name === "Tidak terdeteksi") {
+                        const baseName = file.name.replace(/\.(pdf|docx)$/i, '');
+                        aiCandidate.name = `${baseName} (${aiCandidate.name})`;
+                    }
+                    // pastikan data valid
+                    globalResultsArray.push(aiCandidate);
+                    renderRowToTable(aiCandidate);
+                    successCount++;
+                } catch (err) {
+                    console.error(`Error pada file ${file.name}`, err);
+                    // tampilkan baris error
+                    const errorCandidate = {
+                        name: `❌ Gagal: ${file.name.substring(0, 40)}`,
+                        usia: "-",
+                        hp: "-",
+                        email: "-",
+                        domisili: "-",
+                        pendidikan: "Error parsing",
+                        pengalaman: "Tidak bisa membaca file",
+                        catatan: `Error: ${err.message.substring(0, 120)}`,
+                        rekomendasi: "TIDAK DISARANKAN",
+                        score: 0
+                    };
+                    globalResultsArray.push(errorCandidate);
+                    renderRowToTable(errorCandidate);
+                }
+                // delay kecil untuk menghindari rate limit (3 file per 3 detik)
+                if ((i + 1) % 3 === 0 && i !== total - 1) {
+                    await new Promise(r => setTimeout(r, 2800));
+                }
             }
-
-            setTimeout(() => {
-                document.getElementById('progressBox').classList.remove('active');
-            }, 2000);
+            
+            updateProgressUI(total, total, "✅ Selesai! Semua CV diproses.");
+            document.getElementById('btnRun').disabled = false;
+            isProcessing = false;
+            if (globalResultsArray.length > 0) {
+                document.getElementById('btnDownload').classList.remove('hidden');
+            }
+            if (globalResultsArray.length === 0 && total > 0) {
+                const emptyDiv2 = document.getElementById('emptyState');
+                if (emptyDiv2) emptyDiv2.classList.remove('hidden');
+                emptyDiv2.innerHTML = "⚠️ Tidak ada hasil yang berhasil diproses. Cek API Key atau format file.";
+            } else if (globalResultsArray.length === 0) {
+                // nothing
+            }
         }
-
-        // Download Excel
-        function downloadExcel() {
-            if (allResults.length === 0) {
-                showToast('❌ Tidak ada data untuk download', 'error');
+        
+        function updateProgressUI(current, total, statusMsg) {
+            const percent = total === 0 ? 0 : (current / total) * 100;
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) progressBar.style.width = `${percent}%`;
+            const progressText = document.getElementById('progressText');
+            if (progressText) progressText.innerText = `${current}/${total}`;
+            const statusLabel = document.getElementById('statusLabel');
+            if (statusLabel) statusLabel.innerText = statusMsg;
+        }
+        
+        // EXPORT KE EXCEL ASLI (XLSX) dengan formatting rapi
+        function downloadExcelReport() {
+            if (!globalResultsArray.length) {
+                alert("Tidak ada data untuk diekspor.");
                 return;
             }
-
-            const worksheet = XLSX.utils.json_to_sheet(allResults);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Kandidat');
+            // mapping untuk excel: kolom sesuai kebutuhan
+            const excelData = globalResultsArray.map(c => ({
+                "Nama Kandidat": c.name,
+                "Usia (thn 2026)": c.usia,
+                "Nomor HP": c.hp,
+                "Email": c.email,
+                "Domisili": c.domisili,
+                "Pendidikan Tertinggi": c.pendidikan,
+                "Pengalaman Relevan": c.pengalaman,
+                "Catatan Kritis": c.catatan,
+                "Rekomendasi Final": c.rekomendasi,
+                "Skor (%)": c.score
+            }));
             
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            // lebar kolom otomatis (opsional)
             worksheet['!cols'] = [
-                { wch: 25 },
-                { wch: 25 },
-                { wch: 20 },
-                { wch: 10 },
-                { wch: 15 },
-                { wch: 20 },
-                { wch: 30 },
-                { wch: 20 },
-                { wch: 10 },
-                { wch: 20 }
+                {wch:28}, {wch:12}, {wch:18}, {wch:28}, {wch:18}, {wch:25}, {wch:42}, {wch:40}, {wch:22}, {wch:10}
             ];
-
-            XLSX.writeFile(workbook, `CV_Screening_Rexvin_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showToast('✅ Excel berhasil didownload', 'success');
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Hasil Screening CV");
+            XLSX.writeFile(workbook, `Rexvin_Skrining_Kandidat_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
         }
+        
+        // tambahkan initial reset jika diperlukan
+        window.processAllCVs = processAllCVs;
+        window.downloadExcelReport = downloadExcelReport;
+        
+        // Notifikasi tambahan di konsol
+        console.log("✅ Rexvin CV Screener siap — Rekomendasi tegas, TIDAK DISARANKAN background merah, tabel lebar minimal 1200px, ekspor XLSX asli, usia 2026.");
     </script>
 </body>
 </html>
