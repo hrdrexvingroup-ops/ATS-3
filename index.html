@@ -2,116 +2,136 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Screening CV - Intellectual Sparring Edition</title>
+    <title>HR Strategic Screening System - Full Version</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root { --primary: #2c3e50; --danger: #e74c3c; --success: #27ae60; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: #f4f7f6; color: var(--primary); }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        textarea { width: 100%; height: 250px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: none; box-sizing: border-box; }
-        button { background: var(--primary); color: white; padding: 15px 25px; border: none; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: bold; }
-        button:hover { opacity: 0.9; }
-        #result { margin-top: 25px; padding: 20px; border-radius: 4px; display: none; }
-        .pass { background: #d4edda; border-left: 10px solid var(--success); }
-        .fail { background: #f8d7da; border-left: 10px solid var(--danger); }
-        .analysis-box { margin-top: 10px; font-size: 0.9em; }
-        .highlight { font-weight: bold; color: var(--danger); }
+        body { font-family: 'Arial', sans-serif; background-color: #f0f2f5; padding: 20px; color: #333; }
+        .box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); max-width: 1200px; margin: auto; }
+        h1 { color: #1a73e8; border-bottom: 2px solid #e8f0fe; padding-bottom: 15px; display: flex; justify-content: space-between; }
+        .input-group { display: flex; gap: 20px; margin-bottom: 20px; }
+        .input-box { flex: 1; }
+        label { font-weight: bold; display: block; margin-bottom: 10px; color: #555; }
+        textarea { width: 100%; height: 250px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+        .action-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+        button { flex: 1; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; border: none; }
+        .btn-analyze { background-color: #1a73e8; color: white; }
+        .btn-download { background-color: #34a853; color: white; display: none; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; display: none; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; color: #555; }
+        .status-reject { color: #d93025; font-weight: bold; }
+        .status-pass { color: #188038; font-weight: bold; }
+        .critical-fail { color: #d93025; font-size: 0.85em; display: block; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>🎯 CV Scrutinizer: JD-Driven Logic</h2>
-    <p>Sistem ini akan mengunci persyaratan <strong>Must-Have</strong> dari JD. Jika industri tidak cocok, skor akan dipangkas secara brutal.</p>
+<div class="box">
+    <h1>
+        <span>Strategic CV Scrutinizer</span>
+        <small style="font-size: 0.4em; color: #666;">v2.0 Logic-Locked</small>
+    </h1>
     
-    <div class="grid">
-        <div>
-            <label><strong>1. Input Job Description (The Law)</strong></label>
-            <textarea id="jdInput" placeholder="Contoh: Harus berpengalaman di Property Developer, menguasai STB, Penanganan Komplain, Minimal S1 Teknik Sipil..."></textarea>
+    <div class="input-group">
+        <div class="input-box">
+            <label>Masukkan Job Description (Acuan Utama)</label>
+            <textarea id="jdText" placeholder="Contoh: Industri Property, Pengalaman di Developer, STB, Monitoring RAB..."></textarea>
         </div>
-        <div>
-            <label><strong>2. Input CV Kandidat (The Evidence)</strong></label>
-            <textarea id="cvInput" placeholder="Tempel teks CV kandidat di sini..."></textarea>
+        <div class="input-box">
+            <label>Masukkan CV Kandidat</label>
+            <textarea id="cvText" placeholder="Tempel isi CV kandidat di sini..."></textarea>
         </div>
     </div>
 
-    <button onclick="analyzeCV()">UJI KELAYAKAN KANDIDAT</button>
-
-    <div id="result">
-        <h3 id="statusTitle">Hasil Analisis</h3>
-        <div id="scoreMetric" style="font-size: 1.5em; font-weight: bold;"></div>
-        <div id="analysisDetail" class="analysis-box"></div>
+    <div class="action-btns">
+        <button class="btn-analyze" onclick="runAnalysis()">ANALISA & KUNCI LOGIKA</button>
+        <button id="downloadBtn" class="btn-download" onclick="exportToExcel()">DOWNLOAD LAPORAN EXCEL</button>
     </div>
+
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th>Kategori Analisis</th>
+                <th>Status / Temuan</th>
+                <th>Bobot</th>
+                <th>Skor Akhir</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
 </div>
 
 <script>
-function analyzeCV() {
-    const jd = document.getElementById('jdInput').value.toLowerCase();
-    const cv = document.getElementById('cvInput').value.toLowerCase();
-    const resultDiv = document.getElementById('result');
-    const analysisDetail = document.getElementById('analysisDetail');
-    const scoreMetric = document.getElementById('scoreMetric');
+let lastAnalysis = {};
 
-    if (!jd || !cv) { alert("Harap isi JD dan CV!"); return; }
-
-    // --- TAHAP 1: EKSTRAKSI MUST-HAVE (LOGIKA DIKTATOR) ---
-    // Mencari kata kunci industri secara otomatis dari JD
-    const industryKeywords = ['property', 'developer', 'real estate', 'perumahan'];
-    let requiredIndustry = industryKeywords.find(word => jd.includes(word)) || "";
+function runAnalysis() {
+    const jd = document.getElementById('jdText').value.toLowerCase();
+    const cv = document.getElementById('cvText').value.toLowerCase();
     
-    // --- TAHAP 2: PROXIMITY & CONTEXT CHECK ---
-    let industryMatch = false;
-    if (requiredIndustry) {
-        // Cek apakah industri tersebut ada di bagian pengalaman kerja (asumsi teks panjang)
-        industryMatch = cv.includes(requiredIndustry);
-    }
-
-    // --- TAHAP 3: PEMBOBOTAN DINAMIS ---
-    let score = 0;
-    let logs = [];
-
-    // A. Filter Industri (Bobot 50% - Critical)
-    if (industryMatch) {
-        score += 50;
-        logs.push("✅ INDUSTRI: Cocok (" + requiredIndustry.toUpperCase() + ")");
-    } else {
-        logs.push("<span class='highlight'>❌ INDUSTRI: GAGAL. Tidak ditemukan latar belakang " + (requiredIndustry || "spesifik") + " di CV.</span>");
-    }
-
-    // B. Kata Kerja Operasional (Bobot 30%)
-    const operationalKeywords = ['stb', 'serah terima', 'komplain', 'monitoring rab', 'budget control'];
-    let opMatchCount = 0;
-    operationalKeywords.forEach(kw => {
-        if (jd.includes(kw) && cv.includes(kw)) {
-            opMatchCount++;
-            score += (30 / operationalKeywords.length);
-        }
-    });
-    logs.push("📊 Skill Operasional: " + opMatchCount + " dari " + operationalKeywords.filter(k => jd.includes(k)).length + " kriteria cocok.");
-
-    // C. Persyaratan Teknis/Edukasi (Bobot 20%)
-    if (jd.includes("s1") && cv.includes("s1")) score += 10;
-    if (jd.includes("sipil") && cv.includes("sipil")) score += 10;
-    logs.push("🎓 Edukasi/Teknis: Dicek berdasarkan kriteria minimal.");
-
-    // --- TAHAP 4: KEPUTUSAN AKHIR ---
-    resultDiv.style.display = "block";
+    // --- 1. MUST-HAVE INDUSTRY EXTRACTION ---
+    const industryList = ['property', 'developer', 'real estate', 'perumahan', 'apartemen'];
+    const requiredIndustry = industryList.find(ind => jd.includes(ind));
+    const hasIndustryExperience = requiredIndustry && cv.includes(requiredIndustry);
     
-    // Jika Industri Gagal, Skor tidak boleh lebih dari 40 (Auto-Reject)
-    if (!industryMatch && score > 40) score = 40;
+    // --- 2. LOGIKA PEMBOBOTAN DINAMIS ---
+    let totalScore = 0;
+    let tableData = [];
 
-    scoreMetric.innerText = "SKOR AKURASI: " + Math.round(score) + "%";
-    analysisDetail.innerHTML = "<ul><li>" + logs.join("</li><li>") + "</li></ul>";
+    // A. FILTER INDUSTRI (60%) - THE GATEKEEPER
+    let indScore = hasIndustryExperience ? 60 : 0;
+    let indRemark = hasIndustryExperience ? `✅ Sesuai (${requiredIndustry.toUpperCase()})` : 
+                    `<span class="critical-fail">❌ GAGAL: Tidak ada pengalaman di ${requiredIndustry || 'Industri Terkait'}</span>`;
+    tableData.push(["Latar Belakang Industri", indRemark, "60%", indScore]);
+    totalScore += indScore;
 
-    if (score >= 75) {
-        resultDiv.className = "pass";
-        document.getElementById('statusTitle').innerText = "STATUS: LAYAK INTERVIEW";
-    } else {
-        resultDiv.className = "fail";
-        document.getElementById('statusTitle').innerText = "STATUS: TIDAK LAYAK (REJECT)";
+    // B. LEVEL JABATAN (20%) - STRATEGIC FIT
+    const leadershipWords = ['head', 'coordinator', 'leader', 'manager', 'spv', 'supervisor'];
+    const isLeadershipReq = leadershipWords.some(word => jd.includes(word));
+    const hasLeadershipExp = leadershipWords.some(word => cv.includes(word));
+    let levelScore = (isLeadershipReq && hasLeadershipExp) ? 20 : 0;
+    tableData.push(["Level Jabatan (Hierarchy)", hasLeadershipExp ? "✅ Sesuai" : "⚠️ Tidak Terdeteksi Role Leader", "20%", levelScore]);
+    totalScore += levelScore;
+
+    // C. SKILL SPESIFIK (20%) - OPERATIONAL MATCH
+    const devSkills = ['stb', 'serah terima', 'komplain', 'handover', 'rab', 'legalitas'];
+    let matchedSkills = devSkills.filter(s => jd.includes(s) && cv.includes(s));
+    let skillScore = (matchedSkills.length / devSkills.filter(s => jd.includes(s)).length) * 20 || 0;
+    tableData.push(["Skill Operasional", `Cocok: ${matchedSkills.join(', ') || 'None'}`, "20%", Math.round(skillScore)]);
+    totalScore += skillScore;
+
+    // --- 3. HARD LIMITER (PENALTI MUTLAK) ---
+    // Jika industri gagal, skor dikunci maksimal 40% agar tidak lolos (Kasus Rafi)
+    if (!hasIndustryExperience && totalScore > 40) {
+        totalScore = 40;
     }
+
+    // --- 4. RENDER TABEL ---
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = tableData.map(row => `
+        <tr>
+            <td>${row[0]}</td>
+            <td>${row[1]}</td>
+            <td>${row[2]}</td>
+            <td>${row[3]}</td>
+        </tr>
+    `).join('') + `
+        <tr style="background:#f0f2f5; font-weight:bold;">
+            <td colspan="3">TOTAL MATCH RATE</td>
+            <td class="${totalScore >= 75 ? 'status-pass' : 'status-reject'}">${Math.round(totalScore)}%</td>
+        </tr>
+    `;
+
+    document.getElementById('resultTable').style.display = "table";
+    document.getElementById('downloadBtn').style.display = "block";
+    
+    lastAnalysis = { jd, totalScore, tableData };
+}
+
+function exportToExcel() {
+    const table = document.getElementById("resultTable");
+    const wb = XLSX.utils.table_to_book(table, {sheet: "Hasil Screening"});
+    XLSX.writeFile(wb, "Hasil_Screening_CV.xlsx");
 }
 </script>
 
