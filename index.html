@@ -2,469 +2,198 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>CV Auditor Pro · Rekomendasi Site Coordinator</title>
-    <!-- Tailwind + Font Awesome + Libraries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rexvin CV Screener - Final Professional Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&display=swap');
-        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
-        .card-hover { transition: all 0.2s; }
-        .table-container { overflow-x: auto; border-radius: 1rem; }
-        .candidate-row:hover { background-color: #f8fafc; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+        .table-container { overflow-x: auto; background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     </style>
 </head>
-<body class="p-4 md:p-8 bg-slate-100">
+<body class="p-4 md:p-8">
 
-<div class="max-w-[1600px] mx-auto space-y-6">
-    <!-- HEADER & FORM -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-        <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-            <div>
-                <h1 class="text-2xl font-black tracking-tight text-slate-800"><i class="fas fa-file-signature text-blue-600 mr-2"></i>CV <span class="text-blue-600">AUDITOR</span><span class="text-xs bg-slate-100 text-slate-500 ml-2 px-2 py-0.5 rounded-full">Site Coordinator</span></h1>
-                <p class="text-slate-500 text-sm">AI + hybrid scoring | rekomendasi strategis | export Excel</p>
-            </div>
-            <div class="flex gap-2">
-                <button id="demoBtn" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-4 py-2 rounded-xl text-sm font-bold"><i class="fas fa-flask"></i> Demo Data</button>
-                <button id="clearBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm"><i class="fas fa-trash-alt"></i> Hapus Hasil</button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="space-y-4">
+    <!-- BAGIAN ATAS: FORM INPUT (FULL WIDTH) -->
+    <div class="max-w-[1600px] mx-auto space-y-6">
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex justify-between items-center mb-6">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase flex items-center gap-1"><i class="fas fa-key text-amber-500"></i> Groq API Key (opsional)</label>
-                    <div class="flex gap-2">
-                        <input type="password" id="apiKeyInput" class="flex-1 p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="gsk_...">
-                        <button id="saveApiBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-xl text-sm font-bold"><i class="fas fa-save"></i> Simpan</button>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">REXVIN <span class="text-blue-600">RECRUITMENT AI</span></h1>
+                    <p class="text-slate-500 text-sm">Sistem Skrining Strategis & Rekomendasi Otomatis (Verified for 2026)</p>
+                </div>
+                <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+                    Download Excel
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">API Key Groq</label>
+                        <input type="password" id="apiKey" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="gsk_...">
                     </div>
-                    <div id="apiStatus" class="text-xs mt-1 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-400"></span> <span>Mode lokal (tanpa AI) kecuali API valid</span></div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Upload CV (PDF/DOCX)</label>
+                        <input type="file" id="fileInput" multiple class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase"><i class="fas fa-upload"></i> Upload CV (PDF/DOCX/DOC)</label>
-                    <input type="file" id="fileInput" multiple accept=".pdf,.docx,.doc" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                    <div id="filePreview" class="mt-2 text-xs text-slate-500 flex flex-wrap gap-1"></div>
-                    <div class="text-right text-xs text-slate-400 mt-1"><span id="fileCount">0</span> file terpilih</div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Job Description (Tulis kriteria 'WAJIB' di sini)</label>
+                    <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Contoh: WAJIB pengalaman di Developer/Property minimal 2 tahun..."></textarea>
                 </div>
             </div>
-            <div class="lg:col-span-2">
-                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase"><i class="fas fa-clipboard-list"></i> Job Description / Kriteria Audit</label>
-                <textarea id="jobDesc" rows="3" class="w-full p-3 bg-slate-50 border rounded-xl outline-none text-sm focus:ring-2 focus:ring-blue-500" placeholder="Contoh: Site Coordinator di perusahaan property/developer, minimal S1 Teknik Sipil, pengalaman 2+ tahun di proyek konstruksi, domisili Jakarta/Batam/Bogor, kemampuan negosiasi dan pengawasan lapangan."></textarea>
-                <div class="flex justify-between mt-2">
-                    <button id="saveJdBtn" class="text-xs bg-white border border-slate-300 hover:bg-slate-50 px-3 py-1 rounded-lg"><i class="far fa-save"></i> Simpan JD</button>
-                    <button id="runAuditBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition-all active:scale-[0.98]"><i class="fas fa-microphone-alt mr-1"></i> Mulai Audit</button>
-                </div>
+
+            <button onclick="processFiles()" id="btnRun" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.99]">
+                MULAI ANALISA KANDIDAT
+            </button>
+            
+            <div id="progressBox" class="hidden mt-6">
+                <div class="flex justify-between mb-2"><span id="statusLabel" class="text-xs font-bold text-blue-600 italic">Processing...</span><span id="progressText" class="text-xs font-bold">0/0</span></div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div id="progressBar" class="bg-blue-600 h-full w-0 transition-all"></div></div>
             </div>
         </div>
 
-        <!-- Progress area -->
-        <div id="progressArea" class="mt-5 hidden">
-            <div class="flex justify-between text-xs font-semibold mb-1"><span id="progressLabel" class="text-blue-600">Memproses...</span><span id="progressCount" class="text-slate-500">0/0</span></div>
-            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div id="progressFill" class="bg-blue-600 h-full w-0 transition-all duration-300"></div></div>
-            <div id="currentFile" class="text-[11px] text-slate-400 mt-1 truncate"></div>
-        </div>
-    </div>
-
-    <!-- TABEL HASIL (tanpa filter tambahan agar tidak terpotong) -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="table-container overflow-x-auto">
-            <table class="w-full min-w-[1200px] text-left text-sm">
-                <thead class="bg-slate-800 text-white text-[11px] font-bold uppercase">
-                    <tr>
-                        <th class="p-4 w-64">Nama & Kontak</th>
-                        <th class="p-4 w-20 text-center">Usia (2026)</th>
-                        <th class="p-4 w-56">Domisili & Edukasi</th>
-                        <th class="p-4">Pengalaman Relevan</th>
-                        <th class="p-4 w-80">Catatan Kritis (Skeptis)</th>
-                        <th class="p-4 w-24 text-center">Score</th>
-                        <th class="p-4 w-40">Rekomendasi</th>
+        <!-- BAGIAN BAWAH: TABEL HASIL (FULL WIDTH) -->
+        <div class="table-container border border-slate-200">
+            <table class="w-full text-left border-collapse min-w-[1200px]">
+                <thead>
+                    <tr class="bg-slate-800 text-white text-[11px] uppercase tracking-wider">
+                        <th class="p-4 border-r border-slate-700 w-48">Nama & Kontak</th>
+                        <th class="p-4 border-r border-slate-700 text-center w-20">Usia</th>
+                        <th class="p-4 border-r border-slate-700 w-48">Domisili & Edukasi</th>
+                        <th class="p-4 border-r border-slate-700">Pengalaman Relevan</th>
+                        <th class="p-4 border-r border-slate-700 w-64">Catatan Kritis</th>
+                        <th class="p-4 border-r border-slate-700 text-center w-40">Rekomendasi</th>
+                        <th class="p-4 text-center w-20">Score</th>
                     </tr>
                 </thead>
-                <tbody id="resultTableBody" class="divide-y divide-slate-100"></tbody>
+                <tbody id="resultTable" class="text-[12px] bg-white divide-y divide-slate-200">
+                    <!-- Data Dynamic -->
+                </tbody>
             </table>
+            <div id="emptyState" class="p-20 text-center text-slate-400 italic">Data akan muncul di sini setelah proses selesai...</div>
         </div>
-        <div id="emptyState" class="p-12 text-center text-slate-400 italic text-sm">✨ Belum ada CV diproses. Upload file dan klik "Mulai Audit".</div>
     </div>
 
-    <!-- Tombol Export -->
-    <div class="flex justify-end">
-        <button id="exportExcelBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl text-sm font-bold disabled:opacity-50"><i class="fas fa-file-excel mr-2"></i> Download Excel</button>
-    </div>
-</div>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        let allResults = [];
 
-<script>
-    // Konfigurasi awal
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        async function processFiles() {
+            const apiKey = document.getElementById('apiKey').value;
+            const jd = document.getElementById('jobDesc').value;
+            const files = Array.from(document.getElementById('fileInput').files);
+            if(!apiKey || !jd || files.length === 0) return alert("Lengkapi data!");
 
-    // State
-    let apiKey = localStorage.getItem('groq_api_key') || '';
-    let jdText = localStorage.getItem('ats_jd') || '';
-    let selectedFiles = [];
-    let allResults = [];           // array of objects
-    let isProcessing = false;
-    let cancelFlag = false;
+            allResults = [];
+            document.getElementById('resultTable').innerHTML = "";
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('progressBox').classList.remove('hidden');
+            document.getElementById('btnRun').disabled = true;
 
-    // DOM elements
-    const apiInput = document.getElementById('apiKeyInput');
-    const saveApiBtn = document.getElementById('saveApiBtn');
-    const apiStatusDiv = document.getElementById('apiStatus');
-    const jobDescEl = document.getElementById('jobDesc');
-    const saveJdBtn = document.getElementById('saveJdBtn');
-    const fileInput = document.getElementById('fileInput');
-    const filePreview = document.getElementById('filePreview');
-    const fileCountSpan = document.getElementById('fileCount');
-    const runBtn = document.getElementById('runAuditBtn');
-    const progressArea = document.getElementById('progressArea');
-    const progressFill = document.getElementById('progressFill');
-    const progressLabel = document.getElementById('progressLabel');
-    const progressCount = document.getElementById('progressCount');
-    const currentFileSpan = document.getElementById('currentFile');
-    const resultBody = document.getElementById('resultTableBody');
-    const emptyStateDiv = document.getElementById('emptyState');
-    const exportBtn = document.getElementById('exportExcelBtn');
-    const demoBtn = document.getElementById('demoBtn');
-    const clearBtn = document.getElementById('clearBtn');
-
-    // Helper toast
-    function showToast(msg, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `fixed bottom-5 right-5 z-50 px-4 py-2 rounded-lg shadow-lg text-white text-sm ${type === 'error' ? 'bg-red-600' : 'bg-green-600'} transition-all duration-300`;
-        toast.innerText = msg;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    // API Key handling
-    if (apiKey) {
-        apiInput.value = '••••••••••••••••';
-        updateApiStatus(true);
-    } else updateApiStatus(false);
-
-    async function testApiKey(key) {
-        try {
-            const res = await fetch('https://api.groq.com/openai/v1/models', { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(5000) });
-            return res.ok;
-        } catch { return false; }
-    }
-
-    function updateApiStatus(online) {
-        const dot = apiStatusDiv.querySelector('span:first-child');
-        const txt = apiStatusDiv.querySelector('span:last-child');
-        if (online) {
-            dot.className = 'w-2 h-2 rounded-full bg-green-500';
-            txt.innerText = '✅ Groq AI aktif (fallback lokal siap)';
-        } else {
-            dot.className = 'w-2 h-2 rounded-full bg-slate-400';
-            txt.innerText = '⚠️ Mode lokal (tanpa AI) — API key tidak tersedia/valid';
-        }
-    }
-
-    saveApiBtn.onclick = async () => {
-        let raw = apiInput.value.trim();
-        if (raw === '••••••••••••••••') raw = apiKey;
-        if (!raw || !raw.startsWith('gsk_')) { showToast('Format API key harus gsk_...', 'error'); return; }
-        const ok = await testApiKey(raw);
-        if (ok) {
-            apiKey = raw;
-            localStorage.setItem('groq_api_key', apiKey);
-            apiInput.value = '••••••••••••••••';
-            updateApiStatus(true);
-            showToast('API Key tersimpan & valid', 'success');
-        } else {
-            showToast('API Key tidak valid', 'error');
-            updateApiStatus(false);
-        }
-    };
-
-    // JD storage
-    if (jdText) jobDescEl.value = jdText;
-    saveJdBtn.onclick = () => {
-        jdText = jobDescEl.value;
-        localStorage.setItem('ats_jd', jdText);
-        showToast('Job Description tersimpan', 'success');
-    };
-
-    // File handling
-    fileInput.onchange = (e) => {
-        selectedFiles = Array.from(e.target.files).filter(f => {
-            const ext = f.name.split('.').pop().toLowerCase();
-            return ['pdf', 'docx', 'doc'].includes(ext) && f.size <= 12 * 1024 * 1024;
-        });
-        if (selectedFiles.length !== e.target.files.length) showToast('Beberapa file tidak valid (max 12MB, format PDF/DOCX/DOC)', 'error');
-        filePreview.innerHTML = selectedFiles.map(f => `<span class="bg-slate-100 px-2 py-0.5 rounded-full text-xs">${f.name.length > 30 ? f.name.slice(0, 28)+'…' : f.name}</span>`).join('');
-        fileCountSpan.innerText = selectedFiles.length;
-    };
-
-    // ========== EKSTRAKSI LOKAL (FALLBACK) ==========
-    function extractLocal(text, filename) {
-        const lower = text.toLowerCase();
-        let name = 'Tidak terdeteksi', email = '', hp = '', usia = 'N/A', domisili = 'N/A', pendidikan = 'N/A', jurusan = 'N/A', pengalaman = 'N/A';
-        const emailMatch = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/);
-        if (emailMatch) email = emailMatch[0];
-        const phoneMatch = text.match(/(\+62|0)[0-9]{8,13}/);
-        if (phoneMatch) hp = phoneMatch[0];
-        const ageMatch = text.match(/(?:umur|usia|age)[\s:]*(\d{1,2})/i);
-        if (ageMatch) { let a = parseInt(ageMatch[1]); if (a>=18 && a<=70) usia = a; }
-        const cities = ['jakarta','surabaya','bandung','medan','batam','bogor','denpasar','makassar','semarang','yogyakarta'];
-        for (let c of cities) if (lower.includes(c)) { domisili = c.charAt(0).toUpperCase()+c.slice(1); break; }
-        if (lower.includes('s2')||lower.includes('magister')) pendidikan = 'S2';
-        else if (lower.includes('s1')||lower.includes('sarjana')) pendidikan = 'S1';
-        else if (lower.includes('d3')) pendidikan = 'D3';
-        const jurusanList = ['teknik sipil','informatika','akuntansi','manajemen','arsitektur'];
-        for (let j of jurusanList) if (lower.includes(j)) { jurusan = j.toUpperCase(); break; }
-        const expMatch = text.match(/(?:pengalaman|experience|riwayat pekerjaan)[\s:]*([^\n]{20,300})/i);
-        if (expMatch) pengalaman = expMatch[1].trim();
-        // Nama: cari baris pertama dengan huruf kapital, bukan kata jabatan
-        const lines = text.split('\n').slice(0,15);
-        const blacklist = /(site coordinator|project manager|engineer|supervisor|powered by|resume|cv|curriculum vitae)/i;
-        for (let line of lines) {
-            if (line.length > 3 && line.length < 60 && /[A-Z][a-z]/.test(line) && !blacklist.test(line)) {
-                name = line.trim();
-                break;
+            for (let i = 0; i < files.length; i++) {
+                updateProgress(i, files.length, `Menganalisa: ${files[i].name}`);
+                try {
+                    const text = files[i].name.endsWith('.pdf') ? await extractPDF(files[i]) : await extractDocx(files[i]);
+                    const cleanText = text.replace(/[^\x00-\x7F]/g, "").replace(/\s+/g, " ").trim();
+                    const aiResult = await callGroq(apiKey, jd, cleanText);
+                    
+                    allResults.push(aiResult);
+                    renderRow(aiResult);
+                } catch (e) { console.error(e); }
+                if (i % 3 === 0 && i > 0) await new Promise(r => setTimeout(r, 3000));
             }
+
+            updateProgress(files.length, files.length, "Selesai!");
+            document.getElementById('btnRun').disabled = false;
+            document.getElementById('btnDownload').classList.remove('hidden');
         }
-        return { name, usia, email, hp, domisili, pendidikan, jurusan, pengalaman, catatan: '', rekomendasi: '', score: 0 };
-    }
 
-    function computeLocalScore(cv, jd) {
-        let score = 0; const jdLow = jd.toLowerCase();
-        if (cv.pendidikan === 'S2') score += 30;
-        else if (cv.pendidikan === 'S1') score += 25;
-        else if (cv.pendidikan === 'D3') score += 15;
-        if (cv.jurusan !== 'N/A' && jdLow.includes(cv.jurusan.toLowerCase())) score += 25;
-        if (cv.domisili !== 'N/A' && jdLow.includes(cv.domisili.toLowerCase())) score += 20;
-        if (cv.pengalaman !== 'N/A') {
-            const keywords = jdLow.split(/\s+/);
-            let match = 0;
-            for (let kw of keywords) if (kw.length > 2 && cv.pengalaman.toLowerCase().includes(kw)) match++;
-            score += Math.min(25, match * 5);
+        async function callGroq(key, jd, cv) {
+            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: `Anda adalah Senior HR Auditor. Tugas:
+                        1. Hitung usia di 2026.
+                        2. Ekstrak data kontak, domisili, pendidikan.
+                        3. Ringkas pengalaman (fokus pada kecocokan JD).
+                        4. REKOMENDASI TANDA: Jika kriteria WAJIB di JD tidak ada di CV, tulis REKOMENDASI: "TIDAK DISARANKAN" dan beri skor < 50.
+                        Jika sangat cocok, tulis REKOMENDASI: "SANGAT DISARANKAN".
+                        
+                        Output JSON: {"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","pengalaman":"","catatan":"","rekomendasi":"","score":0}` },
+                        { role: "user", content: `JD:\n${jd}\n\nCV:\n${cv.substring(0, 7000)}` }
+                    ],
+                    response_format: { type: "json_object" }
+                })
+            });
+            const data = await res.json();
+            return JSON.parse(data.choices[0].message.content);
         }
-        return Math.min(100, Math.round(score));
-    }
 
-    // AI call with fallback
-    async function callGroqWithFallback(cvText, fileName, jd, retries=2) {
-        if (!apiKey) return null;
-        const prompt = `Anda adalah HR auditor yang sangat teliti untuk posisi Site Coordinator di perusahaan property/developer.
-Ekstrak CV berikut ke dalam format JSON dengan field:
-- name (nama lengkap)
-- usia (tahun, hitung dari tahun lahir atau pernyataan umur, gunakan tahun 2026 sebagai patokan)
-- email, hp
-- domisili (kota)
-- pendidikan (misal S1)
-- jurusan (misal Teknik Sipil)
-- pengalaman (ringkasan 2-3 baris posisi dan periode)
-- catatan (analisis kekurangan / risiko / hal yang perlu diwaspadai, dalam 1-2 kalimat)
-- rekomendasi (kalimat rekomendasi untuk tim HR, misal "Tidak disarankan karena kurang pengalaman di property/developer" atau "Direkomendasikan dengan catatan ...")
-- score (0-100, berdasarkan kecocokan dengan kriteria Site Coordinator yang fokus di property/developer)
-
-Jangan tambahkan teks lain selain JSON. CV:\n${cvText.substring(0, 6500)}\n\nJob Description: ${jd}`;
-        for (let i=0; i<=retries; i++) {
-            try {
-                const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 900 })
-                });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                let content = data.choices[0].message.content;
-                let jsonStart = content.indexOf('{'), jsonEnd = content.lastIndexOf('}')+1;
-                if (jsonStart !== -1) content = content.substring(jsonStart, jsonEnd);
-                const parsed = JSON.parse(content);
-                return parsed;
-            } catch(e) { await new Promise(r => setTimeout(r, 800)); }
-        }
-        return null;
-    }
-
-    async function extractText(file) {
-        const ext = file.name.split('.').pop().toLowerCase();
-        const buf = await file.arrayBuffer();
-        if (ext === 'pdf') {
-            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-            let txt = '';
-            for (let i=1; i<=pdf.numPages; i++) {
+        async function extractPDF(file) {
+            const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+            let text = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const content = await page.getTextContent();
-                txt += content.items.map(it => it.str).join(' ') + '\n';
+                text += content.items.map(s => s.str).join(" ") + " ";
             }
-            return txt;
-        } else if (ext === 'docx') {
-            const result = await mammoth.extractRawText({ arrayBuffer: buf });
-            return result.value;
-        } else {
-            return new TextDecoder('utf-8').decode(buf);
+            return text;
         }
-    }
 
-    async function processOneCV(file, jd) {
-        try {
-            const rawText = await extractText(file);
-            let parsed = await callGroqWithFallback(rawText, file.name, jd);
-            if (!parsed) {
-                parsed = extractLocal(rawText, file.name);
-                parsed.score = computeLocalScore(parsed, jd);
-                parsed.catatan = parsed.catatan || 'Diekstrak lokal (AI tidak tersedia). Periksa pengalaman di property/developer.';
-                if (parsed.score >= 75) parsed.rekomendasi = 'Direkomendasikan untuk dipertimbangkan, namun verifikasi pengalaman di developer.';
-                else if (parsed.score >= 55) parsed.rekomendasi = 'Dapat dipertimbangkan dengan pelatihan tambahan.';
-                else parsed.rekomendasi = 'Tidak disarankan karena kurang pengalaman di bidang property/developer.';
-                parsed.source = 'local';
-            } else {
-                if (!parsed.score) parsed.score = 50;
-                if (!parsed.rekomendasi) parsed.rekomendasi = parsed.score >= 75 ? 'Direkomendasikan' : (parsed.score >= 55 ? 'Dipertimbangkan' : 'Tidak disarankan');
-            }
-            // Pastikan field ada
-            return {
-                name: parsed.name || 'Tanpa Nama',
-                usia: parsed.usia || 'N/A',
-                email: parsed.email || '-',
-                hp: parsed.hp || '-',
-                domisili: parsed.domisili || 'N/A',
-                pendidikan: parsed.pendidikan || 'N/A',
-                jurusan: parsed.jurusan || '-',
-                pengalaman: parsed.pengalaman || '-',
-                catatan: parsed.catatan || '-',
-                score: Math.min(100, Math.max(0, parseInt(parsed.score) || 50)),
-                rekomendasi: parsed.rekomendasi || '-',
-                fileName: file.name
-            };
-        } catch (err) {
-            return null;
+        async function extractDocx(file) {
+            const res = await mammoth.extractRawText({arrayBuffer: await file.arrayBuffer()});
+            return res.value;
         }
-    }
 
-    // Concurrent processing (batch 2)
-    async function runConcurrent(files, jd, onProgress) {
-        const results = [];
-        let next = 0, active = 0;
-        let cancelled = false;
-        return new Promise((resolve) => {
-            const worker = async () => {
-                while (next < files.length && !cancelled) {
-                    const idx = next++;
-                    const file = files[idx];
-                    active++;
-                    onProgress(idx+1, files.length, file.name);
-                    const res = await processOneCV(file, jd);
-                    if (res) results.push(res);
-                    active--;
-                    worker();
-                }
-                if (active === 0 && next >= files.length) resolve(results);
-            };
-            for (let i=0; i<Math.min(2, files.length); i++) worker();
-        });
-    }
+        function renderRow(d) {
+            const scoreColor = d.score >= 80 ? 'text-emerald-600 bg-emerald-50' : (d.score >= 60 ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50');
+            const recColor = d.rekomendasi.includes("TIDAK") ? 'text-rose-700 bg-rose-100' : 'text-emerald-700 bg-emerald-100';
+            
+            const html = `
+                <tr class="hover:bg-slate-50 transition-all">
+                    <td class="p-4 border-r">
+                        <div class="font-bold text-slate-900">${d.name}</div>
+                        <div class="text-[10px] text-slate-500">${d.hp}</div>
+                        <div class="text-[10px] text-slate-400">${d.email}</div>
+                    </td>
+                    <td class="p-4 border-r text-center font-bold">${d.usia}</td>
+                    <td class="p-4 border-r">
+                        <div class="font-semibold">${d.domisili}</div>
+                        <div class="text-[10px] text-slate-500 mt-1 italic">${d.pendidikan}</div>
+                    </td>
+                    <td class="p-4 border-r leading-relaxed whitespace-pre-line">${d.pengalaman}</td>
+                    <td class="p-4 border-r italic text-slate-600 leading-snug">${d.catatan}</td>
+                    <td class="p-4 border-r text-center">
+                        <span class="px-3 py-1 rounded-full font-bold text-[10px] uppercase ${recColor}">${d.rekomendasi}</span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <span class="px-2 py-1 rounded font-black ${scoreColor}">${d.score}%</span>
+                    </td>
+                </tr>`;
+            document.getElementById('resultTable').insertAdjacentHTML('beforeend', html);
+        }
 
-    // Render tabel
-    function renderResults(data) {
-        emptyStateDiv.classList.toggle('hidden', data.length > 0);
-        if (!data.length) { resultBody.innerHTML = ''; return; }
-        resultBody.innerHTML = data.map(c => {
-            const scoreColor = c.score >= 75 ? 'text-emerald-600 bg-emerald-50' : (c.score >= 55 ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50');
-            const recBg = c.score >= 75 ? 'bg-emerald-100 text-emerald-800' : (c.score >= 55 ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800');
-            return `<tr class="hover:bg-slate-50 border-b border-slate-100">
-                <td class="p-4 align-top">
-                    <div class="font-bold text-slate-800">${escapeHtml(c.name)}</div>
-                    <div class="text-[11px] text-blue-600 mt-0.5">${escapeHtml(c.hp)}</div>
-                    <div class="text-[11px] text-slate-500">${escapeHtml(c.email)}</div>
-                </td>
-                <td class="p-4 text-center align-top font-medium">${c.usia}</td>
-                <td class="p-4 align-top">
-                    <div>${escapeHtml(c.domisili)}</div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(c.pendidikan)} ${escapeHtml(c.jurusan)}</div>
-                </td>
-                <td class="p-4 text-[12px] align-top leading-relaxed">${escapeHtml(c.pengalaman).substring(0, 200)}${escapeHtml(c.pengalaman).length > 200 ? '…' : ''}</td>
-                <td class="p-4 text-[11px] italic text-slate-600 align-top">${escapeHtml(c.catatan)}</td>
-                <td class="p-4 text-center align-top"><span class="px-2 py-1 rounded-full font-black text-sm ${scoreColor}">${c.score}%</span></td>
-                <td class="p-4 align-top"><span class="inline-block px-2 py-1 rounded-full text-[11px] font-bold ${recBg}">${escapeHtml(c.rekomendasi)}</span></td>
-            </tr>`;
-        }).join('');
-    }
+        function updateProgress(c, t, l) {
+            const p = (c/t)*100;
+            document.getElementById('progressBar').style.width = p+'%';
+            document.getElementById('progressText').innerText = `${c}/${t}`;
+            document.getElementById('statusLabel').innerText = l;
+        }
 
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-
-    // Main audit
-    runBtn.onclick = async () => {
-        const jd = jobDescEl.value.trim();
-        if (!jd) { showToast('Isi Job Description terlebih dahulu', 'error'); return; }
-        if (selectedFiles.length === 0) { showToast('Pilih minimal 1 CV', 'error'); return; }
-        if (isProcessing) return;
-        isProcessing = true;
-        cancelFlag = false;
-        allResults = [];
-        progressArea.classList.remove('hidden');
-        runBtn.disabled = true;
-        exportBtn.disabled = true;
-
-        const updateProgress = (done, total, fname) => {
-            const percent = (done / total) * 100;
-            progressFill.style.width = percent + '%';
-            progressCount.innerText = `${done}/${total}`;
-            currentFileSpan.innerText = fname;
-            progressLabel.innerText = `${Math.round(percent)}%`;
-        };
-        const results = await runConcurrent(selectedFiles, jd, updateProgress);
-        if (!cancelFlag) allResults = results.sort((a,b) => b.score - a.score);
-        else allResults = [];
-        renderResults(allResults);
-        progressArea.classList.add('hidden');
-        isProcessing = false;
-        runBtn.disabled = false;
-        exportBtn.disabled = allResults.length === 0;
-        if (cancelFlag) showToast('Proses dibatalkan', 'info');
-        else if (allResults.length) showToast(`Selesai! ${allResults.length} CV diproses`, 'success');
-        else showToast('Tidak ada hasil (error format)', 'error');
-    };
-
-    // Export Excel (format sesuai contoh)
-    exportBtn.onclick = () => {
-        if (!allResults.length) { showToast('Tidak ada data', 'error'); return; }
-        const excelData = allResults.map(r => ({
-            'Nama & Kontak': `${r.name}\n${r.hp}\n${r.email}`,
-            'Usia (2026)': r.usia,
-            'Domisili & Edukasi': `${r.domisili}\n${r.pendidikan} ${r.jurusan}`,
-            'Pengalaman Relevan': r.pengalaman,
-            'Catatan Kritis (Skeptis)': r.catatan,
-            'Score': `${r.score}%`,
-            'Rekomendasi': r.rekomendasi
-        }));
-        const ws = XLSX.utils.json_to_sheet(excelData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Hasil Audit Site Coordinator');
-        XLSX.writeFile(wb, `CV_Audit_SC_${new Date().toISOString().slice(0,19)}.xlsx`);
-        showToast('Download Excel sukses', 'success');
-    };
-
-    // Demo Data (contoh seperti yang diberikan)
-    demoBtn.onclick = () => {
-        allResults = [
-            { name: 'DANIEL HAMONANGAN SI LALAHI', hp: '085781321082', email: 'Dansilalahi12@gmail.com', usia: 27, domisili: 'Batam', pendidikan: 'S1', jurusan: 'TEKNIK SIPIL', pengalaman: 'Project Office, PT.SENTOSA INDAH PERMAI (Jan 2020 - Feb 2022); Project Office, PT.ANUGRAH DHARMA SENTOSA (Feb 2022 - Apr 2026)', catatan: '⚠️ Kurang pengalaman sebagai Site Coordinator atau posisi serupa di industri konstruksi atau developer & real estate. Tidak memiliki pengalaman langsung di developer/property.', score: 80, rekomendasi: 'Tidak disarankan karena kurang pengalaman di property/developer.' },
-            { name: 'Hardipa Yosdi', hp: '081230815848', email: 'hardipa215@gmail.com', usia: 28, domisili: 'Denpasar', pendidikan: 'S1', jurusan: 'TEKNIK SIPIL', pengalaman: 'Project Manager di PT Park Poseidon Development (2024-2026); Project Manager di CV Eka Cipta Guna (2023-2024); Project Manager di PT Harafiel Tri Jaya (2022-2023); Project Manager di PT Mitra Eclat Gunung Arta (2021-2022)', catatan: '✅ Memiliki pengalaman sebagai Project Manager di developer, namun belum spesifik sebagai Site Coordinator. Pengalaman manajerial cukup kuat.', score: 90, rekomendasi: 'Direkomendasikan, dapat dijadikan Site Coordinator dengan penyesuaian peran.' },
-            { name: 'NOOREVA VIOREL MUHAMMAD', hp: '+6281806061196', email: 'revaviorel2@gmail.com', usia: 28, domisili: 'Bogor', pendidikan: 'S1', jurusan: 'TEKNIK SIPIL LINGKUNGAN', pengalaman: 'Supervisor Project Developer Real Estate, PT Alfa Bumindo Cemerlang; Pengawas Lapang Kontraktor PT Sirkel Utama; Engineer Irigasi BBWS Bengawan Solo; Konsultan Pengawas Proyek Nippon Koei', catatan: '⚠️ Tidak memiliki pengalaman langsung sebagai Site Coordinator, tapi memiliki pengalaman sebagai Supervisor Project Developer dan Pengawas Lapang. Domain relevan.', score: 80, rekomendasi: 'Dipertimbangkan dengan masa orientasi singkat.' },
-            { name: 'MUHAMMAD ZIKRY', hp: '0812-7733-4536', email: 'muhammadzikrydumai@gmail.com', usia: 26, domisili: 'Dumai', pendidikan: 'S1', jurusan: 'TEKNIK SIPIL', pengalaman: 'Site Supervisor & Quality Control, Site Manager, Head of Special Project Manager, Projects Manager, Supervisor (berbagai kontraktor).', catatan: '✅ Pengalaman lapangan yang luas, namun ada beberapa tanggal tumpang tindih. Relevan dengan konstruksi.', score: 90, rekomendasi: 'Direkomendasikan, namun verifikasi referensi dan detail periode.' },
-            { name: 'Ir. Jonathan Charmian Vivaldy, S.T., M.M.', hp: '082167579932', email: 'jonathanchvivaldy@gmail.com', usia: 30, domisili: 'Batam', pendidikan: 'S1', jurusan: 'TEKNIK SIPIL', pengalaman: 'Engineering Officer, Engineer, Site Manager, Project Engineer, Quantity Surveyor di berbagai grup (Musim Mas, MBJ, Panbil, EkamasMandiri, Tunas).', catatan: '⚠️ Belum memiliki pengalaman yang panjang di posisi Site Coordinator pada developer, meskipun memiliki pengalaman teknis yang baik.', score: 85, rekomendasi: 'Dipertimbangkan untuk peran Site Coordinator dengan pendampingan senior.' }
-        ];
-        renderResults(allResults);
-        emptyStateDiv.classList.add('hidden');
-        exportBtn.disabled = false;
-        showToast('Data demo dimuat (5 kandidat)', 'success');
-    };
-
-    clearBtn.onclick = () => {
-        allResults = [];
-        renderResults([]);
-        exportBtn.disabled = true;
-        showToast('Hasil dihapus', 'info');
-    };
-
-    // Initial load JD
-    if (jdText) jobDescEl.value = jdText;
-</script>
+        function downloadExcel() {
+            const worksheet = XLSX.utils.json_to_sheet(allResults);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Kandidat");
+            XLSX.writeFile(workbook, "Review_Kandidat_Rexvin_2026.xlsx");
+        }
+    </script>
 </body>
 </html>
