@@ -3,96 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV Matcher Pro - Rexvin Edition</title>
+    <title>Rexvin CV Screener - Strategic Reviewer 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans">
+<body class="bg-[#f8fafc] min-h-screen antialiased text-slate-900">
 
-    <div class="max-w-7xl mx-auto p-4 md:p-8">
+    <div class="max-w-[1600px] mx-auto p-4 md:p-6">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 gap-4">
             <div>
-                <h1 class="text-2xl font-black text-slate-800">CV <span class="text-blue-600">MATCHER PRO</span></h1>
-                <p class="text-slate-500 text-sm">Sistem Skrining Batching & Audit Teks</p>
+                <h1 class="text-xl font-black tracking-tight flex items-center">
+                    <span class="bg-blue-600 text-white px-2 py-1 rounded mr-2">REXVIN</span> 
+                    CV STRATEGIC REVIEWER <span class="ml-2 text-blue-600 font-normal">v3.0</span>
+                </h1>
+                <p class="text-slate-500 text-xs mt-1 uppercase tracking-widest font-semibold">Mode Intelektual: Skeptis & Akurat (Project 2026)</p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="exportToCSV()" id="btnExport" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition">
-                    Download CSV (.csv)
+            <div class="flex gap-3 w-full md:w-auto">
+                <button onclick="exportToCSV()" id="btnExport" class="hidden w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-100 flex items-center justify-center">
+                    Download CSV Report
                 </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Sidebar Konfigurasi -->
-            <div class="lg:col-span-4 space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-slate-800 mb-4 uppercase text-xs tracking-widest">Configuration</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Sidebar: Konfigurasi (Sticky) -->
+            <div class="lg:col-span-3 space-y-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 sticky top-6">
+                    <h3 class="font-bold text-slate-800 mb-4 uppercase text-[10px] tracking-[0.2em] flex items-center border-b pb-2">
+                        System Configuration
+                    </h3>
                     
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">GROQ API KEY</label>
-                            <input type="password" id="apiKey" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="gsk_...">
+                            <label class="block text-[10px] font-bold text-slate-400 mb-1">GROQ API KEY</label>
+                            <input type="password" id="apiKey" class="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs" placeholder="gsk_...">
                         </div>
                         
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">JOB DESCRIPTION</label>
-                            <textarea id="jobDesc" rows="6" class="w-full p-3 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan kriteria rekrutmen..."></textarea>
+                            <label class="block text-[10px] font-bold text-slate-400 mb-1">JOB DESCRIPTION (JD)</label>
+                            <textarea id="jobDesc" rows="10" class="w-full p-3 bg-slate-50 border rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed" placeholder="Masukkan JD lengkap. Tekankan kata 'WAJIB' untuk kriteria krusial."></textarea>
                         </div>
 
-                        <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                            <h4 class="text-xs font-bold text-blue-700 mb-2 uppercase">Batch Settings (Auto)</h4>
-                            <p class="text-[10px] text-blue-600 leading-relaxed">
-                                • 5 CV per Batch<br>
-                                • 10 Detik Jeda antar Batch<br>
-                                • Mencegah Rate Limit Groq & Browser Crash
+                        <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                            <p class="text-[10px] text-blue-700 leading-tight">
+                                <strong>💡 Pro Tip:</strong> AI akan memberikan penalti skor drastis jika syarat "WAJIB" di JD tidak ditemukan di CV.
                             </p>
                         </div>
 
                         <div>
                             <input type="file" id="fileInput" multiple accept=".pdf,.docx" class="hidden">
-                            <label for="fileInput" class="block w-full text-center cursor-pointer bg-slate-100 hover:bg-slate-200 border-2 border-dashed border-slate-300 p-6 rounded-xl transition">
-                                <span class="block text-sm font-bold text-slate-700">Upload CV Masal</span>
-                                <span id="fileCount" class="text-xs text-slate-500 italic mt-1">Belum ada file dipilih</span>
+                            <label for="fileInput" class="block w-full text-center cursor-pointer bg-slate-50 hover:bg-blue-50 border-2 border-dashed border-slate-200 p-4 rounded-xl transition group">
+                                <span class="block text-xs font-bold text-slate-700 group-hover:text-blue-600">Pilih File CV</span>
+                                <span id="fileCount" class="text-[10px] text-slate-400 mt-1">PDF atau DOCX</span>
                             </label>
                         </div>
 
-                        <button onclick="startBatchProcessing()" id="btnRun" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-lg shadow-blue-100 transition duration-300 transform active:scale-95">
-                            JALANKAN SCANNER
+                        <button onclick="startBatchProcessing()" id="btnRun" class="w-full bg-slate-900 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-95 text-sm">
+                            MULAI ANALISA STRATEGIS
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Monitoring & Hasil -->
-            <div class="lg:col-span-8 space-y-6">
-                <!-- Status Progress -->
-                <div id="progressBox" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <!-- Main: Tabel Review -->
+            <div class="lg:col-span-9 space-y-4">
+                <!-- Progress Bar -->
+                <div id="progressBox" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
                     <div class="flex justify-between items-center mb-2">
-                        <span id="statusLabel" class="text-sm font-bold text-blue-700 uppercase italic">Processing...</span>
-                        <span id="progressText" class="text-sm font-mono font-bold">0 / 0</span>
+                        <span id="statusLabel" class="text-[10px] font-black text-blue-600 uppercase tracking-tighter italic">Menunggu...</span>
+                        <span id="progressText" class="text-[10px] font-mono font-bold bg-slate-100 px-2 py-0.5 rounded">0 / 0</span>
                     </div>
-                    <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                         <div id="progressBar" class="bg-blue-600 h-full w-0 transition-all duration-500"></div>
                     </div>
                 </div>
 
-                <!-- Table -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden text-sm">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-400 font-bold text-[10px] uppercase">
-                                <th class="p-4 border-b">Kandidat</th>
-                                <th class="p-4 border-b text-center">Score</th>
-                                <th class="p-4 border-b">Analisa Pola</th>
-                                <th class="p-4 border-b">Audit Teks (Raw)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultTable" class="divide-y divide-slate-100">
-                            <!-- Hasil muncul di sini -->
-                        </tbody>
-                    </table>
+                <!-- Table Container -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-400 font-bold text-[10px] uppercase tracking-widest border-b">
+                                    <th class="p-4 w-[200px]">Nama & Kontak</th>
+                                    <th class="p-4 text-center w-[80px]">Usia (2026)</th>
+                                    <th class="p-4 w-[180px]">Domisili & Edukasi</th>
+                                    <th class="p-4">Pengalaman Relevan</th>
+                                    <th class="p-4 w-[250px]">Catatan Kritis (Skeptis)</th>
+                                    <th class="p-4 text-center w-[70px]">Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultTable" class="divide-y divide-slate-100 text-[11px]">
+                                <!-- Data Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="p-20 text-center text-slate-400">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <p class="italic text-sm">Belum ada data. Silahkan unggah CV kandidat.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -100,50 +117,91 @@
 
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-        let allResults = [];
+        let processedResults = [];
 
         async function startBatchProcessing() {
             const apiKey = document.getElementById('apiKey').value;
             const jobDesc = document.getElementById('jobDesc').value;
             const files = Array.from(document.getElementById('fileInput').files);
             
-            if (!apiKey || !jobDesc || files.length === 0) return alert("Lengkapi data!");
+            if (!apiKey || !jobDesc || files.length === 0) return alert("Mohon lengkapi API Key, JD, dan File CV!");
 
-            // UI Reset
-            allResults = [];
+            processedResults = [];
             document.getElementById('resultTable').innerHTML = "";
+            document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('progressBox').classList.remove('hidden');
-            document.getElementById('btnExport').classList.add('hidden');
             document.getElementById('btnRun').disabled = true;
 
             const batchSize = 5;
-            const delay = 10000; // 10 Detik
-
             for (let i = 0; i < files.length; i += batchSize) {
                 const batch = files.slice(i, i + batchSize);
-                updateProgress(i, files.length, `Memproses Batch ${Math.floor(i/batchSize)+1}...`);
+                updateProgress(i, files.length, `Menganalisa Batch ${Math.floor(i/batchSize)+1}...`);
 
                 await Promise.all(batch.map(async (file) => {
                     try {
                         let text = file.name.endsWith('.pdf') ? await extractPDF(file) : await extractDocx(file);
-                        const result = await callGroq(apiKey, jobDesc, text);
-                        renderRow(file.name, result, text.substring(0, 200) + "...");
-                        allResults.push({ name: file.name, ...result });
+                        const cleanText = sanitizeText(text);
+                        
+                        const aiResponse = await callGroq(apiKey, jobDesc, cleanText);
+                        
+                        renderRow(aiResponse);
+                        processedResults.push(aiResponse);
                     } catch (e) {
                         console.error(e);
-                        renderRow(file.name, {score: 0, summary: "Error pada file ini."}, "Gagal baca teks.");
                     }
                 }));
 
                 if (i + batchSize < files.length) {
-                    updateProgress(i + batch.length, files.length, `Menunggu Jeda Batch (10s)...`);
-                    await new Promise(r => setTimeout(r, delay));
+                    updateProgress(i + batch.length, files.length, "Cooling down (Rate Limit)...");
+                    await new Promise(r => setTimeout(r, 8000));
                 }
             }
 
-            updateProgress(files.length, files.length, "Selesai!");
+            updateProgress(files.length, files.length, "Proses Selesai!");
             document.getElementById('btnExport').classList.remove('hidden');
             document.getElementById('btnRun').disabled = false;
+        }
+
+        async function callGroq(key, jd, cv) {
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [
+                            { 
+                                role: "system", 
+                                content: `Anda adalah Head of HR Recruitment yang SKEPTIS. Analisa CV vs JD.
+                                TUGAS:
+                                1. Ekstrak: Nama, Email, HP, Domisili, Edukasi.
+                                2. Hitung perkiraan Usia di tahun 2026.
+                                3. Ringkas Pengalaman Relevan (Gunakan baris baru per posisi).
+                                4. Berikan Catatan Kritis (Gunakan ✅ Kelebihan, ⚠️ Kekurangan/Risiko).
+                                5. ATURAN SKOR: Jika JD minta WAJIB Properti/Developer dan CV tidak punya, skor MAKSIMAL 50.
+                                
+                                Berikan JSON MURNI: 
+                                {"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","pengalaman":"","catatan_kritis":"","score":0}` 
+                            },
+                            { role: "user", content: `JOB DESCRIPTION:\n${jd}\n\nKANDIDAT CV:\n${cv.substring(0, 7000)}` }
+                        ],
+                        response_format: { type: "json_object" }
+                    })
+                });
+                const data = await res.json();
+                const content = data.choices[0].message.content;
+                
+                // Robust JSON Parsing
+                const first = content.indexOf('{');
+                const last = content.lastIndexOf('}');
+                return JSON.parse(content.substring(first, last + 1));
+            } catch (err) {
+                return { name: "Error", catatan_kritis: "Gagal memproses file ini." };
+            }
+        }
+
+        function sanitizeText(str) {
+            return str.replace(/[^\x00-\x7F]/g, "").replace(/\s+/g, " ").trim();
         }
 
         async function extractPDF(file) {
@@ -164,38 +222,30 @@
             return result.value;
         }
 
-        async function callGroq(key, jd, cv) {
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        { role: "system", content: "Analisa CV vs JD. Balas JSON: {\"score\": 0-100, \"summary\": \"max 2 kalimat analisa strategis\"}" },
-                        { role: "user", content: `JD: ${jd}\n\nCV: ${cv.substring(0, 6000)}` }
-                    ],
-                    response_format: { type: "json_object" }
-                })
-            });
-            const data = await res.json();
-            return JSON.parse(data.choices[0].message.content);
-        }
-
-        function renderRow(name, data, audit) {
+        function renderRow(data) {
             const table = document.getElementById('resultTable');
-            const scoreClass = data.score > 80 ? 'bg-emerald-100 text-emerald-700' : (data.score > 50 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700');
+            const scoreClass = data.score >= 80 ? 'bg-emerald-100 text-emerald-800' : (data.score >= 60 ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800');
             
             const row = `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-50">
-                    <td class="p-4 font-bold text-slate-700">${name}</td>
-                    <td class="p-4 text-center">
-                        <span class="px-2 py-1 rounded-md text-xs font-black ${scoreClass}">${data.score}%</span>
-                    </td>
-                    <td class="p-4 text-slate-600 leading-relaxed text-xs">${data.summary}</td>
+                <tr class="hover:bg-slate-50/50 transition-colors">
                     <td class="p-4">
-                        <div class="text-[10px] text-slate-400 bg-slate-50 p-2 rounded border truncate w-40" title="${audit}">
-                            ${audit}
+                        <div class="font-bold text-blue-600 text-xs">${data.name || 'N/A'}</div>
+                        <div class="text-[10px] text-slate-500 mt-0.5">${data.hp || '-'}</div>
+                        <div class="text-[10px] text-slate-400">${data.email || '-'}</div>
+                    </td>
+                    <td class="p-4 text-center font-bold text-slate-700">${data.usia || '-'}</td>
+                    <td class="p-4">
+                        <div class="font-semibold text-slate-700">${data.domisili || '-'}</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">${data.pendidikan || '-'}</div>
+                    </td>
+                    <td class="p-4 text-slate-600 leading-relaxed whitespace-pre-line">${data.pengalaman || '-'}</td>
+                    <td class="p-4">
+                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 text-[10px] leading-normal whitespace-pre-line">
+                            ${data.catatan_kritis || '-'}
                         </div>
+                    </td>
+                    <td class="p-4 text-center">
+                        <span class="px-2 py-1 rounded text-[10px] font-black ring-1 ring-inset ${scoreClass}">${data.score}%</span>
                     </td>
                 </tr>`;
             table.insertAdjacentHTML('beforeend', row);
@@ -209,15 +259,21 @@
         }
 
         function exportToCSV() {
-            let csv = "Nama Kandidat,Score,Analisa\n";
-            allResults.forEach(r => {
-                csv += `"${r.name}","${r.score}%","${r.summary.replace(/"/g, '""')}"\n`;
+            let csv = "\uFEFF"; // BOM for Excel
+            csv += `"Nama","Usia (2026)","Kontak","Domisili","Pendidikan","Pengalaman Relevan","Catatan Kritis","Score"\n`;
+            
+            processedResults.forEach(r => {
+                const safeName = `"${(r.name || '').replace(/"/g, '""')}"`;
+                const safeExp = `"${(r.pengalaman || '').replace(/"/g, '""')}"`;
+                const safeNotes = `"${(r.catatan_kritis || '').replace(/"/g, '""')}"`;
+                csv += `${safeName},"${r.usia}","${r.hp} / ${r.email}","${r.domisili}","${r.pendidikan}",${safeExp},${safeNotes},"${r.score}%"\n`;
             });
-            const blob = new Blob([csv], { type: 'text/csv' });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `Hasil_Skrining_Rexvin_${new Date().getTime()}.csv`);
+            a.href = url;
+            a.download = `Rexvin_Screener_Report.csv`;
             a.click();
         }
 
