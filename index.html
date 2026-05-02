@@ -3,116 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV MATCHER PRO - REXVIN EDITION</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <script src="[https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js](https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js)"></script>
-    <script src="[https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js](https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js)"></script>
-    <script src="[https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js](https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js)"></script>
+    <title>CV MATCHER PRO - STABLE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        @import url('[https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap](https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap)');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .table-container { overflow-x: auto; background: white; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        /* Animasi loading sederhana */
-        .loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+        .table-container { overflow-x: auto; background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div class="max-w-[1600px] mx-auto space-y-6">
-        <!-- Header & Control Panel -->
         <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">CV <span class="text-blue-600">MATCHER</span></h1>
-                    <p class="text-slate-500 text-sm italic">REXVIN STRATEGIC AUDIT SYSTEM</p>
+                    <p class="text-slate-500 text-sm italic">PRO SYSTEM v2026</p>
                 </div>
-                <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
-                    Export to Excel
+                <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-bold transition-all">
+                    Download Excel
                 </button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">API Key Groq</label>
-                        <input type="password" id="apiKey" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="gsk_...">
+                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">API Key Groq</label>
+                        <input type="password" id="apiKey" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="gsk_...">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Upload CV (PDF/DOCX)</label>
-                        <input type="file" id="fileInput" multiple class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Upload CV (PDF/DOCX)</label>
+                        <input type="file" id="fileInput" multiple class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     </div>
                 </div>
                 <div class="md:col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Job Description (Kriteria Audit)</label>
-                    <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm focus:ring-2 focus:ring-blue-500" placeholder="Masukkan detail kriteria jabatan..."></textarea>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Job Description (Kriteria Audit)</label>
+                    <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border rounded-xl outline-none text-sm focus:ring-2 focus:ring-blue-500" placeholder="Kriteria Audit..."></textarea>
                 </div>
             </div>
 
-            <button onclick="processFiles()" id="btnRun" class="mt-6 w-full bg-slate-900 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:bg-slate-300 disabled:cursor-not-allowed">
-                JALANKAN AUDIT KOMPETENSI
+            <button onclick="processFiles()" id="btnRun" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.99] disabled:bg-slate-300">
+                MULAI AUDIT STRATEGIS
             </button>
             
-            <div id="progressBox" class="hidden mt-6 bg-blue-50 p-4 rounded-xl border border-blue-100">
-                <div class="flex justify-between mb-2">
-                    <span id="statusLabel" class="text-xs font-bold text-blue-700 uppercase tracking-wider">Menghubungkan ke Server...</span>
-                    <span id="progressText" class="text-xs font-bold text-blue-700">0/0</span>
-                </div>
-                <div class="w-full bg-blue-200 h-2 rounded-full overflow-hidden">
-                    <div id="progressBar" class="bg-blue-600 h-full w-0 transition-all duration-500"></div>
-                </div>
+            <div id="progressBox" class="hidden mt-6">
+                <div class="flex justify-between mb-2"><span id="statusLabel" class="text-xs font-bold text-blue-600">Menyiapkan...</span><span id="progressText" class="text-xs font-bold">0/0</span></div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div id="progressBar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div></div>
             </div>
         </div>
 
-        <!-- Table Results -->
-        <div class="table-container border border-slate-200 overflow-hidden">
-            <table class="w-full text-left border-collapse min-w-[1200px]">
+        <div class="table-container border border-slate-200">
+            <table class="w-full text-left border-collapse min-w-[1400px]">
                 <thead>
-                    <tr class="bg-slate-900 text-slate-200 text-[10px] uppercase tracking-[0.1em]">
-                        <th class="p-4 font-extrabold w-48">Identitas</th>
-                        <th class="p-4 font-extrabold text-center w-16">Usia</th>
-                        <th class="p-4 font-extrabold w-56">Domisili & Edukasi</th>
-                        <th class="p-4 font-extrabold">Analisa Pengalaman</th>
-                        <th class="p-4 font-extrabold w-64">Catatan Kritis</th>
-                        <th class="p-4 font-extrabold text-center w-32">Rekomendasi</th>
-                        <th class="p-4 font-extrabold text-center w-20">Skor</th>
+                    <tr class="bg-slate-800 text-white text-[11px] uppercase tracking-wider">
+                        <th class="p-4 border-r border-slate-700 w-48">Identitas</th>
+                        <th class="p-4 border-r border-slate-700 text-center w-20">Usia</th>
+                        <th class="p-4 border-r border-slate-700 w-56">Domisili & Pendidikan</th>
+                        <th class="p-4 border-r border-slate-700">Pengalaman & Perusahaan</th>
+                        <th class="p-4 border-r border-slate-700 w-64">Catatan Kritis (DNA Audit)</th>
+                        <th class="p-4 border-r border-slate-700 text-center w-40">Rekomendasi</th>
+                        <th class="p-4 text-center w-20">Score</th>
                     </tr>
                 </thead>
-                <tbody id="resultTable" class="text-[12px] bg-white divide-y divide-slate-100">
-                    <!-- Data masuk di sini -->
-                </tbody>
+                <tbody id="resultTable" class="text-[12px] bg-white divide-y divide-slate-200"></tbody>
             </table>
-            <div id="emptyState" class="p-24 text-center">
-                <div class="text-slate-300 mb-2 italic">Belum ada hasil audit yang ditampilkan</div>
-                <p class="text-slate-400 text-xs">Silakan unggah berkas CV untuk memulai pemindaian otomatis.</p>
-            </div>
+            <div id="emptyState" class="p-20 text-center text-slate-400 italic font-medium">Belum ada data. Silakan upload CV dan klik "Mulai Audit".</div>
         </div>
     </div>
 
     <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '[https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js](https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js)';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
         
         let allResults = [];
 
         async function processFiles() {
             const apiKey = document.getElementById('apiKey').value.trim();
             const jd = document.getElementById('jobDesc').value.trim();
-            const fileInput = document.getElementById('fileInput');
-            const files = Array.from(fileInput.files);
+            const files = Array.from(document.getElementById('fileInput').files);
             
-            if(!apiKey || !jd || files.length === 0) return alert("Lengkapi API Key, Job Desc, dan pilih minimal satu file CV!");
+            if(!apiKey || !jd || files.length === 0) return alert("Lengkapi API Key, Job Desc, dan File!");
 
-            // UI Reset
             allResults = [];
             document.getElementById('resultTable').innerHTML = "";
             document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('progressBox').classList.remove('hidden');
             document.getElementById('btnRun').disabled = true;
-            document.getElementById('btnRun').innerText = "AUDIT SEDANG BERJALAN...";
 
             for (let i = 0; i < files.length; i++) {
-                updateProgress(i, files.length, `Membaca File: ${files[i].name}`);
-                
+                updateProgress(i, files.length, `Sedang Membaca: ${files[i].name}`);
                 try {
                     let text = "";
                     if (files[i].name.toLowerCase().endsWith('.pdf')) {
@@ -121,73 +102,52 @@
                         text = await extractDocx(files[i]);
                     }
 
-                    // Bersihkan teks dari karakter yang merusak JSON
-                    const cleanText = text.replace(/[^\x20-\x7E]/g, ' ').substring(0, 8000);
-
-                    if (cleanText.trim().length > 0) {
-                        updateProgress(i, files.length, `Analisa AI: ${files[i].name}`);
-                        const aiResult = await callGroq(apiKey, jd, cleanText);
-                        
+                    if (text.trim().length > 0) {
+                        updateProgress(i, files.length, `AI Audit: ${files[i].name}`);
+                        const aiResult = await callGroq(apiKey, jd, text);
                         if(aiResult) {
                             allResults.push(aiResult);
                             renderRow(aiResult);
-                            // Scroll otomatis ke hasil terbaru
-                            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                         }
                     }
-                } catch (e) { 
-                    console.error("Error pada file:", files[i].name, e);
-                }
+                } catch (e) { console.error("Error file:", e); }
             }
 
-            updateProgress(files.length, files.length, "Audit Strategis Selesai!");
+            updateProgress(files.length, files.length, "Audit Selesai!");
             document.getElementById('btnRun').disabled = false;
-            document.getElementById('btnRun').innerText = "MULAI AUDIT STRATEGIS";
             if(allResults.length > 0) document.getElementById('btnDownload').classList.remove('hidden');
         }
 
         async function callGroq(key, jd, cv) {
             try {
-                const response = await fetch("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
                         messages: [
-                            { 
-                                role: "system", 
-                                content: `Anda adalah Senior HR Auditor Rexvin Group. Ekstrak data CV dan bandingkan secara skeptis dengan JD. Berikan JSON murni. Format: {"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","jurusan":"","pengalaman":"","catatan":"","rekomendasi":"","score":0}` 
-                            },
-                            { role: "user", content: `JD:\n${jd}\n\nCV:\n${cv}` }
+                            { role: "system", content: "Ekstrak CV ke JSON. Format: {\"name\":\"\",\"usia\":\"\",\"hp\":\"\",\"email\":\"\",\"domisili\":\"\",\"pendidikan\":\"\",\"jurusan\":\"\",\"pengalaman\":\"\",\"catatan\":\"\",\"rekomendasi\":\"\",\"score\":0}" },
+                            { role: "user", content: `JD:\n${jd}\n\nCV:\n${cv.substring(0, 7000)}` }
                         ],
-                        temperature: 0.1, // Rendah agar konsisten
+                        temperature: 0.1,
                         response_format: { type: "json_object" }
                     })
                 });
-
                 const data = await response.json();
-                let rawContent = data.choices[0].message.content;
-                
-                // SANITASI: Menghapus markdown jika AI bandel menyertakannya
-                rawContent = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
-                
-                return JSON.parse(rawContent);
-            } catch (err) {
-                console.error("Gagal Parse/Fetch:", err);
-                return null;
-            }
+                return JSON.parse(data.choices[0].message.content);
+            } catch (err) { return null; }
         }
 
         async function extractPDF(file) {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-            let text = "";
+            let fullText = "";
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const content = await page.getTextContent();
-                text += content.items.map(s => s.str).join(" ") + " ";
+                fullText += content.items.map(s => s.str).join(" ") + " ";
             }
-            return text;
+            return fullText;
         }
 
         async function extractDocx(file) {
@@ -197,31 +157,29 @@
         }
 
         function renderRow(d) {
-            const tbody = document.getElementById('resultTable');
             const scoreColor = d.score >= 80 ? 'text-emerald-600 bg-emerald-50' : (d.score >= 60 ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50');
-            const recColor = d.score >= 65 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
-
-            const row = document.createElement('tr');
-            row.className = "hover:bg-slate-50 transition-all border-b border-slate-100";
-            row.innerHTML = `
-                <td class="p-4">
-                    <div class="font-bold text-slate-800 uppercase tracking-tight">${d.name || 'N/A'}</div>
-                    <div class="text-[10px] text-blue-600 font-bold mt-1">${d.hp || '-'}</div>
-                    <div class="text-[10px] text-slate-400 truncate w-40">${d.email || '-'}</div>
-                </td>
-                <td class="p-4 text-center font-bold text-slate-600">${d.usia || '-'}</td>
-                <td class="p-4">
-                    <div class="font-semibold text-slate-700">${d.domisili || '-'}</div>
-                    <div class="text-[10px] text-slate-400 font-bold uppercase">${d.pendidikan || '-'} / ${d.jurusan || '-'}</div>
-                </td>
-                <td class="p-4 text-[11px] leading-relaxed text-slate-600">${d.pengalaman || '-'}</td>
-                <td class="p-4 italic text-slate-500 font-medium text-[11px]">${d.catatan || '-'}</td>
-                <td class="p-4 text-center">
-                    <span class="px-3 py-1 rounded-full font-extrabold text-[9px] uppercase ${recColor}">${d.rekomendasi || '-'}</span>
-                </td>
-                <td class="p-4 text-center font-black text-sm ${scoreColor}">${d.score || 0}%</td>
-            `;
-            tbody.appendChild(row);
+            const recColor = d.score >= 65 ? 'text-emerald-700 bg-emerald-100' : 'text-rose-700 bg-rose-100';
+            
+            const html = `
+                <tr class="hover:bg-slate-50 transition-all border-b border-slate-100">
+                    <td class="p-4 border-r border-slate-100">
+                        <div class="font-bold text-slate-800">${d.name || '-'}</div>
+                        <div class="text-[10px] text-blue-600 font-bold uppercase mt-1">${d.hp || '-'}</div>
+                        <div class="text-[10px] text-slate-400">${d.email || '-'}</div>
+                    </td>
+                    <td class="p-4 border-r border-slate-100 text-center font-bold text-slate-700">${d.usia || '-'}</td>
+                    <td class="p-4 border-r border-slate-100">
+                        <div class="font-semibold text-slate-700">${d.domisili || '-'}</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase">${d.pendidikan || '-'} / ${d.jurusan || '-'}</div>
+                    </td>
+                    <td class="p-4 border-r border-slate-100 text-[11px] leading-relaxed text-slate-600">${d.pengalaman || '-'}</td>
+                    <td class="p-4 border-r border-slate-100 italic text-slate-500 font-medium">${d.catatan || '-'}</td>
+                    <td class="p-4 border-r border-slate-100 text-center">
+                        <span class="px-3 py-1 rounded-full font-bold text-[10px] uppercase ${recColor}">${d.rekomendasi || '-'}</span>
+                    </td>
+                    <td class="p-4 text-center font-black text-sm ${scoreColor}">${d.score || 0}%</td>
+                </tr>`;
+            document.getElementById('resultTable').insertAdjacentHTML('beforeend', html);
         }
 
         function updateProgress(c, t, l) {
@@ -232,10 +190,10 @@
         }
 
         function downloadExcel() {
-            const ws = XLSX.utils.json_to_sheet(allResults);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Audit Result");
-            XLSX.writeFile(wb, `Rexvin_Audit_${new Date().getTime()}.xlsx`);
+            const worksheet = XLSX.utils.json_to_sheet(allResults);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Hasil Audit");
+            XLSX.writeFile(workbook, "Audit_Rexvin.xlsx");
         }
     </script>
 </body>
