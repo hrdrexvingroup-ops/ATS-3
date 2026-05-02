@@ -34,7 +34,11 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">API Key Groq</label>
-                        <input type="password" id="apiKey" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="gsk_...">
+                        <div class="flex gap-2">
+                            <input type="password" id="apiKey" class="flex-1 p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="gsk_...">
+                            <button onclick="testApiConnection()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs transition">TEST</button>
+                        </div>
+                        <p id="apiStatus" class="text-[11px] text-slate-400 mt-1">Kosong - silakan masukkan API key</p>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Upload CV (PDF/DOCX)</label>
@@ -82,12 +86,122 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
         let allResults = [];
+        let debugLogs = [];
+
+        // Load API key from localStorage on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedKey = localStorage.getItem('groq_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+                updateApiStatus('✅ Loaded from browser storage');
+            }
+        });
+
+        function updateApiStatus(msg) {
+            document.getElementById('apiStatus').innerText = msg;
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKey').value;
+            if (key.trim()) {
+                localStorage.setItem('groq_api_key', key);
+                updateApiStatus('✅ Tersimpan di browser (Auto-save)');
+                addDebugLog('✅ API Key tersimpan di Local Storage');
+            }
+        }
+
+        function addDebugLog(message) {
+            const timestamp = new Date().toLocaleTimeString('id-ID');
+            debugLogs.push(`[${timestamp}] ${message}`);
+            console.log(message);
+            showDebugPanel();
+        }
+
+        function showDebugPanel() {
+            let debugPanel = document.getElementById('debugPanel');
+            if (!debugPanel) {
+                debugPanel = document.createElement('div');
+                debugPanel.id = 'debugPanel';
+                debugPanel.className = 'fixed bottom-0 right-0 w-96 bg-slate-900 text-white p-4 rounded-tl-xl shadow-2xl text-xs font-mono max-h-72 overflow-y-auto z-50 border-l-4 border-t-4 border-blue-500';
+                document.body.appendChild(debugPanel);
+            }
+            debugPanel.innerHTML = `<div class="text-xs text-blue-300 font-bold mb-3 sticky top-0 bg-slate-900">🔍 DEBUG LOG:</div>` + 
+                debugLogs.slice(-20).map(l => `<div class="mb-1">${l}</div>`).join('');
+        }
+
+        async function testApiConnection() {
+            const apiKey = document.getElementById('apiKey').value;
+            if (!apiKey) {
+                updateApiStatus('❌ API Key kosong!');
+                addDebugLog('❌ API Key kosong - masukkan terlebih dahulu');
+                return alert('Masukkan API Key terlebih dahulu');
+            }
+
+            updateApiStatus('🔄 Menguji koneksi...');
+            addDebugLog('🔄 Testing API connection to Groq...');
+            
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { 
+                        "Authorization": `Bearer ${apiKey}`, 
+                        "Content-Type": "application/json" 
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [
+                            { role: "user", content: "Say 'OK' only" }
+                        ],
+                        max_tokens: 10
+                    })
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    const errorMsg = errorData.error?.message || `HTTP ${res.status}`;
+                    updateApiStatus(`❌ API Error: ${errorMsg}`);
+                    addDebugLog(`❌ API Error ${res.status}: ${errorMsg}`);
+                    return alert(`API Error: ${errorMsg}`);
+                }
+
+                const data = await res.json();
+                updateApiStatus('✅ Koneksi berhasil! API siap digunakan');
+                addDebugLog('✅ API Connection SUCCESS! Groq llama-3.3-70b-versatile ready.');
+                saveApiKey();
+                alert('✅ API Connection berhasil!\n\nAPI Key Anda tersimpan di browser.');
+            } catch (e) {
+                updateApiStatus(`❌ Error: ${e.message}`);
+                addDebugLog(`❌ Connection Error: ${e.message}`);
+                alert(`Connection Error: ${e.message}\n\nPastikan:\n1. API Key valid\n2. Internet connection stabil\n3. Groq API tidak sedang down`);
+            }
+        }
 
         async function processFiles() {
             const apiKey = document.getElementById('apiKey').value;
             const jd = document.getElementById('jobDesc').value;
             const files = Array.from(document.getElementById('fileInput').files);
-            if(!apiKey || !jd || files.length === 0) return alert("Lengkapi data!");
+            
+            addDebugLog('═══════════════════════════════════');
+            addDebugLog('📋 MEMVALIDASI INPUT...');
+            
+            if(!apiKey) {
+                addDebugLog('❌ API Key kosong!');
+                return alert("❌ API Key tidak boleh kosong!");
+            }
+            if(!jd) {
+                addDebugLog('❌ Job Description kosong!');
+                return alert("❌ Job Description tidak boleh kosong!");
+            }
+            if(files.length === 0) {
+                addDebugLog('❌ Tidak ada CV file!');
+                return alert("❌ Upload minimal 1 CV file!");
+            }
+
+            saveApiKey();
+            addDebugLog(`✅ Input valid!`);
+            addDebugLog(`✅ JD: ${jd.substring(0, 80)}...`);
+            addDebugLog(`✅ Files: ${files.map(f => f.name).join(', ')}`);
+            addDebugLog(`═══════════════════════════════════`);
 
             allResults = [];
             document.getElementById('resultTable').innerHTML = "";
@@ -96,35 +210,62 @@
             document.getElementById('btnRun').disabled = true;
 
             for (let i = 0; i < files.length; i++) {
-                updateProgress(i, files.length, `Menganalisa: ${files[i].name}`);
+                const fileName = files[i].name;
+                updateProgress(i, files.length, `Menganalisa: ${fileName}`);
+                addDebugLog(`📄 [${i+1}/${files.length}] Processing: ${fileName}`);
+                
                 try {
+                    addDebugLog(`  ├─ Extracting text...`);
                     const text = files[i].name.endsWith('.pdf') ? await extractPDF(files[i]) : await extractDocx(files[i]);
                     const cleanText = text.replace(/[^\x00-\x7F]/g, "").replace(/\s+/g, " ").trim();
-                    const aiResult = await callGroq(apiKey, jd, cleanText);
+                    addDebugLog(`  ├─ ✅ Text extracted: ${cleanText.length} chars`);
+                    
+                    addDebugLog(`  ├─ Calling Groq API (llama-3.3-70b-versatile)...`);
+                    const aiResult = await callGroq(apiKey, jd, cleanText, fileName);
+                    
+                    if (!aiResult.name) {
+                        throw new Error('Invalid response - missing name field');
+                    }
                     
                     allResults.push(aiResult);
                     renderRow(aiResult);
-                } catch (e) { console.error(e); }
-                if (i % 3 === 0 && i > 0) await new Promise(r => setTimeout(r, 3000));
+                    addDebugLog(`  ├─ ✅ ANALYZED: ${aiResult.name} | Score: ${aiResult.score}% | ${aiResult.rekomendasi}`);
+                    addDebugLog(`  └─ Complete`);
+                } catch (e) { 
+                    addDebugLog(`  ├─ ❌ ERROR: ${e.message}`);
+                    addDebugLog(`  └─ Skipping file...`);
+                    console.error(e);
+                }
+                if (i % 3 === 0 && i > 0) {
+                    addDebugLog(`  ⏳ Rate limit pause (3 detik)...`);
+                    await new Promise(r => setTimeout(r, 3000));
+                }
             }
 
             updateProgress(files.length, files.length, "Selesai!");
+            addDebugLog(`═══════════════════════════════════`);
+            addDebugLog(`🎉 SELESAI! Total: ${allResults.length} candidate(s)`);
+            addDebugLog(`═══════════════════════════════════`);
             document.getElementById('btnRun').disabled = false;
             document.getElementById('btnDownload').classList.remove('hidden');
         }
 
-        async function callGroq(key, jd, cv) {
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        { role: "system", content: `Anda adalah Senior HR Recruitment Auditor dengan expertise mendalam di talent assessment & JD matching.
+        async function callGroq(key, jd, cv, fileName) {
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { 
+                        "Authorization": `Bearer ${key}`, 
+                        "Content-Type": "application/json" 
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [
+                            { role: "system", content: `Anda adalah Senior HR Recruitment Auditor dengan expertise mendalam di talent assessment & JD matching.
 
 TUGAS UTAMA:
 1. ANALISIS MENDALAM CV terhadap JD dengan strict requirement matching
-2. IDENTIFIKASI REQUIREMENT WAJIB dari JD (keywords: WAJIB, MUST HAVE, CRITICAL, MINIMUM)
+2. IDENTIFIKASI REQUIREMENT WAJIB dari JD (keywords: WAJIB, HARUS, MUST HAVE, CRITICAL, MINIMUM)
 3. VERIFIKASI setiap requirement di CV dengan detail & evidence konkret
 4. HITUNG RELEVANCE SCORE berdasarkan gap analysis
 
@@ -132,19 +273,13 @@ METODOLOGI EVALUASI:
 ======================
 
 **TAHAP 1: EKSTRAKSI DATA PERSONAL**
-- Nama lengkap, HP, Email
-- Hitung USIA di tahun 2026 (dari birth date di CV)
+- Nama lengkap, HP, Email (jika ada)
+- Hitung USIA di tahun 2026 (dari birth date di CV, atau estimasi dari pengalaman kerja)
 - Domisili & lokasi kerja terakhir
 - Pendidikan tertinggi & institusi
 
 **TAHAP 2: PARSING REQUIREMENT WAJIB**
 Baca JD dengan sangat teliti. Identifikasi SEMUA requirement yang mark sebagai WAJIB/HARUS/CRITICAL/MINIMUM.
-Contoh kategori:
-- Pengalaman minimal (tahun & industri)
-- Skills teknis/soft skills spesifik
-- Sertifikasi/lisensi
-- Lokasi/mobilitas
-- Background industri (Property, Developer, Mining, etc)
 
 **TAHAP 3: DEEP CV ANALYSIS**
 Untuk SETIAP requirement wajib:
@@ -152,8 +287,6 @@ Untuk SETIAP requirement wajib:
   ✓ Analisis RELEVANCE (100% match, partial, tidak ada)
   ✓ Validasi DURATION (if X tahun diperlukan, cek apakah ≥ X tahun)
   ✓ Catat EXACT EVIDENCE dari CV
-
-Jangan hanya lihat keywords; baca KONTEKS & DEPTH pengalaman.
 
 **TAHAP 4: SCORING LOGIC**
 Base: 0%
@@ -172,29 +305,21 @@ FINAL SCORE RULES:
 **TAHAP 5: OUTPUT CRITICAL NOTES**
 - List SEMUA requirement WAJIB yang tidak/partial dipenuhi
 - Identifikasi STRENGTH terbesar kandidat
-- Flag RISK atau CONCERN jika ada
-- Saran improvement jika applicable
 
-OUTPUT FORMAT (STRICT JSON):
+OUTPUT FORMAT (HANYA JSON, TANPA PREAMBLE):
 {
   "name": "Full Name",
   "usia": "XX",
-  "hp": "+62...",
-  "email": "...@...",
+  "hp": "Phone or -",
+  "email": "Email or -",
   "domisili": "Kota, Region",
   "pendidikan": "S1/S2 Program, University (Year)",
-  "pengalaman": "KONKRIT description dengan company, job title, duration, relevance. Contoh: 'PT ABC (2020-2023): Developer Senior - 3 tahun develop sistem property management, coding Python/JavaScript. PT XYZ (2018-2020): Junior Dev - fokus backend API'",
-  "catatan": "CRITICAL FINDINGS - list requirement WAJIB yang missing/partial. Contoh: '❌ Pengalaman Property/Developer < 2 tahun (hanya 1.5 tahun). ⚠️ JavaScript ok tapi SQL minimal. ✅ Leadership proven di PT ABC'",
-  "rekomendasi": "SANGAT DISARANKAN" atau "DISARANKAN" atau "PERTIMBANGAN" atau "TIDAK DISARANKAN",
-  "score": 75
-}
-
-VALIDASI OUTPUT:
-- Score HARUS koherent dengan rekomendasi
-- Catatan harus DETAIL & SPECIFIC dengan evidence
-- Jangan generic; every statement harus backed by CV data
-- JANGAN overstate score - tetap konservatif & strict` },
-                        { role: "user", content: `JD REQUIREMENT:
+  "pengalaman": "Job history dengan company, title, duration, relevance ke JD",
+  "catatan": "Critical findings - list requirement WAJIB yang missing/partial dengan bukti dari CV",
+  "rekomendasi": "SANGAT DISARANKAN / DISARANKAN / PERTIMBANGAN / TIDAK DISARANKAN",
+  "score": 0
+}` },
+                            { role: "user", content: `JD REQUIREMENT:
 =================
 ${jd}
 
@@ -202,15 +327,50 @@ CV CANDIDATE:
 =================
 ${cv.substring(0, 9000)}
 
-LAKUKAN ANALISIS MENDALAM dengan metodologi di atas. Output HANYA JSON valid, tanpa preamble atau markdown.` }
-                    ],
-                    response_format: { type: "json_object" },
-                    temperature: 0.5,
-                    max_tokens: 1500
-                })
-            });
-            const data = await res.json();
-            return JSON.parse(data.choices[0].message.content);
+ANALISIS MENDALAM & OUTPUT JSON SAJA!` }
+                        ],
+                        response_format: { type: "json_object" },
+                        temperature: 0.5,
+                        max_tokens: 1500
+                    })
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    const errorMsg = errorData.error?.message || `HTTP ${res.status}`;
+                    throw new Error(`Groq API Error: ${errorMsg}`);
+                }
+
+                const data = await res.json();
+                const responseText = data.choices[0].message.content;
+                
+                // Parse JSON dengan error handling
+                let parsed;
+                try {
+                    parsed = JSON.parse(responseText);
+                } catch (e) {
+                    // Coba clean up markdown backticks jika ada
+                    const cleanJson = responseText.replace(/```json|```/g, '').trim();
+                    parsed = JSON.parse(cleanJson);
+                }
+
+                // Validasi minimal fields
+                if (!parsed.name) parsed.name = 'Unknown';
+                if (!parsed.score) parsed.score = 0;
+                if (!parsed.rekomendasi) parsed.rekomendasi = 'PERTIMBANGAN';
+                if (!parsed.catatan) parsed.catatan = 'No notes';
+                if (!parsed.pengalaman) parsed.pengalaman = 'No experience listed';
+                if (!parsed.usia) parsed.usia = '-';
+                if (!parsed.hp) parsed.hp = '-';
+                if (!parsed.email) parsed.email = '-';
+                if (!parsed.domisili) parsed.domisili = '-';
+                if (!parsed.pendidikan) parsed.pendidikan = '-';
+
+                return parsed;
+            } catch (e) {
+                addDebugLog(`    ❌ Groq API Error: ${e.message}`);
+                throw e;
+            }
         }
 
         async function extractPDF(file) {
@@ -231,7 +391,7 @@ LAKUKAN ANALISIS MENDALAM dengan metodologi di atas. Output HANYA JSON valid, ta
 
         function renderRow(d) {
             const scoreColor = d.score >= 80 ? 'text-emerald-600 bg-emerald-50' : (d.score >= 60 ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50');
-            const recColor = d.rekomendasi.includes("TIDAK") ? 'text-rose-700 bg-rose-100' : 'text-emerald-700 bg-emerald-100';
+            const recColor = d.rekomendasi.includes("TIDAK") ? 'text-rose-700 bg-rose-100' : (d.rekomendasi.includes("SANGAT") ? 'text-emerald-700 bg-emerald-100' : 'text-amber-700 bg-amber-100');
             
             const html = `
                 <tr class="hover:bg-slate-50 transition-all">
@@ -269,6 +429,7 @@ LAKUKAN ANALISIS MENDALAM dengan metodologi di atas. Output HANYA JSON valid, ta
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Kandidat");
             XLSX.writeFile(workbook, "Review_Kandidat_Rexvin_2026.xlsx");
+            addDebugLog(`📥 Excel file downloaded: Review_Kandidat_Rexvin_2026.xlsx`);
         }
     </script>
 </body>
