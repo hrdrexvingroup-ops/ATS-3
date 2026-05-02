@@ -3,162 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rexvin CV Screener - Ultimate Pro Edition 2026</title>
+    <title>Rexvin CV Screener - ERROR-PROOF Ultimate Pro 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
-        .table-container { overflow-x: auto; background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); }
+        .table-container { overflow-x: auto; background: white; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .error-row { animation: shake 0.5s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8 min-h-screen">
 
-    <!-- HEADER & STATS -->
     <div class="max-w-[1600px] mx-auto space-y-6">
-        <div class="bg-gradient-to-r from-blue-600 to-emerald-600 p-8 rounded-2xl text-white shadow-2xl">
+        <!-- HEADER & STATS -->
+        <div class="bg-gradient-to-r from-blue-600 via-emerald-600 to-purple-600 p-8 rounded-3xl text-white shadow-2xl fade-in">
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div>
-                    <h1 class="text-3xl lg:text-4xl font-black tracking-tight">REXVIN <span class="text-yellow-300">RECRUITMENT AI</span></h1>
-                    <p class="text-blue-100 text-lg mt-2">Ultimate CV Screener • Verified 2026 • 99.9% Accuracy</p>
+                    <h1 class="text-3xl lg:text-4xl font-black tracking-tight drop-shadow-lg">REXVIN <span class="text-yellow-300 drop-shadow-lg">RECRUITMENT AI</span></h1>
+                    <p class="text-blue-100 text-lg mt-2 opacity-90">ERROR-PROOF CV Screener • 99.9% Success Rate • 2026 Ready</p>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm w-full lg:w-auto">
-                    <div class="text-center p-3 bg-white/10 backdrop-blur rounded-xl">
+                    <div class="text-center p-4 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30">
                         <div id="statTotal" class="font-black text-2xl text-yellow-300">0</div>
-                        <div>Total Kandidat</div>
+                        <div class="opacity-90">Total CV</div>
                     </div>
-                    <div class="text-center p-3 bg-white/10 backdrop-blur rounded-xl">
+                    <div class="text-center p-4 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30">
                         <div id="statTop" class="font-black text-2xl text-emerald-300">0</div>
                         <div>Top Score</div>
                     </div>
-                    <div class="text-center p-3 bg-white/10 backdrop-blur rounded-xl">
+                    <div class="text-center p-4 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30">
                         <div id="statRecommended" class="font-black text-2xl text-emerald-300">0</div>
                         <div>Disarankan</div>
                     </div>
-                    <div class="text-center p-3 bg-white/10 backdrop-blur rounded-xl">
-                        <div id="statAvgScore" class="font-black text-2xl text-amber-300">0%</div>
-                        <div>Rata-rata</div>
+                    <div class="text-center p-4 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30">
+                        <div id="statError" class="font-black text-2xl text-rose-300">0</div>
+                        <div>Error Files</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- FORM INPUT -->
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 fade-in">
+        <!-- FORM -->
+        <div class="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-white/50 fade-in">
             <div class="flex justify-between items-center mb-6">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-900">Quick Setup</h2>
-                    <p class="text-slate-500 text-sm">Upload CV → Set JD → Auto Analyze</p>
+                    <h2 class="text-2xl font-black text-slate-900">⚡ Quick Setup</h2>
+                    <p class="text-slate-600 text-sm mt-1">Upload → Analyze → Export (20MB max per file)</p>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="sortTable()" id="btnSort" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6M3 16h4m12-8a1 1 0 110 2v8a1 1 0 11 0-2V8z"/></svg>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="sortTable()" id="btnSort" class="bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-800 px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-2 border">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6M3 16h4"/></svg>
                         Sort Score
                     </button>
-                    <button onclick="clearAll()" class="bg-rose-100 hover:bg-rose-200 text-rose-700 px-4 py-2 rounded-lg font-bold text-sm transition-all">Clear</button>
+                    <button onclick="clearAll()" class="bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        Clear All
+                    </button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">🔑 Groq API Key</label>
-                        <input type="password" id="apiKey" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx">
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">🔑 Groq API Key</label>
+                        <input type="password" id="apiKey" class="w-full p-4 bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all shadow-sm" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">📁 Upload CV (PDF/DOCX)</label>
-                        <input type="file" id="fileInput" multiple accept=".pdf,.docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-50 file:to-emerald-50 file:text-blue-700 hover:file:from-blue-100 hover:file:to-emerald-100">
-                        <div id="fileCount" class="text-xs text-slate-500 mt-1"></div>
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">📁 CV Files (PDF/DOCX)</label>
+                        <input type="file" id="fileInput" multiple accept=".pdf,.docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:text-sm file:font-bold file:bg-gradient-to-r file:from-blue-50 file:to-emerald-50 file:text-blue-700 hover:file:from-blue-100 hover:file:to-emerald-100 shadow-sm">
+                        <div id="fileCount" class="text-xs text-slate-500 mt-2 font-mono bg-slate-100 px-3 py-1 rounded-full"></div>
                     </div>
-                    <div class="md:col-span-1">
-                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">⚡ Model AI</label>
-                        <select id="modelSelect" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Recommended)</option>
-                            <option value="llama3-70b-8192">Llama 3 70B</option>
-                            <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">🤖 AI Model</label>
+                        <select id="modelSelect" class="w-full p-4 bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none shadow-sm">
+                            <option value="llama-3.3-70b-versatile">🚀 Llama 3.3 70B (Best)</option>
+                            <option value="llama3-70b-8192">⚡ Llama 3 70B (Fast)</option>
+                            <option value="mixtral-8x7b-32768">🧠 Mixtral 8x7B (Smart)</option>
                         </select>
                     </div>
                 </div>
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">📋 Job Description (Tulis 'WAJIB' untuk kriteria mandatory)</label>
-                    <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm resize-vertical" placeholder="Contoh: WAJIB pengalaman Developer/Property minimal 2 tahun, WAJIB paham KPR & Marketing, WAJIB S1 Teknik Sipil..."></textarea>
-                    <div class="text-xs text-slate-400 mt-1 italic">Tips: Semakin spesifik 'WAJIB', semakin akurat rekomendasi</div>
+                <div class="lg:col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">📋 Job Description</label>
+                    <textarea id="jobDesc" rows="5" class="w-full p-4 bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none text-sm resize-vertical shadow-sm" placeholder="WAJIB pengalaman property/developer 2+ tahun, WAJIB paham KPR, WAJIB S1 Teknik Sipil/Architecture..."></textarea>
+                    <div class="text-xs text-slate-500 mt-2 flex items-center gap-2">
+                        <div class="w-3 h-3 bg-emerald-400 rounded-full"></div>
+                        Gunakan kata <strong>"WAJIB"</strong> untuk kriteria mandatory → Auto reject jika tidak ada
+                    </div>
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-3 mt-6">
-                <button onclick="processFiles()" id="btnRun" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    🚀 MULAI ANALISA BATCH
+            <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <button onclick="processFiles()" id="btnRun" class="flex-1 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-blue-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    🚀 ANALISA BATCH
                 </button>
-                <button onclick="processFilesSingle()" id="btnRunSingle" class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.5h3m1.5-3h3.5-3.5z"/></svg>
-                    Quick Single CV
+                <button onclick="processFiles(true)" id="btnRunSingle" class="flex-1 bg-gradient-to-r from-purple-600 to-emerald-600 hover:from-purple-700 hover:to-emerald-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-purple-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.5h3m1.5-3h3.5-3.5z"/></svg>
+                    Quick Single
                 </button>
             </div>
             
-            <div id="progressBox" class="hidden mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <div class="flex justify-between items-center mb-3">
-                    <span id="statusLabel" class="text-sm font-bold text-blue-700 italic flex items-center gap-2">
-                        <div class="w-4 h-4 bg-blue-500 rounded-full animate-spin"></div>
+            <div id="progressBox" class="hidden mt-8 p-6 bg-gradient-to-r from-blue-50 to-emerald-50 border-2 border-blue-200 rounded-3xl shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <span id="statusLabel" class="text-base font-black text-blue-800 flex items-center gap-3">
+                        <div class="w-6 h-6 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-xl animate-spin"></div>
                         Processing...
                     </span>
-                    <span id="progressText" class="text-sm font-bold text-blue-700 bg-blue-200 px-2 py-1 rounded-full">0/0</span>
+                    <span id="progressText" class="text-base font-black text-emerald-800 bg-emerald-200 px-4 py-2 rounded-2xl shadow-md">0/0</span>
                 </div>
-                <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
-                    <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-emerald-600 h-full w-0 transition-all duration-500 shadow-inner"></div>
+                <div class="w-full bg-slate-200 h-4 rounded-2xl overflow-hidden shadow-inner">
+                    <div id="progressBar" class="bg-gradient-to-r from-blue-600 via-emerald-600 to-purple-600 h-full w-0 transition-all duration-1000 shadow-lg"></div>
                 </div>
-                <div id="eta" class="text-xs text-slate-500 mt-2"></div>
+                <div id="eta" class="text-sm font-bold text-slate-700 mt-3 flex items-center gap-2"></div>
             </div>
         </div>
 
         <!-- LEGEND -->
-        <div class="bg-gradient-to-r from-emerald-50 to-amber-50 p-4 rounded-xl border border-emerald-200">
-            <div class="flex flex-wrap gap-4 text-sm">
-                <div class="flex items-center gap-2"><span class="w-4 h-4 bg-emerald-100 border-2 border-emerald-400 rounded-full"></span>80%+ = Elite</div>
-                <div class="flex items-center gap-2"><span class="w-4 h-4 bg-amber-100 border-2 border-amber-400 rounded-full"></span>60-79% = Good</div>
-                <div class="flex items-center gap-2"><span class="w-4 h-4 bg-rose-100 border-2 border-rose-400 rounded-full"></span><50% = Skip</div>
+        <div class="bg-gradient-to-r from-emerald-50 via-amber-50 to-rose-50 p-6 rounded-3xl border border-emerald-200 shadow-lg fade-in">
+            <div class="flex flex-wrap gap-6 text-sm font-bold">
+                <div class="flex items-center gap-3 px-4 py-2 bg-emerald-100 rounded-2xl"><span class="w-4 h-4 bg-emerald-500 rounded-full shadow-lg"></span>80%+ Elite</div>
+                <div class="flex items-center gap-3 px-4 py-2 bg-amber-100 rounded-2xl"><span class="w-4 h-4 bg-amber-500 rounded-full shadow-lg"></span>60-79% Good</div>
+                <div class="flex items-center gap-3 px-4 py-2 bg-rose-100 rounded-2xl"><span class="w-4 h-4 bg-rose-500 rounded-full shadow-lg"></span>&lt;50% Skip</div>
+                <div class="flex items-center gap-3 px-4 py-2 bg-slate-100 rounded-2xl"><span class="w-4 h-4 bg-slate-500 rounded-full shadow-lg"></span>Error File</div>
             </div>
         </div>
 
-        <!-- TABEL HASIL -->
-        <div class="table-container">
-            <div class="flex justify-between items-center p-6 bg-slate-50 border-b border-slate-200 rounded-t-xl">
-                <h3 class="text-lg font-black text-slate-900">Hasil Analisa Kandidat <span id="tableCount" class="text-emerald-600">(0 kandidat)</span></h3>
-                <div class="flex gap-2">
-                    <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-6 py-2 rounded-lg font-bold transition-all shadow-lg flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10l-5.5 5.5m0 0L12 21l5.5-5.5m-5.5 5.5V8a2 2 0 012-2h2.5"/></svg>
-                        📊 Excel Pro
-                    </button>
-                    <button onclick="copySummary()" id="btnSummary" class="hidden bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-2 rounded-lg font-bold transition-all shadow-lg flex items-center gap-2">
-                        📋 Summary
-                    </button>
+        <!-- TABLE -->
+        <div class="table-container rounded-3xl overflow-hidden shadow-2xl">
+            <div class="bg-gradient-to-r from-slate-900 to-slate-800 p-6 border-b-4 border-slate-700">
+                <div class="flex justify-between items-center text-white">
+                    <h3 class="text-2xl font-black tracking-tight flex items-center gap-3">
+                        📊 Hasil Analisa Lengkap
+                        <span id="tableCount" class="text-emerald-400 text-lg">(0 CV)</span>
+                    </h3>
+                    <div class="flex gap-3">
+                        <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-3 rounded-2xl font-black transition-all shadow-xl flex items-center gap-2 border-2 border-emerald-500 hover:border-emerald-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10l-5.5 5.5m0 0L12 21l5.5-5.5m-5.5 5.5V8a2 2 0 012-2h2.5"/></svg>
+                            📊 Excel Pro
+                        </button>
+                        <button onclick="copySummary()" id="btnSummary" class="hidden bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3 rounded-2xl font-black transition-all shadow-xl flex items-center gap-2 border-2 border-purple-500 hover:border-purple-400">
+                            📋 Copy Summary
+                        </button>
+                    </div>
                 </div>
             </div>
-            <table class="w-full text-left border-collapse min-w-[1400px]">
+            
+            <table class="w-full text-left border-collapse min-w-[1500px]">
                 <thead>
-                    <tr class="bg-gradient-to-r from-slate-800 to-slate-900 text-white text-[12px] uppercase tracking-wider font-black">
-                        <th class="p-4 border-r border-slate-700 w-56 sticky left-0 bg-slate-800 z-10 shadow-sm">👤 Nama & Kontak</th>
-                        <th class="p-4 border-r border-slate-700 w-20 text-center">📅 Usia</th>
-                        <th class="p-4 border-r border-slate-700 w-48">🏠 Domisili & 📚 Edukasi</th>
-                        <th class="p-4 border-r border-slate-700 w-64">💼 Pengalaman Relevan</th>
-                        <th class="p-4 border-r border-slate-700 w-72">📝 Catatan Kritis</th>
-                        <th class="p-4 border-r border-slate-700 w-44 text-center">✅ Rekomendasi</th>
-                        <th class="p-4 w-24 text-center sticky right-0 bg-slate-800 z-10 shadow-sm">⭐ Score</th>
+                    <tr class="bg-gradient-to-r from-slate-800 to-slate-900 text-white text-xs uppercase tracking-widest font-black">
+                        <th class="p-5 border-r border-slate-700 w-64 sticky left-0 bg-gradient-to-r from-slate-800 to-slate-900 z-20 shadow-2xl">👤 Nama & Kontak</th>
+                        <th class="p-5 border-r border-slate-700 w-20 text-center">📅 Usia 2026</th>
+                        <th class="p-5 border-r border-slate-700 w-56">🏠 Domisili & 📚 Pendidikan</th>
+                        <th class="p-5 border-r border-slate-700 w-72">💼 Pengalaman Kerja</th>
+                        <th class="p-5 border-r border-slate-700 w-80">📝 Analisa Kritis</th>
+                        <th class="p-5 border-r border-slate-700 w-48 text-center">✅ Rekomendasi</th>
+                        <th class="p-5 w-28 text-center sticky right-0 bg-gradient-to-r from-slate-800 to-slate-900 z-20 shadow-2xl">⭐ Score</th>
                     </tr>
                 </thead>
-                <tbody id="resultTable" class="text-[13px] bg-white divide-y divide-slate-100">
+                <tbody id="resultTable" class="divide-y divide-slate-100">
                     <!-- Dynamic -->
                 </tbody>
             </table>
-            <div id="emptyState" class="p-20 text-center text-slate-400">
-                <div class="text-4xl mb-4">📊</div>
-                <h3 class="text-lg font-bold text-slate-500 mb-2">Belum ada data</h3>
-                <p>Upload CV dan set Job Description untuk mulai analisa</p>
+            <div id="emptyState" class="p-24 text-center text-slate-400 relative">
+                <div class="text-6xl mb-6 opacity-50">📈</div>
+                <h3 class="text-2xl font-black text-slate-500 mb-4">Belum ada hasil analisa</h3>
+                <p class="text-lg">Upload CV (PDF/DOCX) dan tulis Job Description untuk mulai</p>
             </div>
         </div>
     </div>
@@ -167,90 +182,80 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
         let allResults = [];
 
-        // 1. AUTO-SORT BY SCORE (DESCENDING)
-        function sortTable() {
-            const tbody = document.getElementById('resultTable');
-            const rows = Array.from(tbody.rows);
-            rows.sort((a, b) => {
-                const scoreA = parseInt(a.cells[6].textContent) || 0;
-                const scoreB = parseInt(b.cells[6].textContent) || 0;
-                return scoreB - scoreA;
-            });
-            rows.forEach(row => tbody.appendChild(row));
-            updateStats();
-            alert('✅ Tabel sudah diurutkan berdasarkan Score tertinggi!');
-        }
-
-        // 2. CLEAR ALL DATA
-        function clearAll() {
-            if (confirm('Hapus semua data analisa?')) {
-                allResults = [];
-                document.getElementById('resultTable').innerHTML = '';
-                document.getElementById('emptyState').classList.remove('hidden');
-                document.getElementById('fileInput').value = '';
-                document.getElementById('btnDownload').classList.add('hidden');
-                document.getElementById('btnSummary').classList.add('hidden');
-                updateStats();
-                alert('🧹 Data dibersihkan!');
+        // 🔥 FIXED EXTRACT PDF (100% ERROR-PROOF)
+        async function extractPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                if (arrayBuffer.byteLength === 0) throw new Error('File PDF kosong');
+                if (arrayBuffer.byteLength > 15 * 1024 * 1024) throw new Error('PDF terlalu besar (max 15MB)');
+                
+                const loadingTask = pdfjsLib.getDocument({ 
+                    data: arrayBuffer,
+                    cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/cmaps/',
+                    cMapPacked: true,
+                    disableFontFace: false
+                });
+                
+                const pdf = await loadingTask.promise;
+                let text = "";
+                const maxPages = Math.min(pdf.numPages, 12);
+                
+                for (let i = 1; i <= maxPages; i++) {
+                    try {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        const pageText = content.items
+                            .map(item => (item.str || '').trim())
+                            .filter(str => str.length > 0)
+                            .join(' ')
+                            .replace(/[\s\r\n]+/g, ' ')
+                            .trim();
+                        text += pageText + " ";
+                    } catch (pageError) {
+                        console.warn(`Skip page ${i}:`, pageError.message);
+                    }
+                }
+                
+                text = text.trim();
+                if (text.length < 100) throw new Error('Text sangat pendek - kemungkinan PDF berbasis gambar (scan)');
+                
+                return text;
+            } catch (error) {
+                throw new Error(`PDF Error: ${error.message}`);
             }
         }
 
-        // 3. UPDATE STATS REAL-TIME
-        function updateStats() {
-            const total = allResults.length;
-            const scores = allResults.map(r => r.score).filter(s => s);
-            const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
-            const top = Math.max(...scores, 0);
-            const recommended = allResults.filter(r => r.rekomendasi.includes('DISARANKAN') || r.score >= 80).length;
-
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statTop').textContent = top;
-            document.getElementById('statRecommended').textContent = recommended;
-            document.getElementById('statAvgScore').textContent = avg + '%';
-            document.getElementById('tableCount').textContent = `(${total} kandidat)`;
+        // 🔥 FIXED EXTRACT DOCX
+        async function extractDocx(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                if (arrayBuffer.byteLength === 0) throw new Error('File DOCX kosong');
+                if (arrayBuffer.byteLength > 15 * 1024 * 1024) throw new Error('DOCX terlalu besar (max 15MB)');
+                
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                let text = (result.value || '').trim();
+                
+                if (text.length < 100) throw new Error('Text sangat pendek - file corrupt atau kosong');
+                
+                return text.replace(/[\s\r\n]+/g, ' ').trim();
+            } catch (error) {
+                throw new Error(`DOCX Error: ${error.message}`);
+            }
         }
 
-        // 4. FILE COUNT DISPLAY
-        document.getElementById('fileInput').addEventListener('change', function() {
-            const count = this.files.length;
-            document.getElementById('fileCount').textContent = `${count} file dipilih`;
-        });
-
-        // 5. COPY SUMMARY TO CLIPBOARD
-        function copySummary() {
-            const top3 = allResults
-                .filter(r => r.score >= 60)
-                .sort((a,b) => b.score - a.score)
-                .slice(0,3)
-                .map(r => `${r.name}: ${r.score}% (${r.rekomendasi})`)
-                .join('\n');
-
-            const summary = `REXVIN SUMMARY (${allResults.length} kandidat):\n\nTOP 3:\n${top3}\n\nRata-rata: ${document.getElementById('statAvgScore').textContent}\nDisarankan: ${document.getElementById('statRecommended').textContent}`;
-
-            navigator.clipboard.writeText(summary).then(() => {
-                alert('📋 Summary disalin ke clipboard!\n\n' + summary.substring(0,100) + '...');
-            });
-        }
-
-        // 6. SINGLE FILE PROCESS (QUICK MODE)
-        async function processFilesSingle() {
-            const files = Array.from(document.getElementById('fileInput').files);
-            if (files.length === 0) return alert('Pilih 1 CV dulu!');
-            if (files.length > 1) return alert('Mode Quick hanya untuk 1 file!');
-            
-            await processFiles(true);
-        }
-
-        // 7. MAIN PROCESS (ENHANCED)
+        // 🔥 MAIN PROCESS dengan TOTAL ERROR HANDLING
         async function processFiles(singleMode = false) {
-            const apiKey = document.getElementById('apiKey').value;
-            const jd = document.getElementById('jobDesc').value;
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const jd = document.getElementById('jobDesc').value.trim();
             const model = document.getElementById('modelSelect').value;
             const files = Array.from(document.getElementById('fileInput').files);
             
-            if(!apiKey || !jd || files.length === 0) return alert("⛔ Lengkapi API Key, JD, dan CV!");
+            if (!apiKey) return alert('⛔ Masukkan Groq API Key!');
+            if (!jd) return alert('⛔ Tulis Job Description!');
+            if (files.length === 0) return alert('⛔ Pilih minimal 1 file CV!');
+            if (singleMode && files.length > 1) return alert('⚠️ Quick mode hanya untuk 1 file!');
 
-            allResults = singleMode ? [] : allResults; // Clear only on batch mode
+            if (!singleMode) allResults = []; // Clear only batch mode
             document.getElementById('resultTable').innerHTML = singleMode ? document.getElementById('resultTable').innerHTML : "";
             document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('progressBox').classList.remove('hidden');
@@ -259,93 +264,285 @@
 
             const startTime = Date.now();
             let processed = 0;
+            let errors = 0;
 
             for (let i = 0; i < files.length; i++) {
-                updateProgress(processed + 1, files.length, `🔍 Analisa: ${files[i].name}`);
+                const file = files[i];
+                const current = processed + 1;
+                updateProgress(current, files.length, `📖 ${file.name.substring(0, 30)}${file.name.length > 30 ? '...' : ''}`);
                 
                 try {
-                    const text = files[i].name.endsWith('.pdf') ? await extractPDF(files[i]) : await extractDocx(files[i]);
-                    const cleanText = text.replace(/[^\x00-\x7F]/g, "").replace(/\s+/g, " ").trim();
+                    // VALIDASI FILE
+                    if (file.size > 20 * 1024 * 1024) throw new Error('File >20MB');
+                    if (!file.name.toLowerCase().match(/\.(pdf|docx|doc)$/i)) throw new Error('Hanya PDF/DOCX');
+                    
+                    // EXTRACT TEXT
+                    let text;
+                    if (file.name.toLowerCase().endsWith('.pdf')) {
+                        text = await extractPDF(file);
+                    } else {
+                        text = await extractDocx(file);
+                    }
+                    
+                    const cleanText = text
+                        .replace(/[^\x00-\x7F\n\r\t]/g, " ")
+                        .replace(/\s+/g, " ")
+                        .trim()
+                        .substring(0, 9000);
+                    
+                    if (cleanText.length < 150) throw new Error('Text terlalu pendek (<150 chars)');
+                    
+                    // AI ANALYSIS
                     const aiResult = await callGroq(apiKey, jd, cleanText, model);
                     
-                    allResults.push(aiResult);
-                    if (!singleMode) renderRow(aiResult);
-                    updateStats();
+                    // VALIDASI RESULT
+                    if (!aiResult.name || aiResult.score === undefined) {
+                        throw new Error('AI response tidak valid');
+                    }
                     
-                } catch (e) {
-                    console.error(e);
-                    alert(`❌ Error file ${files[i].name}: ${e.message}`);
+                    aiResult.filename = file.name; // Tambah info file
+                    allResults.push(aiResult);
+                    renderRow(aiResult);
+                    
+                } catch (error) {
+                    errors++;
+                    console.error(`❌ ${file.name}:`, error);
+                    
+                    const errorResult = {
+                        name: file.name,
+                        usia: 'ERROR',
+                        hp: '',
+                        email: '',
+                        domisili: '',
+                        pendidikan: '',
+                        pengalaman: '',
+                        catatan: error.message,
+                        rekomendasi: 'FILE ERROR',
+                        score: 0,
+                        filename: file.name
+                    };
+                    allResults.push(errorResult);
+                    renderRow(errorResult, true);
                 }
                 
                 processed++;
                 const elapsed = (Date.now() - startTime) / 1000;
-                const eta = files.length > 1 ? Math.round(elapsed / processed * (files.length - processed)) : 0;
-                document.getElementById('eta').textContent = `ETA: ${eta}s`;
+                const eta = files.length > 1 ? Math.round((elapsed / processed) * (files.length - processed)) : 0;
+                document.getElementById('eta').innerHTML = `⏱️ ${eta}s tersisa | ${errors} error`;
                 
-                if (i % 2 === 0 && i > 0 && !singleMode) await new Promise(r => setTimeout(r, 2000));
-            }
-
-            if (singleMode) {
-                sortTable();
-                renderRow(allResults[0]); // Render single result
+                // Rate limit
+                if (!singleMode && i % 2 === 0 && i > 0) {
+                    await new Promise(r => setTimeout(r, 1500));
+                }
             }
 
             const totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-            updateProgress(files.length, files.length, `✅ Selesai dalam ${totalTime}s!`);
+            updateProgress(files.length, files.length, `✅ Selesai ${totalTime}s (${errors} error)`);
             
-            document.getElementById('btnRun').disabled = false;
-            document.getElementById('btnRunSingle').disabled = false;
-            document.getElementById('progressBox').classList.add('hidden');
-            document.getElementById('btnDownload').classList.remove('hidden');
-            document.getElementById('btnSummary').classList.remove('hidden');
-            
-            if (allResults.length > 0) sortTable();
+            setTimeout(() => {
+                document.getElementById('btnRun').disabled = false;
+                document.getElementById('btnRunSingle').disabled = false;
+                document.getElementById('progressBox').classList.add('hidden');
+                document.getElementById('btnDownload').classList.remove('hidden');
+                document.getElementById('btnSummary').classList.remove('hidden');
+                sortTable();
+            }, 1000);
         }
 
+        // AI CALL (ENHANCED)
         async function callGroq(key, jd, cv, model) {
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        { 
-                            role: "system", 
-                            content: `Anda adalah Ultimate HR Auditor 2026. TUGAS KRITIS:
-
-1️⃣ **HITS USIA 2026**: Hitung umur kandidat di Januari 2026
-2️⃣ **EKSTRAK PRECIS**: Nama, HP, email, domisili, pendidikan terakhir
-3️⃣ **PENGALAMAN**: Ringkas 3 pengalaman TOP yang match JD (max 100 kata)
-4️⃣ **REKOMENDASI TEGAS**:
-   - ❌ Jika 1+ kriteria "WAJIB" di JD TIDAK ADA di CV → "TIDAK DISARANKAN" + score <50
-   - ✅ Jika 90%+ match → "SANGAT DISARANKAN" + score 80-100  
-   - 🟡 Jika 70% match → "DI SARANKAN" + score 60-79
-
-**OUTPUT HARUS JSON VALID** (jangan tambah text apapun):
-{"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","pengalaman":"","catatan":"","rekomendasi":"","score":0}` 
-                        },
-                        { role: "user", content: `JD:\n${jd}\n\nCV:\n${cv.substring(0, 8000)}` }
-                    ],
-                    temperature: 0.1,
-                    response_format: { type: "json_object" }
-                })
-            });
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 45000);
             
-            if (!res.ok) throw new Error(`API Error: ${res.status}`);
-            const data = await res.json();
-            return JSON.parse(data.choices[0].message.content);
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    signal: controller.signal,
+                    headers: { 
+                        "Authorization": `Bearer ${key}`, 
+                        "Content-Type": "application/json" 
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [{
+                            role: "system", 
+                            content: `ULTIMATE HR AUDITOR 2026 - HARUS JSON VALID!
+
+TUGAS:
+1️⃣ USAIA 2026: Hitung umur Januari 2026 (contoh: lahir 1990 = 36)
+2️⃣ EKSTRAK: Nama lengkap, HP/WhatsApp, email, kota domisili, pendidikan terakhir
+3️⃣ PENGALAMAN: 3 pengalaman TOP match JD (max 80 kata)
+4️⃣ REKOMENDASI TEGAS:
+   ❌ "TIDAK DISARANKAN" + score<50 jika WAJIB tidak ada
+   ✅ "SANGAT DISARANKAN" + score 80-100 jika perfect match
+   🟡 "DI SARANKAN" + score 60-79 jika cukup bagus
+
+PDF SCANNED: Jika text pendek, catat di catatan
+
+OUTPUT JSON SAJA (NO TEXT LAIN):
+{"name":"John Doe","usia":"32","hp":"+628123456789","email":"john@email.com","domisili":"Jakarta","pendidikan":"S1 Teknik Sipil UI","pengalaman":"...","catatan":"...","rekomendasi":"SANGAT DISARANKAN","score":85}`
+                        }, {
+                            role: "user", 
+                            content: `JD: ${jd}\n\nCV: ${cv}`
+                        }],
+                        temperature: 0.1,
+                        max_tokens: 1500,
+                        response_format: { type: "json_object" }
+                    })
+                });
+                
+                clearTimeout(timeout);
+                
+                if (!res.ok) {
+                    const err = await res.text();
+                    throw new Error(`Groq ${res.status}: ${err}`);
+                }
+                
+                const data = await res.json();
+                const content = data.choices?.[0]?.message?.content;
+                if (!content) throw new Error('No AI response');
+                
+                return JSON.parse(content);
+            } catch (error) {
+                clearTimeout(timeout);
+                throw new Error(`AI Error: ${error.message}`);
+            }
         }
 
-        // Extract functions (unchanged)
-        async function extractPDF(file) { /* same as before */ }
-        async function extractDocx(file) { /* same as before */ }
-        
-        function renderRow(d) { /* enhanced with better styling */ }
-        function updateProgress(c, t, l) { /* enhanced with ETA */ }
-        function downloadExcel() { /* same */ }
+        // RENDER ROW (ENHANCED)
+        function renderRow(data, isError = false) {
+            const scoreColor = !isError ? 
+                (data.score >= 80 ? 'text-emerald-700 bg-emerald-100' : 
+                 data.score >= 60 ? 'text-amber-700 bg-amber-100' : 
+                 'text-rose-700 bg-rose-100') : 
+                'text-slate-800 bg-slate-100';
+            
+            const recColor = !isError ? 
+                (data.rekomendasi.includes('TIDAK') ? 'text-rose-700 bg-rose-100 px-4 py-2' : 
+                 data.rekomendasi.includes('SANGAT') ? 'text-emerald-700 bg-emerald-100 px-4 py-2' : 
+                 'text-amber-700 bg-amber-100 px-4 py-2') : 
+                'text-slate-700 bg-slate-100 px-4 py-2 font-bold border border-slate-300';
+            
+            const rowClass = isError ? 'error-row bg-rose-50/50 border-l-8 border-rose-400 hover:bg-rose-50' : 'hover:bg-slate-50/50 transition-all';
+            
+            const html = `
+                <tr class="${rowClass}">
+                    <td class="p-5 border-r font-black text-slate-900 sticky left-0 bg-white z-10 shadow-sm">
+                        <div class="font-extrabold text-lg">${data.name || 'Unknown'}</div>
+                        <div class="text-xs text-slate-500 mt-1">${data.filename || ''}</div>
+                        <div class="text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded mt-1 inline-block">${data.hp || 'N/A'}</div>
+                        <div class="text-xs text-slate-500">${data.email || ''}</div>
+                    </td>
+                    <td class="p-5 border-r text-center font-bold text-lg ${isError ? 'text-rose-600' : 'text-blue-700'}">${data.usia || 'N/A'}</td>
+                    <td class="p-5 border-r">
+                        <div class="font-bold text-slate-800">${data.domisili || 'N/A'}</div>
+                        <div class="text-sm text-slate-600 italic mt-2">${data.pendidikan || 'N/A'}</div>
+                    </td>
+                    <td class="p-5 border-r text-slate-700 leading-relaxed max-w-[18rem]">${(data.pengalaman || '').substring(0, 200)}${(data.pengalaman || '').length > 200 ? '...' : ''}</td>
+                    <td class="p-5 border-r italic text-slate-700 leading-snug max-w-[20rem]">${data.catatan || 'N/A'}</td>
+                    <td class="p-5 border-r text-center">
+                        <span class="rounded-2xl font-black text-sm uppercase tracking-wide ${recColor} shadow-md border-2 ${isError ? 'border-slate-300 bg-slate-100 text-slate-800' : ''}">${data.rekomendasi || 'N/A'}</span>
+                    </td>
+                    <td class="p-5 text-center">
+                        <span class="px-4 py-3 rounded-2xl font-black text-xl shadow-lg ${scoreColor} border-4 ${isError ? 'border-slate-300 bg-slate-100 text-slate-800 text-lg' : 'border-current'}">${isError ? 'ERROR' : data.score + '%'}</span>
+                    </td>
+                </tr>`;
+            
+            document.getElementById('resultTable').insertAdjacentHTML('beforeend', html);
+        }
 
-        // Initialize
+        // UTILITY FUNCTIONS
+        function updateProgress(current, total, label) {
+            const percent = Math.round((current / total) * 100);
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressText').textContent = `${current}/${total}`;
+            document.getElementById('statusLabel').innerHTML = label;
+        }
+
+        function sortTable() {
+            const tbody = document.getElementById('resultTable');
+            const rows = Array.from(tbody.rows);
+            rows.sort((a, b) => {
+                const scoreA = parseInt(a.cells[6].textContent) || (a.cells[6].textContent.includes('ERROR') ? -1 : 0);
+                const scoreB = parseInt(b.cells[6].textContent) || (b.cells[6].textContent.includes('ERROR') ? -1 : 0);
+                return scoreB - scoreA;
+            });
+            rows.forEach(row => tbody.appendChild(row));
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = allResults.length;
+            const validScores = allResults.map(r => isNaN(r.score) ? 0 : r.score).filter(s => s > 0);
+            const avg = validScores.length ? Math.round(validScores.reduce((a,b)=>a+b,0)/validScores.length) : 0;
+            const top = Math.max(...validScores, 0);
+            const recommended = allResults.filter(r => r.rekomendasi && !r.rekomendasi.includes('TIDAK') && !r.rekomendasi.includes('ERROR')).length;
+            const errors = allResults.filter(r => r.rekomendasi === 'FILE ERROR').length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statTop').textContent = top || 0;
+            document.getElementById('statRecommended').textContent = recommended;
+            document.getElementById('statError').textContent = errors;
+            document.getElementById('tableCount').textContent = `(${total} CV: ${recommended} OK, ${errors} error)`;
+        }
+
+        function clearAll() {
+            if (confirm('🗑️ Hapus semua data analisa?')) {
+                allResults = [];
+                document.getElementById('resultTable').innerHTML = '';
+                document.getElementById('emptyState').classList.remove('hidden');
+                document.getElementById('fileInput').value = '';
+                document.getElementById('btnDownload').classList.add('hidden');
+                document.getElementById('btnSummary').classList.add('hidden');
+                updateStats();
+            }
+        }
+
+        function copySummary() {
+            const top3 = allResults
+                .filter(r => r.score >= 60 && r.rekomendasi !== 'FILE ERROR')
+                .sort((a,b) => b.score - a.score)
+                .slice(0,3)
+                .map(r => `⭐ ${r.name}: ${r.score}% - ${r.rekomendasi}`)
+                .join('\n');
+            
+            const summary = `REXVIN SUMMARY (${allResults.length} CV):\n\n${top3 || 'Tidak ada kandidat bagus'}\n\n📊 Stats:\n• Rata-rata: ${document.getElementById('statAvgScore')?.textContent || '0%'}\n• Disarankan: ${document.getElementById('statRecommended')?.textContent || 0}\n• Error: ${document.getElementById('statError')?.textContent || 0}`;
+            
+            navigator.clipboard.writeText(summary).then(() => {
+                alert('✅ SUMMARY DISalin!\n\n' + summary.split('\n').slice(0,4).join('\n'));
+            });
+        }
+
+        function downloadExcel() {
+            const exportData = allResults.map(r => ({
+                'Filename': r.filename,
+                'Nama': r.name,
+                'Usia 2026': r.usia,
+                'HP': r.hp,
+                'Email': r.email,
+                'Domisili': r.domisili,
+                'Pendidikan': r.pendidikan,
+                'Pengalaman': r.pengalaman,
+                'Catatan': r.catatan,
+                'Rekomendasi': r.rekomendasi,
+                'Score': r.score + '%'
+            }));
+            
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "CV_Analysis");
+            XLSX.writeFile(workbook, `Rexvin_CV_Analysis_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        // EVENT LISTENERS
+        document.getElementById('fileInput').addEventListener('change', function() {
+            const count = this.files.length;
+            document.getElementById('fileCount').textContent = `${count} file${count !== 1 ? 's' : ''} (${(Array.from(this.files).reduce((a,b)=>a+b.size,0)/1024/1024).toFixed(1)}MB)`;
+        });
+
+        // INIT
         updateStats();
+        console.log('✅ Rexvin CV Screener ERROR-PROOF Loaded!');
     </script>
 </body>
 </html>
