@@ -75,7 +75,10 @@
     </div>
 
     <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        // Setup PDF.js Worker secara eksplisit agar tidak error
+        const pdfjs = window['pdfjs-dist/build/pdf'];
+        pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        
         let allResults = [];
 
         async function processFiles() {
@@ -93,16 +96,27 @@
             document.getElementById('btnRun').disabled = true;
 
             for (let i = 0; i < files.length; i++) {
-                updateProgress(i, files.length, `Menganalisa: ${files[i].name}`);
+                const currentFileName = files[i].name;
+                updateProgress(i, files.length, `Menganalisa: ${currentFileName}`);
+                
                 try {
-                    const text = files[i].name.endsWith('.pdf') ? await extractPDF(files[i]) : await extractDocx(files[i]);
+                    let text = "";
+                    if (currentFileName.toLowerCase().endsWith('.pdf')) {
+                        text = await extractPDF(files[i]);
+                    } else if (currentFileName.toLowerCase().endsWith('.docx')) {
+                        text = await extractDocx(files[i]);
+                    } else {
+                        console.warn(`Skip file non-pendukung: ${currentFileName}`);
+                        continue;
+                    }
+
                     const aiResult = await callGroq(apiKey, jd, text);
                     if(aiResult) {
                         allResults.push(aiResult);
                         renderRow(aiResult);
                     }
                 } catch (e) { 
-                    console.error("Gagal memproses file:", files[i].name, e);
+                    console.error(`Gagal memproses file: ${currentFileName}`, e);
                 }
             }
 
@@ -126,24 +140,30 @@
                                 2. KUALIFIKASI PENDIDIKAN: WAJIB sesuai JD. Jika minta Teknik Sipil, maka Arsitektur GAGAL (Skor <40).
                                 3. PENALTI: Pengalaman tidak relevan = Skor MAKS 40.
                                 4. Usia dihitung untuk tahun 2026.
-                                Output JSON: {"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","jurusan":"","pengalaman":"","catatan":"","rekomendasi":"","score":0}` 
+                                Output HARUS JSON murni tanpa markdown: {"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","jurusan":"","pengalaman":"","catatan":"","rekomendasi":"","score":0}` 
                             },
-                            { role: "user", content: `JD:\n${jd}\n\nCV:\n${cv.substring(0, 7000)}` }
+                            { role: "user", content: `JD:\n${jd}\n\nCV:\n${cv.substring(0, 8000)}` }
                         ],
                         response_format: { type: "json_object" }
                     })
                 });
+                
                 const data = await res.json();
-                return JSON.parse(data.choices[0].message.content);
+                let content = data.choices[0].message.content;
+                
+                // Pembersihan jika AI nakal menyisipkan markdown
+                content = content.replace(/```json/g, "").replace(/```/g, "").trim();
+                return JSON.parse(content);
             } catch (err) {
-                console.error("API Error", err);
+                console.error("Kesalahan parsing atau API Groq:", err);
                 return null;
             }
         }
 
         async function extractPDF(file) {
             const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+            const loadingTask = pdfjs.getDocument({data: arrayBuffer});
+            const pdf = await loadingTask.promise;
             let text = "";
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
@@ -154,7 +174,8 @@
         }
 
         async function extractDocx(file) {
-            const res = await mammoth.extractRawText({arrayBuffer: await file.arrayBuffer()});
+            const arrayBuffer = await file.arrayBuffer();
+            const res = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
             return res.value;
         }
 
@@ -163,39 +184,40 @@
             const recColor = d.score < 50 ? 'text-rose-700 bg-rose-100' : 'text-emerald-700 bg-emerald-100';
             
             const html = `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-4 border-r">
-                        <div class="font-bold">${d.name}</div>
-                        <div class="text-[10px] text-blue-600 font-semibold uppercase mt-1">${d.hp}</div>
-                        <div class="text-[10px] text-slate-400">${d.email}</div>
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-4 border-r border-slate-100">
+                        <div class="font-bold text-slate-800">${d.name || '-'}</div>
+                        <div class="text-[10px] text-blue-600 font-semibold uppercase mt-1">${d.hp || '-'}</div>
+                        <div class="text-[10px] text-slate-400">${d.email || '-'}</div>
                     </td>
-                    <td class="p-4 border-r text-center font-bold">${d.usia}</td>
-                    <td class="p-4 border-r">
-                        <div class="font-semibold">${d.domisili}</div>
-                        <div class="text-[10px] text-slate-500 font-bold uppercase">${d.pendidikan} - ${d.jurusan}</div>
+                    <td class="p-4 border-r border-slate-100 text-center font-bold text-slate-700">${d.usia || '-'}</td>
+                    <td class="p-4 border-r border-slate-100">
+                        <div class="font-semibold text-slate-700">${d.domisili || '-'}</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase">${d.pendidikan || '-'} - ${d.jurusan || '-'}</div>
                     </td>
-                    <td class="p-4 border-r text-[11px] leading-tight">${d.pengalaman}</td>
-                    <td class="p-4 border-r italic text-slate-600 font-medium">${d.catatan}</td>
-                    <td class="p-4 border-r text-center">
-                        <span class="px-3 py-1 rounded-full font-bold text-[10px] uppercase ${recColor}">${d.rekomendasi}</span>
+                    <td class="p-4 border-r border-slate-100 text-[11px] leading-tight text-slate-600">${d.pengalaman || '-'}</td>
+                    <td class="p-4 border-r border-slate-100 italic text-slate-500 font-medium">${d.catatan || '-'}</td>
+                    <td class="p-4 border-r border-slate-100 text-center">
+                        <span class="px-3 py-1 rounded-full font-bold text-[10px] uppercase ${recColor}">${d.rekomendasi || '-'}</span>
                     </td>
-                    <td class="p-4 text-center font-black ${scoreColor}">${d.score}%</td>
+                    <td class="p-4 text-center font-black ${scoreColor}">${d.score || 0}%</td>
                 </tr>`;
             document.getElementById('resultTable').insertAdjacentHTML('beforeend', html);
         }
 
         function updateProgress(c, t, l) {
-            const p = (c/t)*100;
+            const p = t === 0 ? 0 : (c/t)*100;
             document.getElementById('progressBar').style.width = p+'%';
             document.getElementById('progressText').innerText = `${c}/${t}`;
             document.getElementById('statusLabel').innerText = l;
         }
 
         function downloadExcel() {
+            if(allResults.length === 0) return;
             const worksheet = XLSX.utils.json_to_sheet(allResults);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Audit Rexvin");
-            XLSX.writeFile(workbook, "Rexvin_Strategic_Review_2026.xlsx");
+            XLSX.writeFile(workbook, "Audit_Strategis_Kandidat_2026.xlsx");
         }
     </script>
 </body>
