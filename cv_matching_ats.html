@@ -3,425 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV Matching System (ATS) - Advanced Ranking</title>
+    <title>CV Matching System (ATS) - Frontend Only</title>
     
-    <!-- Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <!-- Mammoth.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    
+    <!-- SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        :root {
-            --primary: #1e3c72;
-            --primary-light: #2a5298;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --bg-light: #f1f5f9;
-            --bg-card: #ffffff;
-            --border: #cbd5e1;
-        }
-
-        html, body {
-            background: var(--bg-light);
-            color: var(--text-primary);
         }
 
         body {
-            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
         }
 
-        /* Header */
         .header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            padding: 30px 25px;
-            border-radius: 20px;
-            margin-bottom: 30px;
+            padding: 2rem;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
         .header h1 {
-            font-size: 32px;
+            font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            margin-bottom: 0.5rem;
         }
 
         .header p {
-            font-size: 14px;
             opacity: 0.9;
+            font-size: 1.1rem;
         }
 
-        /* Grid Layout */
-        .main-grid {
+        .content {
+            padding: 2.5rem;
+        }
+
+        .input-section, .results-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
-        @media (max-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
+        .form-group {
+            position: relative;
         }
 
-        /* Card */
-        .card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, rgba(30,60,114,0.05), rgba(42,82,152,0.05));
-            padding: 18px 24px;
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
             font-weight: 600;
-            font-size: 16px;
-            border-bottom: 1px solid var(--border);
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .file-upload-area {
+            border: 3px dashed #d1d5db;
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f9fafb;
+        }
+
+        .file-upload-area:hover, .file-upload-area.dragover {
+            border-color: #4f46e5;
+            background: #f0f4ff;
+        }
+
+        .file-upload-area i {
+            font-size: 3rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .file-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: var(--primary);
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #e5e7eb;
+            border-radius: 20px;
+            font-size: 0.9rem;
         }
 
-        .card-body {
-            padding: 24px;
+        .file-item i {
+            color: #4f46e5;
         }
 
-        /* Form */
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group:last-child {
-            margin-bottom: 0;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus,
-        textarea:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(42,82,152,0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        /* Buttons */
         .btn {
-            padding: 11px 22px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
-            font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            gap: 0.5rem;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(30,60,114,0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success), #059669);
-            color: white;
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16,185,129,0.3);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
         }
 
         .btn-secondary {
-            background: var(--text-secondary);
+            background: #6b7280;
             color: white;
         }
 
-        .btn-secondary:hover {
-            background: #475569;
+        .btn-success {
+            background: #10b981;
+            color: white;
         }
 
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        .btn-block {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .btn-group {
+        .provider-switcher {
             display: flex;
-            gap: 12px;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
-            margin-top: 16px;
         }
 
-        .btn-group .btn {
-            flex: 1;
-            min-width: 140px;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* File Upload */
-        .file-input-wrapper {
-            margin-bottom: 18px;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .file-input-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            border: 2px dashed var(--primary-light);
-            border-radius: 12px;
-            background: rgba(42,82,152,0.05);
+        .provider-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 25px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            color: var(--primary-light);
-            font-weight: 600;
-            gap: 10px;
-            text-align: center;
         }
 
-        .file-input-label:hover {
-            background: rgba(42,82,152,0.1);
+        .provider-btn.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
         }
 
-        .file-list {
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 14px;
-            background: rgba(16,185,129,0.1);
-            border: 1px solid rgba(16,185,129,0.3);
-            border-radius: 8px;
-            font-size: 13px;
-        }
-
-        .file-item-name {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-        }
-
-        .file-item-remove {
-            background: rgba(239,68,68,0.2);
-            color: var(--danger);
-            border: none;
-            padding: 4px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            transition: all 0.2s;
-        }
-
-        .file-item-remove:hover {
-            background: rgba(239,68,68,0.3);
-        }
-
-        /* Status */
-        .api-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .api-status.warning {
-            background: rgba(245,158,11,0.15);
-            color: var(--warning);
-        }
-
-        .api-status.success {
-            background: rgba(16,185,129,0.15);
-            color: var(--success);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Table */
-        .table-wrapper {
-            overflow-x: auto;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-
-        table {
+        .results-table {
             width: 100%;
-            border-collapse: collapse;
-            background: var(--bg-card);
-            font-size: 13px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: white;
         }
 
-        thead {
-            background: linear-gradient(90deg, rgba(30,60,114,0.08), rgba(42,82,152,0.08));
-            border-bottom: 2px solid var(--border);
+        .results-table thead {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
         }
 
-        th {
-            padding: 14px 12px;
+        .results-table th {
+            padding: 1.25rem 1rem;
             text-align: left;
             font-weight: 600;
-            color: var(--primary);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 0.95rem;
         }
 
-        td {
-            padding: 14px 12px;
-            border-bottom: 1px solid var(--border);
-            color: var(--text-secondary);
+        .results-table td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid #f3f4f6;
         }
 
-        tbody tr:hover {
-            background: rgba(42,82,152,0.03);
+        .results-table tr:hover {
+            background: #f9fafb;
         }
 
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Badge */
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
+        .priority-badge {
+            padding: 0.25rem 0.75rem;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .badge-high {
-            background: rgba(16,185,129,0.2);
-            color: #065f46;
+        .priority-high { background: #10b981; color: white; }
+        .priority-medium { background: #f59e0b; color: white; }
+        .priority-low { background: #ef4444; color: white; }
+
+        .score-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
         }
 
-        .badge-mid {
-            background: rgba(245,158,11,0.2);
-            color: #92400e;
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
         }
 
-        .badge-low {
-            background: rgba(239,68,68,0.2);
-            color: #7f1d1d;
-        }
+        .score-high { background: #10b981; }
+        .score-medium { background: #f59e0b; }
+        .score-low { background: #ef4444; }
 
-        /* Loading */
         .loading {
-            text-align: center;
-            padding: 40px;
             display: none;
-        }
-
-        .loading.active {
-            display: block;
+            text-align: center;
+            padding: 2rem;
         }
 
         .spinner {
-            border: 4px solid var(--border);
-            border-top: 4px solid var(--primary-light);
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4f46e5;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 20px;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
         }
 
         @keyframes spin {
@@ -429,794 +298,704 @@
             100% { transform: rotate(360deg); }
         }
 
-        .loading-text {
-            font-size: 14px;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-
-        /* Empty State */
-        .empty-state {
+        .no-results {
             text-align: center;
-            padding: 60px 30px;
-            color: var(--text-secondary);
+            padding: 3rem;
+            color: #6b7280;
         }
 
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.3;
-        }
-
-        .empty-state-text {
-            font-size: 14px;
-        }
-
-        /* Toast */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 400px;
+        .no-results i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
         }
 
         @media (max-width: 768px) {
-            .toast-container {
-                left: 20px;
-                right: 20px;
-                max-width: none;
+            .container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 1.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-table {
+                font-size: 0.9rem;
+            }
+            
+            .results-table th,
+            .results-table td {
+                padding: 0.75rem 0.5rem;
             }
         }
 
         .toast {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--primary);
-            padding: 14px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideIn 0.3s ease, slideOut 0.3s ease 4.7s;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            font-size: 13px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
         }
 
-        .toast.success {
-            border-left-color: var(--success);
+        .toast.show {
+            transform: translateX(0);
         }
 
-        .toast.error {
-            border-left-color: var(--danger);
-        }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+        .toast.info { background: #3b82f6; }
 
-        .toast.warning {
-            border-left-color: var(--warning);
-        }
-
-        .toast-icon {
-            flex-shrink: 0;
-            font-size: 16px;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-
-        /* Results Info */
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .results-info {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .results-info strong {
-            color: var(--primary);
-        }
-
-        /* Score Bar */
-        .score-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .score-num {
-            font-weight: 600;
-            min-width: 35px;
-            color: var(--text-primary);
-        }
-
-        .score-fill {
-            flex: 1;
-            height: 6px;
-            background: var(--border);
-            border-radius: 3px;
-            overflow: hidden;
-            min-width: 60px;
-        }
-
-        .score-progress {
+        .api-key-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            border-radius: 3px;
-            transition: width 0.5s ease;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-size: 12px;
+        .api-key-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <h1>
-                <i class="fas fa-file-alt"></i>
-                CV Matching System (ATS)
-            </h1>
-            <p>AI-powered CV ranking dengan Groq API - Upload CV dan cek kecocokan dengan requirement</p>
+            <h1><i class="fas fa-rocket"></i> CV Matching System (ATS)</h1>
+            <p>Analisis CV otomatis dengan AI & algoritma lokal • 100% Frontend</p>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-grid">
-            <!-- Left Column -->
-            <div>
-                <!-- Job Info -->
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-briefcase"></i>
-                        Informasi Posisi
+        <div class="content">
+            <!-- Input Section -->
+            <div class="input-section">
+                <h2 style="margin-bottom: 1.5rem; color: #1f2937; font-size: 1.5rem;">
+                    <i class="fas fa-cog"></i> Konfigurasi Pekerjaan
+                </h2>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label><i class="fas fa-briefcase"></i> Nama Posisi</label>
+                        <input type="text" id="jobTitle" placeholder="Contoh: Senior Frontend Developer">
                     </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="positionName">Nama Posisi <span style="color:var(--danger);">*</span></label>
-                            <input type="text" id="positionName" placeholder="Contoh: Senior Engineer">
-                        </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> Kualifikasi</label>
+                        <input type="text" id="qualifications" placeholder="Contoh: React, Node.js, 3+ tahun pengalaman">
+                    </div>
+                </div>
 
-                        <div class="form-group">
-                            <label for="requirements">Kualifikasi & Requirements <span style="color:var(--danger);">*</span></label>
-                            <textarea id="requirements" placeholder="- Pendidikan S1 Teknik Sipil&#10;- Pengalaman 3+ tahun&#10;- Menguasai AutoCAD"></textarea>
-                        </div>
+                <div class="form-group">
+                    <label><i class="fas fa-file-alt"></i> Job Description</label>
+                    <textarea id="jobDescription" placeholder="Tulis deskripsi pekerjaan lengkap..."></textarea>
+                </div>
 
-                        <div class="form-group">
-                            <label for="jobDescription">Job Description</label>
-                            <textarea id="jobDescription" placeholder="Deskripsi lengkap pekerjaan..."></textarea>
-                        </div>
-
-                        <button class="btn btn-primary btn-block" onclick="validateJobInput()">
-                            <i class="fas fa-check"></i>
-                            Simpan Requirement
+                <div class="form-group">
+                    <label>Metode Analisis</label>
+                    <div class="provider-switcher">
+                        <button class="provider-btn active" data-provider="tfidf">
+                            <i class="fas fa-calculator"></i> TF-IDF Lokal
+                        </button>
+                        <button class="provider-btn" data-provider="groq">
+                            <i class="fas fa-robot"></i> Groq (Llama 3.3)
+                        </button>
+                        <button class="provider-btn" data-provider="gemini">
+                            <i class="fas fa-brain"></i> Gemini 1.5 Flash
                         </button>
                     </div>
                 </div>
 
-                <!-- API Key -->
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-key"></i>
-                        Groq API Key (Optional)
-                    </div>
-                    <div class="card-body">
-                        <div id="apiStatus" class="api-status warning">
-                            <span class="status-dot"></span>
-                            Mode Fallback (Keyword Scoring)
-                        </div>
-
-                        <div class="form-group">
-                            <label for="apiKey">API Key Groq <small>(dari groq.com)</small></label>
-                            <input type="password" id="apiKey" placeholder="gsk_...">
-                        </div>
-
-                        <div class="btn-group">
-                            <button class="btn btn-primary" onclick="saveApiKey()">
-                                <i class="fas fa-save"></i>
-                                Simpan
-                            </button>
-                            <button class="btn btn-secondary" onclick="toggleApiKey()">
-                                <i class="fas fa-eye"></i>
-                                Tampilkan
-                            </button>
-                        </div>
-
-                        <p style="font-size:12px; color:var(--text-secondary); margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
-                            <i class="fas fa-info-circle"></i> Sistem dapat berjalan tanpa API Key menggunakan keyword scoring
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column -->
-            <div>
-                <!-- CV Upload -->
-                <div class="card">
-                    <div class="card-header">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="manageApiKeys()">
+                        <i class="fas fa-key"></i> Kelola API Key
+                    </button>
+                    <div class="file-upload-area" onclick="document.getElementById('cvFiles').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        Upload CV Kandidat
+                        <p><strong>Klik atau drag & drop CV (PDF/DOCX)</strong></p>
+                        <p style="font-size: 0.9rem; opacity: 0.7;">Multiple files supported</p>
+                        <div class="file-list" id="fileList"></div>
+                        <input type="file" id="cvFiles" multiple accept=".pdf,.docx" style="display: none;" onchange="handleFiles(event)">
                     </div>
-                    <div class="card-body">
-                        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">
-                            <i class="fas fa-info-circle"></i> Format: PDF, DOCX (Max 10 file, 10MB each)
-                        </p>
-
-                        <div class="file-input-wrapper">
-                            <input type="file" id="cvFiles" class="file-input" multiple accept=".pdf,.docx,.doc">
-                            <label for="cvFiles" class="file-input-label">
-                                <i class="fas fa-cloud-upload-alt" style="font-size:24px;"></i>
-                                <span>Drag CV di sini atau klik untuk upload</span>
-                            </label>
-                            <div class="file-list" id="fileList"></div>
-                        </div>
-
-                        <button class="btn btn-success btn-block" onclick="startAnalysis()" style="margin-top:16px;">
-                            <i class="fas fa-play"></i>
-                            Mulai Analisis CV
-                        </button>
-
-                        <div class="btn-group">
-                            <button class="btn btn-secondary" onclick="resetForm()">
-                                <i class="fas fa-redo"></i>
-                                Reset
-                            </button>
-                            <button class="btn btn-primary" onclick="exportToExcel()">
-                                <i class="fas fa-download"></i>
-                                Export
-                            </button>
-                        </div>
-                    </div>
+                    <button class="btn btn-success" id="analyzeBtn" onclick="analyzeCVs()" disabled>
+                        <i class="fas fa-magic"></i> Analisis CVs
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Results -->
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-chart-bar"></i>
-                Hasil Ranking CV
-            </div>
-            <div class="card-body">
-                <div class="results-header" style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                    <div style="font-size:13px; color:var(--text-secondary);" id="resultsInfo">
-                        Belum ada data
-                    </div>
+            <!-- Results Section -->
+            <div class="results-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="color: #1f2937; font-size: 1.5rem;">
+                        <i class="fas fa-chart-line"></i> Hasil Analisis
+                    </h2>
+                    <button class="btn btn-secondary" id="exportBtn" onclick="exportToExcel()" style="display: none;">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
                 </div>
 
-                <div id="resultsTable">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-inbox"></i>
-                        </div>
-                        <div class="empty-state-text">
-                            Upload dan analisis CV untuk melihat hasil di sini
-                        </div>
-                    </div>
-                </div>
-
-                <div class="loading" id="loadingSection">
+                <div class="loading" id="loading">
                     <div class="spinner"></div>
-                    <div class="loading-text" id="loadingText">Menganalisis CV...</div>
+                    <p>Menganalisis CVs...</p>
+                </div>
+
+                <div id="resultsContainer">
+                    <div class="no-results">
+                        <i class="fas fa-file-search"></i>
+                        <h3>Belum ada hasil analisis</h3>
+                        <p>Upload CV dan klik "Analisis CVs" untuk memulai</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="toast-container" id="toastContainer"></div>
-
-    <footer>
-        <p>&copy; 2025 CV Matching System (ATS) | Powered by Groq AI | v1.0</p>
-    </footer>
+    <!-- API Key Modal -->
+    <div class="api-key-modal" id="apiKeyModal">
+        <div class="api-key-modal-content">
+            <h3><i class="fas fa-key"></i> Kelola API Key</h3>
+            <div style="margin: 1.5rem 0;">
+                <div class="form-group">
+                    <label>Groq API Key</label>
+                    <input type="password" id="groqKey" placeholder="sk-...">
+                </div>
+                <div class="form-group">
+                    <label>Gemini API Key</label>
+                    <input type="password" id="geminiKey" placeholder="AIza...">
+                </div>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeApiModal()">Batal</button>
+                <button class="btn btn-primary" onclick="saveApiKeys()">Simpan</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // ============ CONFIG ============
+        // Global State
+        let cvFiles = [];
+        let results = [];
+        let currentProvider = 'tfidf';
+
+        // Initialize PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        let STATE = {
-            jobInfo: null,
-            files: [],
-            results: [],
-            apiKey: localStorage.getItem('groq_api_key') || '',
-            apiOk: false
-        };
-
-        // ============ INIT ============
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('cvFiles').addEventListener('change', handleFiles);
-            if (STATE.apiKey) {
-                document.getElementById('apiKey').value = '••••••••••••••••';
-                testApiKey();
-            }
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadApiKeys();
+            setupDragDrop();
+            setupProviderSwitcher();
         });
 
-        // ============ API KEY ============
-        function saveApiKey() {
-            let key = document.getElementById('apiKey').value.trim();
-            if (!key || key.startsWith('•')) {
-                showToast('Masukkan API Key terlebih dahulu', 'error');
-                return;
+        function setupDragDrop() {
+            const uploadArea = document.querySelector('.file-upload-area');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
-            if (!key.startsWith('gsk_')) {
-                showToast('Format tidak valid (harus gsk_...)', 'error');
-                return;
-            }
-            STATE.apiKey = key;
-            localStorage.setItem('groq_api_key', key);
-            document.getElementById('apiKey').value = '••••••••••••••••';
-            testApiKey();
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+            });
+
+            uploadArea.addEventListener('drop', handleDrop, false);
         }
 
-        function toggleApiKey() {
-            let el = document.getElementById('apiKey');
-            if (el.type === 'password') {
-                el.type = 'text';
-                el.value = STATE.apiKey || '••••••••••••••••';
-            } else {
-                el.type = 'password';
-                el.value = '••••••••••••••••';
-            }
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = Array.from(dt.files).filter(file => 
+                file.name.toLowerCase().endsWith('.pdf') || 
+                file.name.toLowerCase().endsWith('.docx')
+            );
+            handleFiles(files);
         }
 
-        async function testApiKey() {
-            showToast('Menguji koneksi API...', 'info');
-            try {
-                let res = await fetch('https://api.groq.com/openai/v1/models', {
-                    headers: { 'Authorization': `Bearer ${STATE.apiKey}` },
-                    timeout: 5000
-                });
-                if (res.ok) {
-                    STATE.apiOk = true;
-                    document.getElementById('apiStatus').className = 'api-status success';
-                    document.getElementById('apiStatus').innerHTML = '<span class="status-dot"></span> ✓ API Groq Terhubung (AI Scoring)';
-                    showToast('✓ API Groq berhasil terhubung!', 'success');
-                } else {
-                    throw new Error('API error');
-                }
-            } catch (e) {
-                STATE.apiOk = false;
-                document.getElementById('apiStatus').className = 'api-status warning';
-                document.getElementById('apiStatus').innerHTML = '<span class="status-dot"></span> ⚠ Fallback Mode (Keyword Scoring)';
-                showToast('API gagal, menggunakan fallback', 'warning');
-            }
-        }
-
-        // ============ JOB INPUT ============
-        function validateJobInput() {
-            let pos = document.getElementById('positionName').value.trim();
-            let req = document.getElementById('requirements').value.trim();
-            if (!pos || !req) {
-                showToast('Lengkapi nama posisi dan kualifikasi', 'error');
-                return;
-            }
-            STATE.jobInfo = {
-                position: pos,
-                requirements: req,
-                jobDesc: document.getElementById('jobDescription').value.trim()
-            };
-            showToast(`✓ Job info disimpan: "${pos}"`, 'success');
-        }
-
-        // ============ FILE HANDLING ============
-        function handleFiles() {
-            let input = document.getElementById('cvFiles');
-            STATE.files = Array.from(input.files);
-            if (STATE.files.length > 10) {
-                STATE.files = STATE.files.slice(0, 10);
-                showToast('Max 10 file', 'warning');
-            }
+        function handleFiles(files) {
+            cvFiles = Array.from(files).filter(file => 
+                file.name.toLowerCase().endsWith('.pdf') || 
+                file.name.toLowerCase().endsWith('.docx')
+            );
+            
             updateFileList();
+            document.getElementById('analyzeBtn').disabled = cvFiles.length === 0;
         }
 
         function updateFileList() {
-            let list = document.getElementById('fileList');
-            list.innerHTML = '';
-            STATE.files.forEach((f, i) => {
-                let el = document.createElement('div');
-                el.className = 'file-item';
-                el.innerHTML = `
-                    <div class="file-item-name">
-                        <i class="fas fa-${f.name.endsWith('.pdf') ? 'file-pdf' : 'file-word'}"></i>
-                        <span>${f.name}</span>
-                    </div>
-                    <button class="file-item-remove" onclick="removeFile(${i})">Hapus</button>
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            cvFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <i class="fas fa-file-${file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'word'}"></i>
+                    ${file.name}
+                    <button onclick="removeFile(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; margin-left: auto;">
+                        <i class="fas fa-times"></i>
+                    </button>
                 `;
-                list.appendChild(el);
+                fileList.appendChild(fileItem);
             });
         }
 
-        function removeFile(i) {
-            STATE.files.splice(i, 1);
+        function removeFile(index) {
+            cvFiles.splice(index, 1);
             updateFileList();
+            document.getElementById('analyzeBtn').disabled = cvFiles.length === 0;
         }
 
-        // ============ TEXT EXTRACTION ============
-        async function extractText(file) {
-            let ext = file.name.split('.').pop().toLowerCase();
-            try {
-                if (ext === 'pdf') {
-                    let buf = await file.arrayBuffer();
-                    let pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-                    let text = '';
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        let page = await pdf.getPage(i);
-                        let content = await page.getTextContent();
-                        text += content.items.map(item => item.str).join(' ') + ' ';
-                    }
-                    return text;
-                } else if (['docx', 'doc'].includes(ext)) {
-                    let buf = await file.arrayBuffer();
-                    let res = await mammoth.extractRawText({ arrayBuffer: buf });
-                    return res.value;
-                }
-            } catch (e) {
-                console.error('Extract error:', e);
-                throw e;
-            }
-        }
-
-        // ============ PARSING ============
-        function parseCV(text) {
-            let lines = text.split('\n').map(l => l.trim()).filter(l => l);
-            let lower = text.toLowerCase();
-
-            // NAME
-            let name = 'N/A';
-            let namePattern = /(?:nama|name|full\s+name)\s*[:=]\s*([^\n,]{3,100})/i;
-            let nameMatch = text.match(namePattern);
-            if (nameMatch) {
-                name = nameMatch[1].trim();
-            } else {
-                for (let i = 0; i < Math.min(20, lines.length); i++) {
-                    let line = lines[i];
-                    if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(line) && line.length > 3 && line.length < 60) {
-                        name = line;
-                        break;
-                    }
-                }
-            }
-
-            // AGE
-            let age = 'N/A';
-            let agePattern = /(?:umur|usia|age)\s*[:=]?\s*(\d{1,2})/i;
-            let ageMatch = text.match(agePattern);
-            if (ageMatch) {
-                age = ageMatch[1];
-            }
-
-            // EDUCATION
-            let edu = 'N/A';
-            if (lower.includes('s2') || lower.includes('magister')) edu = 'S2';
-            else if (lower.includes('s1') || lower.includes('sarjana')) edu = 'S1';
-            else if (lower.includes('d4')) edu = 'D4';
-            else if (lower.includes('d3')) edu = 'D3';
-            else if (lower.includes('sma')) edu = 'SMA';
-            else if (lower.includes('smk')) edu = 'SMK';
-
-            // MAJOR
-            let major = 'N/A';
-            let majors = ['teknik sipil', 'akuntansi', 'manajemen', 'informatika', 'sistem informasi', 'teknik informatika', 'hukum', 'psikologi', 'ekonomi', 'komunikasi', 'marketing', 'engineering', 'business'];
-            for (let m of majors) {
-                if (lower.includes(m)) {
-                    major = m.toUpperCase();
-                    break;
-                }
-            }
-
-            // ADDRESS
-            let address = 'N/A';
-            let cities = ['jakarta', 'bandung', 'surabaya', 'medan', 'batam', 'padang', 'semarang', 'makassar', 'yogyakarta', 'malang'];
-            for (let c of cities) {
-                if (lower.includes(c)) {
-                    address = c.charAt(0).toUpperCase() + c.slice(1);
-                    break;
-                }
-            }
-
-            // EXPERIENCE
-            let exp = 'N/A';
-            let expPattern = /([A-Z][a-zA-Z\s&.,-]+?)\s*\((\d{4})\s*[-–]\s*(\d{4}|sekarang|present)\)/;
-            let expMatch = text.match(expPattern);
-            if (expMatch) {
-                exp = `${expMatch[1].trim()} (${expMatch[2]}-${expMatch[3]})`;
-            }
-
-            return { name, age, education: edu, major, address, experience: exp };
-        }
-
-        // ============ SCORING ============
-        async function scoreCV(cvData, jobInfo) {
-            if (STATE.apiOk && STATE.apiKey) {
-                return await scoreWithGroq(cvData, jobInfo);
-            } else {
-                return scoreWithKeywords(cvData, jobInfo);
-            }
-        }
-
-        async function scoreWithGroq(cvData, jobInfo) {
-            let prompt = `Anda HR Expert. Berikan skor 0-100 kecocokan CV dengan requirement.
-
-KANDIDAT:
-- Nama: ${cvData.name}
-- Usia: ${cvData.age}
-- Pendidikan: ${cvData.education}
-- Jurusan: ${cvData.major}
-- Alamat: ${cvData.address}
-- Pengalaman: ${cvData.experience}
-
-POSISI: ${jobInfo.position}
-REQUIREMENT: ${jobInfo.requirements}
-
-Berikan HANYA skor 0-100 (angka saja).`;
-
-            try {
-                let res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${STATE.apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'llama-3.3-70b-versatile',
-                        messages: [{ role: 'user', content: prompt }],
-                        max_tokens: 50,
-                        temperature: 0.3
-                    })
+        function setupProviderSwitcher() {
+            document.querySelectorAll('.provider-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.provider-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentProvider = this.dataset.provider;
                 });
-
-                if (!res.ok) {
-                    throw new Error('API error');
-                }
-
-                let data = await res.json();
-                let content = data.choices[0].message.content.trim();
-                let scoreMatch = content.match(/(\d+)/);
-                let score = scoreMatch ? Math.min(100, Math.max(0, parseInt(scoreMatch[1]))) : 0;
-
-                return score;
-            } catch (e) {
-                console.warn('Groq failed:', e);
-                return scoreWithKeywords(cvData, jobInfo);
-            }
+            });
         }
 
-        function scoreWithKeywords(cvData, jobInfo) {
-            let score = 0;
-            let req = jobInfo.requirements.toLowerCase();
-            let cv = JSON.stringify(cvData).toLowerCase();
-
-            // Education (40)
-            let eduScores = { 'S2': 40, 'S1': 35, 'D4': 28, 'D3': 20, 'SMA': 10, 'SMK': 12 };
-            score += eduScores[cvData.education] || 0;
-
-            // Major (30)
-            if (cvData.major !== 'N/A') {
-                let words = cvData.major.toLowerCase().split(/\s+/);
-                let match = words.filter(w => w.length > 2 && req.includes(w)).length;
-                score += Math.min(30, match * 10);
-            }
-
-            // Experience (20)
-            if (cvData.experience !== 'N/A') {
-                let words = cvData.experience.toLowerCase().split(/\s+/);
-                let match = words.filter(w => w.length > 3 && req.includes(w)).length;
-                score += Math.min(20, match * 5);
-            }
-
-            // Bonus
-            if (cvData.address !== 'N/A') score += 5;
-            if (cvData.age !== 'N/A') score += 5;
-
-            return Math.round(Math.min(100, score));
-        }
-
-        function getRecommendation(score) {
-            if (score >= 75) return 'High Priority';
-            if (score >= 50) return 'Layak Interview';
-            return 'Cadangan';
-        }
-
-        // ============ ANALYSIS ============
-        async function startAnalysis() {
-            if (!STATE.jobInfo) {
-                showToast('Simpan informasi posisi terlebih dahulu', 'error');
-                return;
-            }
-            if (STATE.files.length === 0) {
-                showToast('Upload minimal 1 CV', 'error');
+        async function analyzeCVs() {
+            if (cvFiles.length === 0) {
+                showToast('Upload CV terlebih dahulu', 'error');
                 return;
             }
 
-            STATE.results = [];
-            document.getElementById('loadingSection').classList.add('active');
-            document.getElementById('resultsTable').innerHTML = '';
+            if (!document.getElementById('jobDescription').value.trim()) {
+                showToast('Isi Job Description terlebih dahulu', 'error');
+                return;
+            }
 
-            for (let i = 0; i < STATE.files.length; i++) {
-                let file = STATE.files[i];
+            showLoading(true);
+            
+            const jobData = {
+                title: document.getElementById('jobTitle').value,
+                qualifications: document.getElementById('qualifications').value,
+                description: document.getElementById('jobDescription').value
+            };
+
+            results = [];
+            
+            for (let i = 0; i < cvFiles.length; i++) {
                 try {
-                    document.getElementById('loadingText').textContent = `Analisis ${i+1}/${STATE.files.length}: ${file.name}`;
-
-                    let text = await extractText(file);
-                    let cvData = parseCV(text);
-                    let score = await scoreCV(cvData, STATE.jobInfo);
-
-                    if (typeof score !== 'number' || isNaN(score)) score = 0;
-
-                    STATE.results.push({
-                        fileName: file.name,
+                    const cvText = await parseCV(cvFiles[i]);
+                    const cvData = extractCVData(cvText);
+                    
+                    let score = 0;
+                    let analysis = '';
+                    
+                    if (currentProvider === 'tfidf') {
+                        const result = calculateTFIDF(jobData.description, cvText);
+                        score = Math.round(result.score * 100);
+                        analysis = result.analysis;
+                    } else {
+                        const aiResult = await analyzeWithAI(jobData, cvData, cvFiles[i].name);
+                        score = aiResult.score;
+                        analysis = aiResult.analysis;
+                    }
+                    
+                    results.push({
+                        filename: cvFiles[i].name,
                         ...cvData,
-                        score: score,
-                        recommendation: getRecommendation(score)
+                        score,
+                        analysis: analysis.substring(0, 200) + '...',
+                        fullAnalysis: analysis
                     });
-
-                    showToast(`✓ ${file.name}`, 'success');
-                } catch (e) {
-                    showToast(`✗ ${file.name}`, 'error');
-                    console.error('Error:', e);
+                } catch (error) {
+                    console.error(`Error processing ${cvFiles[i].name}:`, error);
+                    results.push({
+                        filename: cvFiles[i].name,
+                        name: 'Unknown',
+                        score: 0,
+                        analysis: 'Gagal memproses file',
+                        error: true
+                    });
                 }
             }
-
-            STATE.results.sort((a, b) => b.score - a.score);
-            document.getElementById('loadingSection').classList.remove('active');
-            displayResults();
-            showToast(`✓ Analisis selesai! ${STATE.results.length} CV`, 'success');
+            
+            results.sort((a, b) => b.score - a.score);
+            renderResults();
+            document.getElementById('exportBtn').style.display = results.length > 0 ? 'inline-flex' : 'none';
+            showLoading(false);
+            showToast(`Berhasil menganalisis ${results.length} CV`, 'success');
         }
 
-        function displayResults() {
-            let container = document.getElementById('resultsTable');
-            let info = document.getElementById('resultsInfo');
+        async function parseCV(file) {
+            if (file.name.toLowerCase().endsWith('.pdf')) {
+                return await parsePDF(file);
+            } else {
+                return await parseDOCX(file);
+            }
+        }
 
-            if (STATE.results.length === 0) {
+        async function parsePDF(file) {
+            return new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.onload = async function() {
+                    try {
+                        const typedarray = new Uint8Array(this.result);
+                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                        let text = '';
+                        
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const content = await page.getTextContent();
+                            text += content.items.map(item => item.str).join(' ') + '\n';
+                        }
+                        resolve(text);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                fileReader.onerror = reject;
+                fileReader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function parseDOCX(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const result = await mammoth.extractRawText({arrayBuffer});
+                        resolve(result.value);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function extractCVData(text) {
+            const lines = text.toLowerCase().split('\n');
+            
+            // Extract name (first line or contains common name patterns)
+            const name = lines[0]?.trim() || 'Unknown';
+            
+            // Extract age (patterns like "umur: 25", "25 tahun")
+            const ageMatch = text.match(/(?:umur|usia)[:\s]*(\d{1,2})(?:\s*tahun)?/i) || 
+                           text.match(/(\d{1,2})(?:\s*tahun)/i);
+            const age = ageMatch ? ageMatch[1] : 'N/A';
+            
+            // Extract education
+            const educationMatch = text.match(/(s1|s2|sarjana|d3|d4|diploma|smk|sma).*?(?:universitas|univ|politeknik|institut)/i);
+            const education = educationMatch ? educationMatch[0] : 'N/A';
+            
+            // Extract major
+            const majorMatch = text.match(/(?:jurusan|major).*?([a-z\s]+)/i);
+            const major = majorMatch ? majorMatch[1] : 'N/A';
+            
+            // Extract experience summary
+            const expLines = lines.slice(0, 10).filter(line => 
+                line.includes('tahun') || line.includes('pengalaman') || /\d+\s*(?:th|tahun)/.test(line)
+            );
+            const experience = expLines.slice(0, 3).join(', ') || 'N/A';
+            
+            return {
+                name: name.substring(0, 50),
+                age,
+                education: education.substring(0, 50),
+                major: major.substring(0, 50),
+                experience: experience.substring(0, 100)
+            };
+        }
+
+        function calculateTFIDF(jobText, cvText) {
+            const jobWords = jobText.toLowerCase().match(/\b\w+\b/g) || [];
+            const cvWords = cvText.toLowerCase().match(/\b\w+\b/g) || [];
+            
+            const allWords = [...new Set([...jobWords, ...cvWords])];
+            const jobWordCount = {};
+            const cvWordCount = {};
+            
+            jobWords.forEach(word => jobWordCount[word] = (jobWordCount[word] || 0) + 1);
+            cvWords.forEach(word => cvWordCount[word] = (cvWordCount[word] || 0) + 1);
+            
+            let tfidfScore = 0;
+            let matchCount = 0;
+            
+            allWords.forEach(word => {
+                if (jobWordCount[word] && cvWordCount[word]) {
+                    const tfJob = jobWordCount[word] / jobWords.length;
+                    const tfCV = cvWordCount[word] / cvWords.length;
+                    const idf = 1 / (1 + (cvWordCount[word] > 0 ? 1 : 0));
+                    tfidfScore += tfJob * tfCV * idf;
+                    matchCount++;
+                }
+            });
+            
+            const score = Math.min(tfidfScore * 100, 100);
+            const analysis = `Ditemukan ${matchCount} kata kunci yang cocok. Kecocokan: ${(score).toFixed(1)}%`;
+            
+            return { score: score / 100, analysis };
+        }
+
+        async function analyzeWithAI(jobData, cvData, filename) {
+            const apiKeys = JSON.parse(localStorage.getItem('apiKeys') || '{}');
+            
+            if (currentProvider === 'groq' && !apiKeys.groq) {
+                throw new Error('Groq API Key tidak ditemukan');
+            }
+            
+            if (currentProvider === 'gemini' && !apiKeys.gemini) {
+                throw new Error('Gemini API Key tidak ditemukan');
+            }
+
+            const prompt = `Analisis kecocokan CV berikut dengan posisi ${jobData.title}:
+
+Job Requirements:
+${jobData.description}
+
+CV Data:
+Nama: ${cvData.name}
+Pengalaman: ${cvData.experience}
+
+Berikan skor 0-100 berdasarkan kecocokan dan jelaskan alasannya. Format: SKOR: 85\nALASAN: ...`;
+
+            try {
+                let response;
+                
+                if (currentProvider === 'groq') {
+                    response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${apiKeys.groq}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            model: 'llama-3.3-70b-versatile',
+                            messages: [{ role: 'user', content: prompt }],
+                            max_tokens: 200
+                        })
+                    });
+                } else {
+                    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKeys.gemini}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { maxOutputTokens: 200 }
+                        })
+                    });
+                }
+                
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                
+                const data = await response.json();
+                const content = currentProvider === 'groq' ? 
+                    data.choices[0].message.content : 
+                    data.candidates[0].content.parts[0].text;
+                
+                const scoreMatch = content.match(/SKOR:\s*(\d+)/i);
+                const score = scoreMatch ? parseInt(scoreMatch[1]) : 50;
+                
+                return {
+                    score: Math.min(Math.max(score, 0), 100),
+                    analysis: content.replace(/SKOR:[\d\s\n]*/i, '').trim()
+                };
+            } catch (error) {
+                console.error('AI Analysis failed:', error);
+                // Fallback to TF-IDF
+                return calculateTFIDF(jobData.description, `${cvData.name} ${cvData.experience}`);
+            }
+        }
+
+        function renderResults() {
+            const container = document.getElementById('resultsContainer');
+            
+            if (results.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon"><i class="fas fa-inbox"></i></div>
-                        <div class="empty-state-text">Tidak ada hasil</div>
+                    <div class="no-results">
+                        <i class="fas fa-file-search"></i>
+                        <h3>Belum ada hasil analisis</h3>
+                        <p>Upload CV dan klik "Analisis CVs" untuk memulai</p>
                     </div>
                 `;
-                info.innerHTML = 'Belum ada data';
                 return;
             }
 
-            info.innerHTML = `<strong>${STATE.results.length}</strong> kandidat`;
-
-            let html = `
-                <div class="table-wrapper">
-                <table>
+            container.innerHTML = `
+                <table class="results-table">
                     <thead>
                         <tr>
-                            <th>No</th>
-                            <th>Nama</th>
-                            <th>Usia</th>
-                            <th>Pendidikan</th>
-                            <th>Jurusan</th>
-                            <th>Alamat</th>
-                            <th>Pengalaman</th>
-                            <th>Skor</th>
-                            <th>Rekomendasi</th>
+                            <th><i class="fas fa-file"></i> File</th>
+                            <th><i class="fas fa-user"></i> Nama</th>
+                            <th><i class="fas fa-chart-line"></i> Skor</th>
+                            <th><i class="fas fa-graduation-cap"></i> Pendidikan</th>
+                            <th><i class="fas fa-briefcase"></i> Pengalaman</th>
+                            <th><i class="fas fa-tasks"></i> Analisis</th>
+                            <th><i class="fas fa-eye"></i> Detail</th>
                         </tr>
                     </thead>
                     <tbody>
-            `;
-
-            STATE.results.forEach((r, i) => {
-                let badge = r.score >= 75 ? 'badge-high' : (r.score >= 50 ? 'badge-mid' : 'badge-low');
-                html += `
-                    <tr>
-                        <td>${i+1}</td>
-                        <td><strong>${r.name}</strong></td>
-                        <td>${r.age}</td>
-                        <td>${r.education}</td>
-                        <td>${r.major}</td>
-                        <td>${r.address}</td>
-                        <td style="font-size:12px;">${r.experience.substring(0,80)}</td>
-                        <td>
-                            <div class="score-bar">
-                                <span class="score-num">${r.score}</span>
-                                <div class="score-fill">
-                                    <div class="score-progress" style="width:${r.score}%"></div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="badge ${badge}">${r.recommendation}</span></td>
-                    </tr>
-                `;
-            });
-
-            html += `
+                        ${results.map((result, index) => `
+                            <tr>
+                                <td><strong>${result.filename}</strong></td>
+                                <td>${result.name}</td>
+                                <td>
+                                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                        <div class="score-bar">
+                                            <div class="score-fill ${getScoreClass(result.score)}" style="width: ${result.score}%"></div>
+                                        </div>
+                                        <span style="font-size: 0.9rem; font-weight: 600;">${result.score}%</span>
+                                    </div>
+                                </td>
+                                <td>${result.education}</td>
+                                <td>${result.experience}</td>
+                                <td>${result.analysis}</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="showDetail(${index})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
                     </tbody>
                 </table>
-                </div>
             `;
-
-            container.innerHTML = html;
         }
 
-        // ============ EXPORT ============
-        function exportToExcel() {
-            if (STATE.results.length === 0) {
-                showToast('Tidak ada data untuk diekspor', 'error');
-                return;
-            }
+        function getScoreClass(score) {
+            if (score >= 80) return 'score-high';
+            if (score >= 60) return 'score-medium';
+            return 'score-low';
+        }
 
-            let data = STATE.results.map((r, i) => ({
-                'No': i+1,
+        function getPriorityClass(score) {
+            if (score >= 80) return 'priority-high';
+            if (score >= 60) return 'priority-medium';
+            return 'priority-low';
+        }
+
+        function showDetail(index) {
+            const result = results[index];
+            Swal.fire({
+                title: `Detail ${result.filename}`,
+                html: `
+                    <div style="text-align: left;">
+                        <p><strong>Nama:</strong> ${result.name}</p>
+                        <p><strong>Skor:</strong> ${result.score}%</p>
+                        <p><strong>Usia:</strong> ${result.age}</p>
+                        <p><strong>Pendidikan:</strong> ${result.education}</p>
+                        <p><strong>Jurusan:</strong> ${result.major}</p>
+                        <p><strong>Pengalaman:</strong> ${result.experience}</p>
+                        <p><strong>Analisis Lengkap:</strong></p>
+                        <p style="background: #f3f4f6; padding: 1rem; border-radius: 8px; white-space: pre-wrap;">${result.fullAnalysis || result.analysis}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Tutup',
+                customClass: {
+                    popup: 'swal-wide'
+                }
+            });
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('resultsContainer').style.opacity = show ? '0.5' : '1';
+        }
+
+        function manageApiKeys() {
+            const apiKeys = JSON.parse(localStorage.getItem('apiKeys') || '{}');
+            document.getElementById('groqKey').value = apiKeys.groq || '';
+            document.getElementById('geminiKey').value = apiKeys.gemini || '';
+            document.getElementById('apiKeyModal').style.display = 'block';
+        }
+
+        function closeApiModal() {
+            document.getElementById('apiKeyModal').style.display = 'none';
+        }
+
+        function saveApiKeys() {
+            const apiKeys = {
+                groq: document.getElementById('groqKey').value.trim(),
+                gemini: document.getElementById('geminiKey').value.trim()
+            };
+            localStorage.setItem('apiKeys', JSON.stringify(apiKeys));
+            closeApiModal();
+            showToast('API Keys disimpan', 'success');
+        }
+
+        function loadApiKeys() {
+            const apiKeys = JSON.parse(localStorage.getItem('apiKeys') || '{}');
+            if (apiKeys.groq || apiKeys.gemini) {
+                showToast('API Keys ditemukan', 'info');
+            }
+        }
+
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            const data = results.map(r => ({
+                'Nama File': r.filename,
                 'Nama': r.name,
+                'Skor (%)': r.score,
                 'Usia': r.age,
                 'Pendidikan': r.education,
                 'Jurusan': r.major,
-                'Alamat': r.address,
                 'Pengalaman': r.experience,
-                'Skor': r.score,
-                'Rekomendasi': r.recommendation
+                'Analisis': r.analysis
             }));
-
-            let ws = XLSX.utils.json_to_sheet(data);
-            let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'CV Ranking');
-            ws['!cols'] = [{ wch: 5 }, { wch: 20 }, { wch: 8 }, { wch: 15 }, { wch: 20 }, { wch: 15 }, { wch: 25 }, { wch: 8 }, { wch: 15 }];
-
-            let fileName = `CV_Ranking_${STATE.jobInfo.position.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
-            XLSX.writeFile(wb, fileName);
-
-            showToast(`✓ Export: ${fileName}`, 'success');
+            
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Hasil Analisis CV');
+            XLSX.writeFile(wb, `CV_Analysis_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showToast('File Excel berhasil diekspor', 'success');
         }
 
-        // ============ UTILS ============
-        function showToast(msg, type = 'info') {
-            let container = document.getElementById('toastContainer');
-            let toast = document.createElement('div');
+        function showToast(message, type) {
+            const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-
-            let icons = { success: 'check-circle', error: 'times-circle', warning: 'exclamation-circle', info: 'info-circle' };
-            toast.innerHTML = `
-                <div class="toast-icon"><i class="fas fa-${icons[type]}"></i></div>
-                <div>${msg}</div>
-            `;
-
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 5000);
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 4000);
         }
 
-        function resetForm() {
-            if (confirm('Reset semua data CV?')) {
-                document.getElementById('cvFiles').value = '';
-                STATE.files = [];
-                STATE.results = [];
-                updateFileList();
-                document.getElementById('resultsTable').innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-inbox"></i></div><div class="empty-state-text">Tidak ada hasil</div></div>';
-                showToast('✓ Form direset', 'info');
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('apiKeyModal');
+            if (event.target === modal) {
+                closeApiModal();
             }
         }
     </script>
