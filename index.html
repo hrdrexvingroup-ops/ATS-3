@@ -1,144 +1,397 @@
 <!DOCTYPE html>
+
 <html lang="id">
+
 <head>
+
     <meta charset="UTF-8">
-    <title>Rexvin Strategic AI Auditor - 2026 Edition</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Rexvin Recruitment AI - Final Strategic Edition</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
+
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+
+        .table-container { overflow-x: auto; background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+
     </style>
+
 </head>
-<body class="p-8">
+
+<body class="p-4 md:p-8">
+
+
 
     <div class="max-w-[1600px] mx-auto space-y-6">
-        <!-- HEADER & INPUT -->
-        <div class="bg-white p-8 rounded-2xl shadow-md border border-slate-200">
-            <div class="mb-6">
-                <h1 class="text-3xl font-extrabold text-slate-900">REXVIN <span class="text-blue-700">STRATEGIC AUDITOR</span></h1>
-                <p class="text-slate-500 italic">"AI tidak lagi sekadar mencocokkan kata, ia kini membedah DNA Industri."</p>
+
+        <!-- HEADER & INPUT AREA -->
+
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+
+            <div class="flex justify-between items-center mb-6">
+
+                <div>
+
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">REXVIN <span class="text-blue-600">RECRUITMENT AI</span></h1>
+
+                    <p class="text-slate-500 text-sm italic">Sistem Skrining Strategis (Mindset Owner vs Vendor) - Verified 2026</p>
+
+                </div>
+
+                <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
+
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+
+                    Download Excel
+
+                </button>
+
             </div>
+
+
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
                 <div class="space-y-4">
-                    <input type="password" id="apiKey" class="w-full p-3 bg-slate-50 border rounded-xl" placeholder="API Key Groq">
-                    <input type="file" id="fileInput" multiple class="w-full text-sm">
+
+                    <div>
+
+                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">API Key Groq</label>
+
+                        <input type="password" id="apiKey" class="w-full p-3 bg-slate-50 border rounded-xl outline-none" placeholder="gsk_...">
+
+                    </div>
+
+                    <div>
+
+                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Upload CV (PDF/DOCX)</label>
+
+                        <input type="file" id="fileInput" multiple class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+
+                    </div>
+
                 </div>
+
                 <div class="md:col-span-2">
-                    <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border rounded-xl" placeholder="Tulis JD Anda. Gunakan kata 'WAJIB' untuk kriteria industri."></textarea>
+
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Job Description (Kriteria WAJIB Industri)</label>
+
+                    <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border rounded-xl outline-none text-sm" placeholder="Tuliskan syarat industri di sini. Contoh: WAJIB pengalaman di Developer Properti."></textarea>
+
                 </div>
+
             </div>
 
-            <button onclick="processFiles()" id="btnRun" class="mt-6 w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl transition-all">
-                EKSEKUSI AUDIT KANDIDAT
+
+
+            <button onclick="processFiles()" id="btnRun" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.99]">
+
+                MULAI AUDIT STRATEGIS
+
             </button>
+
             
-            <div id="progressBox" class="hidden mt-4">
-                <div id="progressBar" class="bg-blue-600 h-1 w-0 transition-all"></div>
+
+            <div id="progressBox" class="hidden mt-6">
+
+                <div class="flex justify-between mb-2"><span id="statusLabel" class="text-xs font-bold text-blue-600">Analysing...</span><span id="progressText" class="text-xs font-bold">0/0</span></div>
+
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div id="progressBar" class="bg-blue-600 h-full w-0 transition-all"></div></div>
+
             </div>
+
         </div>
+
+
 
         <!-- RESULT TABLE -->
-        <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
-            <table class="w-full text-left">
-                <thead class="bg-slate-900 text-white text-[11px] uppercase">
-                    <tr>
-                        <th class="p-4">Kandidat</th>
-                        <th class="p-4 text-center">Usia (2026)</th>
-                        <th class="p-4">Riwayat Perusahaan</th>
-                        <th class="p-4 w-1/4">Analisa Strategis (The Truth)</th>
-                        <th class="p-4 text-center">Rekomendasi</th>
-                        <th class="p-4 text-center">Score</th>
+
+        <div class="table-container border border-slate-200">
+
+            <table class="w-full text-left border-collapse min-w-[1400px]">
+
+                <thead>
+
+                    <tr class="bg-slate-800 text-white text-[11px] uppercase tracking-wider">
+
+                        <th class="p-4 border-r border-slate-700 w-48">Nama & Kontak</th>
+
+                        <th class="p-4 border-r border-slate-700 text-center w-20">Usia</th>
+
+                        <th class="p-4 border-r border-slate-700 w-56">Domisili & Pendidikan</th>
+
+                        <th class="p-4 border-r border-slate-700">Pengalaman & Perusahaan</th>
+
+                        <th class="p-4 border-r border-slate-700 w-64">Catatan Kritis (DNA Audit)</th>
+
+                        <th class="p-4 border-r border-slate-700 text-center w-40">Rekomendasi</th>
+
+                        <th class="p-4 text-center w-20">Score</th>
+
                     </tr>
+
                 </thead>
-                <tbody id="resultTable" class="text-[12px] divide-y divide-slate-200"></tbody>
+
+                <tbody id="resultTable" class="text-[12px] bg-white divide-y divide-slate-200"></tbody>
+
             </table>
+
+            <div id="emptyState" class="p-20 text-center text-slate-400 italic">Data akan muncul di sini...</div>
+
         </div>
+
     </div>
 
+
+
     <script>
+
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
+        let allResults = [];
+
+
+
         async function processFiles() {
+
             const apiKey = document.getElementById('apiKey').value;
+
             const jd = document.getElementById('jobDesc').value;
+
             const files = Array.from(document.getElementById('fileInput').files);
-            if(!apiKey || !jd || files.length === 0) return alert("Data tidak lengkap!");
+
+            if(!apiKey || !jd || files.length === 0) return alert("Mohon lengkapi semua data!");
+
+
+
+            allResults = [];
 
             document.getElementById('resultTable').innerHTML = "";
+
+            document.getElementById('emptyState').classList.add('hidden');
+
             document.getElementById('progressBox').classList.remove('hidden');
 
+            document.getElementById('btnRun').disabled = true;
+
+
+
             for (let i = 0; i < files.length; i++) {
+
+                updateProgress(i, files.length, `Menganalisa: ${files[i].name}`);
+
                 try {
+
                     const text = files[i].name.endsWith('.pdf') ? await extractPDF(files[i]) : await extractDocx(files[i]);
+
                     const aiResult = await callGroq(apiKey, jd, text);
+
+                    allResults.push(aiResult);
+
                     renderRow(aiResult);
+
                 } catch (e) { console.error(e); }
+
             }
+
+
+
+            updateProgress(files.length, files.length, "Audit Selesai!");
+
+            document.getElementById('btnRun').disabled = false;
+
+            document.getElementById('btnDownload').classList.remove('hidden');
+
         }
+
+
 
         async function callGroq(key, jd, cv) {
+
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+
                 method: "POST",
+
                 headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+
                 body: JSON.stringify({
+
                     model: "llama-3.3-70b-versatile",
+
                     messages: [
+
                         { 
+
                             role: "system", 
-                            content: `Anda adalah CHRO Rexvin Group yang sangat skeptis. 
-                            Tugas: Memisahkan antara 'Orang Proyek Kontraktor' dan 'Orang Strategis Developer'.
 
-                            ATURAN LOGIKA KETAT:
-                            1. PERUSAHAAN ADALAH KUNCI: Cek nama tempat kerja kandidat. Jika mengandung 'Developer', 'Real Estate', 'Property', atau 'Land', kandidat ini memiliki DNA yang tepat. Berikan poin tinggi tanpa melihat judul posisi.
-                            2. POSISI vs INDUSTRI: Judul 'Supervisor' di Developer (seperti PT Alfa Bumindo) JAUH LEBIH BERHARGA daripada 'Project Manager' di perusahaan konstruksi umum/kontraktor.
-                            3. PENALTI KERAS: Jika kandidat HANYA berpengalaman di Kontraktor/Vendor, skor MAKSIMAL adalah 40%. Jangan berbelas kasihan.
-                            4. USIA: Hitung usia untuk tahun 2026.
-                            5. REKOMENDASI: Gunakan 'SANGAT DISARANKAN', 'DAPAT DIPERTIMBANGKAN', atau 'REJECT'.
+                            content: `Anda adalah CHRO Rexvin Group DENGAN PENGALAMAN 10 TAHUN. Fokus Anda adalah AUDIT CV KANDIDAT DNEGAN MENJADIKAN JOB DESC SEBAGAI ACUANNYA.
 
-                            Hasilkan JSON: {"name":"","usia":"","perusahaan":"","catatan":"","rekomendasi":"","score":0}` 
+                            
+
+                            LOGIKA WAJIB:
+
+                            1. PRIORITAS DNA: ACUAN BAKUNYA ADALAH JOBDESC, Jika kandidat MEMILIKI PENGALAMAN YG SESUAI DENGNA JOBDESC, mereka WAJIB diberi nilai tinggi (>80), apapun judul posisinya.
+
+                            2.  KANDIDAT HARUS MEMILIKI KUALIFIKASI PENDIDIKAN YG TERTERA DI JOBDESC, CONTOH S1 TEKNIK SIPIL , MAKA KANDIDAT HARUS TEKNIK SIPIL, YG TEKNIK ARSITEKTUR MAKA GAGAL 
+
+                            3. PENALTI: Pengalaman YANG TIDAK SESUAI DENGAN JOBDESC = Skor MAKS 40.
+
+                            4. DATA LENGKAP: Ambil detail No HP, Email, Domisili, Pendidikan, dan Jurusan secara akurat.
+
+                            5. Usia dihitung untuk tahun 2026.
+
+
+
+                            Output JSON: {"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","jurusan":"","pengalaman":"","catatan":"","rekomendasi":"","score":0}` 
+
                         },
-                        { role: "user", content: `JD Kriteria:\n${jd}\n\nCV Kandidat:\n${cv.substring(0, 7000)}` }
+
+                        { role: "user", content: `JD:\n${jd}\n\nCV:\n${cv.substring(0, 7500)}` }
+
                     ],
+
                     response_format: { type: "json_object" }
+
                 })
+
             });
+
             const data = await res.json();
+
             return JSON.parse(data.choices[0].message.content);
+
         }
+
+
 
         async function extractPDF(file) {
+
             const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+
             let text = "";
+
             for (let i = 1; i <= pdf.numPages; i++) {
+
                 const page = await pdf.getPage(i);
+
                 const content = await page.getTextContent();
+
                 text += content.items.map(s => s.str).join(" ") + " ";
+
             }
+
             return text;
+
         }
+
+
 
         async function extractDocx(file) {
+
             const res = await mammoth.extractRawText({arrayBuffer: await file.arrayBuffer()});
+
             return res.value;
+
         }
 
+
+
         function renderRow(d) {
-            const color = d.score >= 70 ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50';
-            const row = `
+
+            const scoreColor = d.score >= 80 ? 'text-emerald-600 bg-emerald-50' : (d.score >= 60 ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50');
+
+            const recColor = d.score < 50 ? 'text-rose-700 bg-rose-100' : 'text-emerald-700 bg-emerald-100';
+
+            
+
+            const html = `
+
                 <tr class="hover:bg-slate-50 transition-all">
-                    <td class="p-4 font-bold text-slate-900">${d.name}</td>
-                    <td class="p-4 text-center font-semibold">${d.usia}</td>
-                    <td class="p-4 font-medium text-blue-800">${d.perusahaan}</td>
-                    <td class="p-4 italic text-slate-600">${d.catatan}</td>
-                    <td class="p-4 text-center"><span class="px-3 py-1 rounded-full font-bold text-[10px] ${color}">${d.rekomendasi}</span></td>
-                    <td class="p-4 text-center font-black text-lg">${d.score}%</td>
+
+                    <td class="p-4 border-r">
+
+                        <div class="font-bold text-slate-900">${d.name}</div>
+
+                        <div class="text-[10px] text-blue-600 font-semibold uppercase mt-1">${d.hp}</div>
+
+                        <div class="text-[10px] text-slate-400 break-all">${d.email}</div>
+
+                    </td>
+
+                    <td class="p-4 border-r text-center font-bold text-slate-700">${d.usia}</td>
+
+                    <td class="p-4 border-r">
+
+                        <div class="font-semibold text-slate-800">${d.domisili}</div>
+
+                        <div class="text-[10px] text-slate-500 mt-1 uppercase font-bold">${d.pendidikan} - ${d.jurusan}</div>
+
+                    </td>
+
+                    <td class="p-4 border-r leading-relaxed">${d.pengalaman}</td>
+
+                    <td class="p-4 border-r italic text-slate-600 font-medium">${d.catatan}</td>
+
+                    <td class="p-4 border-r text-center">
+
+                        <span class="px-3 py-1 rounded-full font-bold text-[10px] uppercase ${recColor}">${d.rekomendasi}</span>
+
+                    </td>
+
+                    <td class="p-4 text-center">
+
+                        <span class="px-2 py-1 rounded font-black ${scoreColor}">${d.score}%</span>
+
+                    </td>
+
                 </tr>`;
-            document.getElementById('resultTable').insertAdjacentHTML('beforeend', row);
+
+            document.getElementById('resultTable').insertAdjacentHTML('beforeend', html);
+
         }
+
+
+
+        function updateProgress(c, t, l) {
+
+            const p = (c/t)*100;
+
+            document.getElementById('progressBar').style.width = p+'%';
+
+            document.getElementById('progressText').innerText = `${c}/${t}`;
+
+            document.getElementById('statusLabel').innerText = l;
+
+        }
+
+
+
+        function downloadExcel() {
+
+            const worksheet = XLSX.utils.json_to_sheet(allResults);
+
+            const workbook = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Hasil Audit Rexvin");
+
+            XLSX.writeFile(workbook, "Rexvin_Strategic_Review_2026.xlsx");
+
+        }
+
     </script>
+
 </body>
+
 </html>
