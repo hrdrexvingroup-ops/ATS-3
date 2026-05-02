@@ -2,686 +2,337 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>ATS Ultimate - CV Matching with Groq AI</title>
-    <!-- Library -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Ultimate Pro - CV Matching with AI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: radial-gradient(circle at 10% 20%, #0f172a, #020617); color: #e2e8f0; padding: 20px; min-height: 100vh; }
-        .container { max-width: 1500px; margin: 0 auto; }
-        /* Header */
-        .header { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 2rem; padding: 2rem; margin-bottom: 2rem; border: 1px solid #334155; box-shadow: 0 20px 35px -10px rgba(0,0,0,0.5); }
-        .header h1 { font-size: 2rem; display: flex; align-items: center; gap: 1rem; }
-        .badge { background: #3b82f6; padding: 0.2rem 0.8rem; border-radius: 2rem; font-size: 0.75rem; font-weight: normal; }
-        /* Grid */
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
-        @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
-        /* Cards */
-        .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid #334155; border-radius: 1.5rem; padding: 1.5rem; transition: 0.2s; }
-        .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.6rem; color: #60a5fa; border-left: 3px solid #3b82f6; padding-left: 0.8rem; }
-        /* Form */
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem; color: #94a3b8; }
-        input, textarea, select { width: 100%; padding: 0.7rem 1rem; background: #0f172a; border: 1px solid #334155; border-radius: 1rem; color: #f1f5f9; font-size: 0.9rem; transition: 0.2s; }
-        input:focus, textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
-        textarea { min-height: 140px; resize: vertical; }
-        /* Buttons */
-        .btn { padding: 0.7rem 1.2rem; border: none; border-radius: 1rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: 0.2s; font-size: 0.9rem; }
-        .btn-primary { background: linear-gradient(135deg, #2563eb, #1e40af); color: white; }
-        .btn-success { background: linear-gradient(135deg, #10b981, #047857); color: white; }
-        .btn-secondary { background: #334155; color: white; }
-        .btn-warning { background: #f59e0b; color: black; }
-        .btn-danger { background: #dc2626; color: white; }
-        .btn-block { width: 100%; }
-        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
-        .btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
-        /* Upload */
-        .upload-area { border: 2px dashed #3b82f6; border-radius: 1.5rem; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 1rem; transition: 0.2s; }
-        .upload-area:hover { background: rgba(59,130,246,0.1); border-color: #8b5cf6; }
-        .upload-icon i { font-size: 3rem; color: #3b82f6; }
-        .file-list { max-height: 250px; overflow-y: auto; margin-bottom: 1rem; }
-        .file-item { background: #1e293b; border-radius: 0.8rem; padding: 0.6rem 1rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
-        /* Status */
-        .api-status { padding: 0.7rem; border-radius: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-        .online { background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #10b981; }
-        .offline { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #ef4444; }
-        .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; margin-right: 6px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
-        /* Filter */
-        .filter-bar { display: flex; gap: 0.8rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
-        .search-box { flex: 1; position: relative; }
-        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        .search-box input { padding-left: 2.2rem; }
-        /* Table */
-        .table-wrapper { overflow-x: auto; border-radius: 1rem; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #334155; }
-        th { background: #0f172a; color: #60a5fa; }
-        .score-bar { display: flex; align-items: center; gap: 0.6rem; }
-        .score-track { flex: 1; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; }
-        .score-fill { height: 100%; border-radius: 3px; }
-        .badge-high { background: rgba(16,185,129,0.2); color: #10b981; }
-        .badge-mid { background: rgba(245,158,11,0.2); color: #f59e0b; }
-        .badge-low { background: rgba(239,68,68,0.2); color: #ef4444; }
-        /* Mobile card */
-        .mobile-card { background: #1e293b; border-radius: 1rem; padding: 1rem; margin-bottom: 0.8rem; border: 1px solid #334155; }
-        .desktop-only { display: block; }
-        .mobile-only { display: none; }
-        @media (max-width: 768px) { .desktop-only { display: none; } .mobile-only { display: block; } }
-        /* Toast & Loading */
-        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 1100; display: flex; flex-direction: column; gap: 8px; max-width: 380px; }
-        .toast { background: #1e293b; border-left: 4px solid #3b82f6; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .loading-overlay.active { display: flex; }
-        .spinner { width: 48px; height: 48px; border: 4px solid #334155; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .button-group { display: flex; gap: 0.8rem; margin-top: 1rem; }
-        .button-group .btn { flex: 1; }
-        .empty { text-align: center; padding: 3rem; color: #94a3b8; }
-        /* Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1200; }
-        .modal.active { display: flex; }
-        .modal-content { background: #1e293b; border-radius: 1.5rem; padding: 1.5rem; max-width: 500px; width: 90%; border: 1px solid #334155; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',Roboto,sans-serif;background:radial-gradient(circle at 10% 20%,#0f172a,#020617);color:#e2e8f0;padding:20px}
+        .container{max-width:1500px;margin:0 auto}
+        .header{background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:2rem;padding:1.5rem;margin-bottom:2rem;border:1px solid #334155}
+        .header h1{font-size:1.8rem;display:flex;align-items:center;gap:1rem}
+        .badge{background:#3b82f6;padding:0.2rem 0.8rem;border-radius:2rem;font-size:0.75rem}
+        .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-bottom:1.5rem}
+        @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+        .card{background:rgba(30,41,59,0.6);backdrop-filter:blur(12px);border:1px solid #334155;border-radius:1.5rem;padding:1.5rem}
+        .card-title{font-size:1.2rem;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:0.6rem;color:#60a5fa;border-left:3px solid #3b82f6;padding-left:0.8rem}
+        .form-group{margin-bottom:1rem}
+        label{display:block;font-size:0.7rem;font-weight:600;text-transform:uppercase;margin-bottom:0.3rem;color:#94a3b8}
+        input,textarea{width:100%;padding:0.7rem;background:#0f172a;border:1px solid #334155;border-radius:1rem;color:#f1f5f9;font-size:0.9rem}
+        input:focus,textarea:focus{outline:none;border-color:#3b82f6}
+        textarea{min-height:140px;resize:vertical}
+        .btn{padding:0.7rem 1.2rem;border:none;border-radius:1rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;transition:0.2s}
+        .btn-primary{background:linear-gradient(135deg,#2563eb,#1e40af);color:white}
+        .btn-success{background:linear-gradient(135deg,#10b981,#047857);color:white}
+        .btn-secondary{background:#334155;color:white}
+        .btn-warning{background:#f59e0b;color:black}
+        .btn-danger{background:#dc2626;color:white}
+        .btn-block{width:100%}
+        .btn-sm{padding:0.4rem 0.8rem;font-size:0.8rem}
+        .btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+        .upload-area{border:2px dashed #3b82f6;border-radius:1.5rem;padding:2rem;text-align:center;cursor:pointer;margin-bottom:1rem}
+        .upload-area:hover{background:rgba(59,130,246,0.1);border-color:#8b5cf6}
+        .upload-icon i{font-size:3rem;color:#3b82f6}
+        .file-list{max-height:250px;overflow-y:auto;margin-bottom:1rem}
+        .file-item{background:#1e293b;border-radius:0.8rem;padding:0.6rem 1rem;margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center}
+        .api-status{padding:0.7rem;border-radius:1rem;margin-bottom:1rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
+        .online{background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981}
+        .offline{background:rgba(239,68,68,0.15);border:1px solid #ef4444;color:#ef4444}
+        .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor;margin-right:6px;animation:pulse 1.5s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+        .filter-bar{display:flex;gap:0.8rem;margin-bottom:1.2rem;flex-wrap:wrap}
+        .search-box{flex:1;position:relative}
+        .search-box i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8}
+        .search-box input{padding-left:2.2rem}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:0.8rem;text-align:left;border-bottom:1px solid #334155}
+        th{background:#0f172a;color:#60a5fa}
+        .score-bar{display:flex;align-items:center;gap:0.6rem}
+        .score-track{flex:1;height:6px;background:#334155;border-radius:3px;overflow:hidden}
+        .score-fill{height:100%;border-radius:3px}
+        .badge-high{background:rgba(16,185,129,0.2);color:#10b981}
+        .badge-mid{background:rgba(245,158,11,0.2);color:#f59e0b}
+        .badge-low{background:rgba(239,68,68,0.2);color:#ef4444}
+        .mobile-card{background:#1e293b;border-radius:1rem;padding:1rem;margin-bottom:0.8rem;border:1px solid #334155}
+        .desktop-only{display:block}.mobile-only{display:none}
+        @media(max-width:768px){.desktop-only{display:none}.mobile-only{display:block}}
+        .toast-container{position:fixed;top:20px;right:20px;z-index:1100;display:flex;flex-direction:column;gap:8px;max-width:380px}
+        .toast{background:#1e293b;border-left:4px solid #3b82f6;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;animation:slideIn 0.3s}
+        @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        .loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:1000}
+        .loading-overlay.active{display:flex}
+        .spinner{width:48px;height:48px;border:4px solid #334155;border-top-color:#3b82f6;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:1rem}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .button-group{display:flex;gap:0.8rem;margin-top:1rem}
+        .button-group .btn{flex:1}
+        .empty{text-align:center;padding:3rem;color:#94a3b8}
+        .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;z-index:1200}
+        .modal.active{display:flex}
+        .modal-content{background:#1e293b;border-radius:1.5rem;padding:1.5rem;max-width:500px;width:90%;border:1px solid #334155}
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1><i class="fas fa-robot"></i> ATS Ultimate <span class="badge">Powered by Groq AI</span></h1>
-        <p style="margin-top: 0.5rem;">Sistem pencocokan CV cerdas dengan AI | Ranking otomatis | Export Excel/PDF</p>
+        <h1><i class="fas fa-brain"></i> ATS Ultimate Pro <span class="badge">AI-Powered</span></h1>
+        <p style="margin-top:0.5rem">Ekstraksi nama cerdas | Ranking AI | Export Excel/PDF</p>
     </div>
-
     <div class="grid-2">
-        <!-- Kiri: Job Requirement -->
         <div class="card">
             <div class="card-title"><i class="fas fa-bullhorn"></i> Deskripsi Pekerjaan</div>
-            <div class="form-group">
-                <label>Nama Posisi</label>
-                <input type="text" id="jobTitle" placeholder="cth: Senior Fullstack Engineer">
-            </div>
-            <div class="form-group">
-                <label>Kualifikasi & Job Description (detail)</label>
-                <textarea id="jobRequirement" placeholder="Contoh:&#10;• Pendidikan minimal S1 Teknik Informatika / Sistem Informasi&#10;• Pengalaman 3+ tahun di bidang software development&#10;• Menguasai JavaScript, React, Node.js, dan database SQL&#10;• Bersedia WFO/Hybrid di Jakarta&#10;• Kemampuan problem solving dan komunikasi yang baik"></textarea>
-            </div>
+            <div class="form-group"><label>Nama Posisi</label><input type="text" id="jobTitle" placeholder="cth: Site Coordinator"></div>
+            <div class="form-group"><label>Kualifikasi & Job Description</label><textarea id="jobRequirement" placeholder="Contoh:&#10;• Pendidikan minimal S1 Teknik Sipil&#10;• Pengalaman 2+ tahun sebagai site coordinator&#10;• Lokasi Jakarta"></textarea></div>
             <button class="btn btn-primary btn-block" id="saveReqBtn"><i class="fas fa-save"></i> Simpan Requirement</button>
         </div>
-
-        <!-- Kanan: Upload CV + API -->
         <div class="card">
             <div class="card-title"><i class="fas fa-microchip"></i> Konfigurasi AI (Groq)</div>
-            <div id="apiStatusBox" class="api-status offline">
-                <span><span class="dot"></span> Mode: Keyword (tanpa AI)</span>
-                <button class="btn btn-sm btn-primary" id="showApiModalBtn"><i class="fas fa-key"></i> Set API Key</button>
-            </div>
-            <div class="card-title" style="margin-top: 1rem;"><i class="fas fa-file-upload"></i> Upload CV</div>
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                <p>Klik atau drag & drop file CV</p>
-                <p style="font-size: 0.75rem;">PDF, DOCX, DOC (max 10MB per file, max 20 file)</p>
-                <input type="file" id="fileInput" multiple accept=".pdf,.docx,.doc" style="display: none;">
-            </div>
+            <div id="apiStatusBox" class="api-status offline"><span><span class="dot"></span> Mode: Keyword (tanpa AI)</span><button class="btn btn-sm btn-primary" id="showApiModalBtn"><i class="fas fa-key"></i> Set API Key</button></div>
+            <div class="card-title" style="margin-top:1rem"><i class="fas fa-file-upload"></i> Upload CV</div>
+            <div class="upload-area" id="uploadArea"><div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div><p>Klik atau drag & drop file CV</p><p style="font-size:0.75rem">PDF, DOCX, DOC (max 10MB)</p><input type="file" id="fileInput" multiple accept=".pdf,.docx,.doc" style="display:none"></div>
             <div id="fileListContainer" class="file-list"></div>
             <button class="btn btn-success btn-block" id="analyzeBtn"><i class="fas fa-chart-line"></i> Mulai Analisis (AI)</button>
-            <div class="button-group">
-                <button class="btn btn-secondary" id="clearFilesBtn"><i class="fas fa-trash-alt"></i> Hapus File</button>
-                <button class="btn btn-warning" id="demoBtn"><i class="fas fa-flask"></i> Demo Data</button>
-                <button class="btn btn-primary" id="exportExcelBtn"><i class="fas fa-file-excel"></i> Export Excel</button>
-                <button class="btn btn-primary" id="exportPdfBtn"><i class="fas fa-file-pdf"></i> Export PDF</button>
-            </div>
-            <div class="progress-text" id="progressInfo" style="font-size: 0.75rem; margin-top: 0.8rem; text-align: center;"></div>
+            <div class="button-group"><button class="btn btn-secondary" id="clearFilesBtn"><i class="fas fa-trash-alt"></i> Hapus File</button><button class="btn btn-warning" id="demoBtn"><i class="fas fa-flask"></i> Demo Data</button><button class="btn btn-primary" id="exportExcelBtn"><i class="fas fa-file-excel"></i> Export Excel</button><button class="btn btn-primary" id="exportPdfBtn"><i class="fas fa-file-pdf"></i> Export PDF</button></div>
+            <div id="progressInfo" style="font-size:0.75rem; margin-top:0.8rem; text-align:center"></div>
         </div>
     </div>
-
-    <!-- Hasil Ranking -->
     <div class="card">
-        <div class="card-title"><i class="fas fa-chart-simple"></i> Hasil Ranking CV <span id="resultCount" style="margin-left: auto; font-size: 0.8rem;">0 kandidat</span></div>
-        <div class="filter-bar">
-            <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Cari nama / file..."></div>
-            <select id="filterRecSelect">
-                <option value="all">Semua Rekomendasi</option>
-                <option value="High Priority">High Priority</option>
-                <option value="Layak Interview">Layak Interview</option>
-                <option value="Cadangan">Cadangan</option>
-            </select>
-            <button class="btn btn-secondary btn-sm" id="resetFilterBtn">Reset Filter</button>
-        </div>
-        <div id="desktopTable" class="desktop-only"></div>
-        <div id="mobileCards" class="mobile-only"></div>
+        <div class="card-title"><i class="fas fa-chart-simple"></i> Hasil Ranking CV <span id="resultCount" style="margin-left:auto; font-size:0.8rem">0 kandidat</span></div>
+        <div class="filter-bar"><div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Cari nama / file"></div><select id="filterRecSelect"><option value="all">Semua Rekomendasi</option><option value="High Priority">High Priority</option><option value="Layak Interview">Layak Interview</option><option value="Cadangan">Cadangan</option></select><button class="btn btn-secondary btn-sm" id="resetFilterBtn">Reset Filter</button></div>
+        <div id="desktopTable" class="desktop-only"></div><div id="mobileCards" class="mobile-only"></div>
     </div>
 </div>
-
-<!-- Modal API Key -->
-<div id="apiModal" class="modal">
-    <div class="modal-content">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-            <h3><i class="fas fa-key"></i> Groq API Key</h3>
-            <button id="closeModalBtn" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
-        </div>
-        <p style="font-size: 0.8rem; margin-bottom: 1rem;">Dapatkan API Key gratis di <a href="https://console.groq.com" target="_blank" style="color: #3b82f6;">console.groq.com</a> lalu paste di bawah.</p>
-        <input type="password" id="apiKeyInput" placeholder="gsk_..." style="width: 100%; margin-bottom: 1rem;">
-        <div class="button-group">
-            <button class="btn btn-primary" id="saveApiKeyBtn">Simpan & Test</button>
-            <button class="btn btn-danger" id="deleteApiKeyBtn">Hapus API Key</button>
-        </div>
-        <div id="apiTestMsg" style="margin-top: 1rem; font-size: 0.8rem;"></div>
-    </div>
-</div>
-
-<!-- Loading overlay -->
-<div id="loadingOverlay" class="loading-overlay">
-    <div style="text-align: center; background: #1e293b; padding: 2rem; border-radius: 1.5rem; min-width: 280px;">
-        <div class="spinner"></div>
-        <div id="loadingMsg">Memproses CV...</div>
-        <div id="loadingDetail" style="font-size: 0.8rem; margin-top: 0.5rem; color: #94a3b8;"></div>
-        <div id="loadingBar" style="margin-top: 1rem; width: 100%; background: #334155; height: 6px; border-radius: 3px;"><div id="loadingFill" style="width:0%; height:100%; background:#3b82f6; border-radius:3px;"></div></div>
-    </div>
-</div>
+<div id="apiModal" class="modal"><div class="modal-content"><div style="display:flex; justify-content:space-between; margin-bottom:1rem"><h3><i class="fas fa-key"></i> Groq API Key</h3><button id="closeModalBtn" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer">&times;</button></div><p style="font-size:0.8rem; margin-bottom:1rem">Dapatkan di <a href="https://console.groq.com" target="_blank" style="color:#3b82f6">console.groq.com</a></p><input type="password" id="apiKeyInput" placeholder="gsk_..." style="width:100%; margin-bottom:1rem"><div class="button-group"><button class="btn btn-primary" id="saveApiKeyBtn">Simpan & Test</button><button class="btn btn-danger" id="deleteApiKeyBtn">Hapus</button></div><div id="apiTestMsg" style="margin-top:1rem; font-size:0.8rem"></div></div></div>
+<div id="loadingOverlay" class="loading-overlay"><div style="text-align:center; background:#1e293b; padding:2rem; border-radius:1.5rem; min-width:280px"><div class="spinner"></div><div id="loadingMsg">Memproses CV...</div><div id="loadingDetail" style="font-size:0.8rem; margin-top:0.5rem; color:#94a3b8"></div><div style="margin-top:1rem; width:100%; background:#334155; height:6px; border-radius:3px"><div id="loadingFill" style="width:0%; height:100%; background:#3b82f6; border-radius:3px"></div></div></div></div>
 <div id="toastContainer" class="toast-container"></div>
 
 <script>
-// ==================== KONFIGURASI AWAL ====================
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-// State
-let jobData = null;
-let uploadedFiles = [];
-let analysisResults = [];
-let filteredResults = [];
+let jobData = null, uploadedFiles = [], analysisResults = [], filteredResults = [];
 let apiKey = localStorage.getItem('groq_api_key_enc') ? atob(localStorage.getItem('groq_api_key_enc')) : '';
 let isApiOnline = false;
 
-// DOM elements
-const jobTitleInput = document.getElementById('jobTitle');
-const jobReqTextarea = document.getElementById('jobRequirement');
-const saveReqBtn = document.getElementById('saveReqBtn');
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
-const fileListContainer = document.getElementById('fileListContainer');
-const analyzeBtn = document.getElementById('analyzeBtn');
-const clearFilesBtn = document.getElementById('clearFilesBtn');
-const demoBtn = document.getElementById('demoBtn');
-const exportExcelBtn = document.getElementById('exportExcelBtn');
-const exportPdfBtn = document.getElementById('exportPdfBtn');
-const searchInput = document.getElementById('searchInput');
-const filterRecSelect = document.getElementById('filterRecSelect');
-const resetFilterBtn = document.getElementById('resetFilterBtn');
-const apiStatusBox = document.getElementById('apiStatusBox');
-const showApiModalBtn = document.getElementById('showApiModalBtn');
-const apiModal = document.getElementById('apiModal');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
-const deleteApiKeyBtn = document.getElementById('deleteApiKeyBtn');
-const apiKeyInput = document.getElementById('apiKeyInput');
-const apiTestMsg = document.getElementById('apiTestMsg');
-const loadingOverlay = document.getElementById('loadingOverlay');
-const loadingMsg = document.getElementById('loadingMsg');
-const loadingDetail = document.getElementById('loadingDetail');
-const loadingFill = document.getElementById('loadingFill');
-const resultCountSpan = document.getElementById('resultCount');
-const desktopTableDiv = document.getElementById('desktopTable');
-const mobileCardsDiv = document.getElementById('mobileCards');
-const progressInfo = document.getElementById('progressInfo');
+// Helper
+function toast(msg,type='info'){let c=document.getElementById('toastContainer');let t=document.createElement('div');t.className='toast';let bc='#3b82f6',ic='fa-info-circle';if(type==='success'){bc='#10b981';ic='fa-check-circle'}else if(type==='error'){bc='#ef4444';ic='fa-times-circle'}else if(type==='warning'){bc='#f59e0b';ic='fa-exclamation-triangle'}t.style.borderLeftColor=bc;t.innerHTML=`<i class="fas ${ic}"></i><span>${escapeHtml(msg)}</span>`;c.appendChild(t);setTimeout(()=>t.remove(),4000);}
+function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+function showLoading(show,text='Memproses...'){if(show){document.getElementById('loadingMsg').innerText=text;document.getElementById('loadingFill').style.width='0%';document.getElementById('loadingDetail').innerText='';document.getElementById('loadingOverlay').classList.add('active');}else{document.getElementById('loadingOverlay').classList.remove('active');}}
+function updateLoadingProgress(cur,total,filename){let p=(cur/total)*100;document.getElementById('loadingFill').style.width=p+'%';document.getElementById('loadingDetail').innerText=`${cur}/${total} - ${filename}`;}
 
-// Helper functions
-function toast(msg, type = 'info') {
-    const container = document.getElementById('toastContainer');
-    const t = document.createElement('div');
-    t.className = 'toast';
-    let borderColor = '#3b82f6';
-    let icon = 'fa-info-circle';
-    if (type === 'success') { borderColor = '#10b981'; icon = 'fa-check-circle'; }
-    else if (type === 'error') { borderColor = '#ef4444'; icon = 'fa-times-circle'; }
-    else if (type === 'warning') { borderColor = '#f59e0b'; icon = 'fa-exclamation-triangle'; }
-    t.style.borderLeftColor = borderColor;
-    t.innerHTML = `<i class="fas ${icon}"></i><span>${escapeHtml(msg)}</span>`;
-    container.appendChild(t);
-    setTimeout(() => t.remove(), 4000);
+function saveJobRequirement(){let t=document.getElementById('jobTitle').value.trim();let r=document.getElementById('jobRequirement').value.trim();if(!t||!r){toast('Isi semua field','error');return;}jobData={title:t,requirement:r};localStorage.setItem('ats_job_req',JSON.stringify(jobData));toast('Requirement disimpan','success');}
+function loadJobRequirement(){let s=localStorage.getItem('ats_job_req');if(s){let j=JSON.parse(s);document.getElementById('jobTitle').value=j.title;document.getElementById('jobRequirement').value=j.requirement;jobData=j;}}
+
+async function testGroqApi(key){if(!key||!key.startsWith('gsk_'))return false;try{let res=await fetch('https://api.groq.com/openai/v1/models',{headers:{'Authorization':`Bearer ${key}`},signal:AbortSignal.timeout(5000)});return res.ok;}catch(e){return false;}}
+async function saveApiKeyAndTest(){let key=document.getElementById('apiKeyInput').value.trim();if(!key){document.getElementById('apiTestMsg').innerHTML='<span style="color:#ef4444">Masukkan API Key</span>';return;}if(!key.startsWith('gsk_')){document.getElementById('apiTestMsg').innerHTML='<span style="color:#ef4444">Format harus gsk_...</span>';return;}document.getElementById('apiTestMsg').innerHTML='<span>Menguji...</span>';let ok=await testGroqApi(key);if(ok){apiKey=key;localStorage.setItem('groq_api_key_enc',btoa(key));isApiOnline=true;updateApiStatusUI(true);document.getElementById('apiTestMsg').innerHTML='<span style="color:#10b981">✅ AI aktif!</span>';setTimeout(()=>document.getElementById('apiModal').classList.remove('active'),1000);toast('Groq API terhubung','success');}else{isApiOnline=false;updateApiStatusUI(false);document.getElementById('apiTestMsg').innerHTML='<span style="color:#ef4444">❌ Gagal</span>';}}
+function deleteApiKey(){apiKey='';localStorage.removeItem('groq_api_key_enc');isApiOnline=false;updateApiStatusUI(false);document.getElementById('apiModal').classList.remove('active');toast('API Key dihapus','warning');}
+function updateApiStatusUI(online){let box=document.getElementById('apiStatusBox');if(online){box.className='api-status online';box.innerHTML=`<span><span class="dot"></span> Mode: AI Scoring (Groq) ✅</span><button class="btn btn-sm btn-primary" id="showApiModalBtn"><i class="fas fa-edit"></i> Ganti Key</button>`;}else{box.className='api-status offline';box.innerHTML=`<span><span class="dot"></span> Mode: Keyword Matching</span><button class="btn btn-sm btn-primary" id="showApiModalBtn"><i class="fas fa-key"></i> Set API Key</button>`;}document.getElementById('showApiModalBtn')?.addEventListener('click',()=>document.getElementById('apiModal').classList.add('active'));}
+
+function addFiles(files){let valid=[];for(let f of files){let ext=f.name.split('.').pop().toLowerCase();if(!['pdf','docx','doc'].includes(ext)){toast(`${f.name} format tidak didukung`,'error');continue;}if(f.size>10*1024*1024){toast(`${f.name} >10MB`,'error');continue;}valid.push(f);}uploadedFiles.push(...valid);renderFileList();}
+function renderFileList(){let cont=document.getElementById('fileListContainer');if(!uploadedFiles.length){cont.innerHTML='';return;}cont.innerHTML=uploadedFiles.map((f,idx)=>`<div class="file-item"><div><i class="fas fa-${f.name.endsWith('.pdf')?'file-pdf':'file-word'}"></i> ${escapeHtml(f.name.length>40?f.name.slice(0,40)+'...':f.name)} (${(f.size/1024).toFixed(0)}KB)</div><button class="remove-file" data-idx="${idx}" style="background:#ef444433; border:none; padding:0.2rem 0.6rem; border-radius:0.5rem">Hapus</button></div>`).join('');document.querySelectorAll('.remove-file').forEach(btn=>{btn.addEventListener('click',(e)=>{let idx=parseInt(btn.dataset.idx);uploadedFiles.splice(idx,1);renderFileList();toast('File dihapus','info');});});}
+function clearAllFiles(){if(uploadedFiles.length&&confirm('Hapus semua file?')){uploadedFiles=[];renderFileList();toast('Semua file dihapus','info');}}
+
+async function extractText(file){let ext=file.name.split('.').pop().toLowerCase();let buf=await file.arrayBuffer();if(ext==='pdf'){let pdf=await pdfjsLib.getDocument({data:buf}).promise;let txt='';for(let i=1;i<=pdf.numPages;i++){let page=await pdf.getPage(i);let content=await page.getTextContent();txt+=content.items.map(it=>it.str).join(' ')+'\n';}return txt;}else if(ext==='docx'){let result=await mammoth.extractRawText({arrayBuffer:buf});return result.value;}else{toast('File .DOC tidak optimal, konversi ke .docx','warning');let dec=new TextDecoder('utf-8');return dec.decode(buf);}}
+
+// ========== PARSING SUPERIOR ==========
+function cleanName(raw){
+    // Hapus kata-kata umum posisi, perusahaan, dan suffix seperti "Site Coordinator", "Powered by", "CV", "Resume"
+    let blacklist = /(site coordinator|project manager|engineer|supervisor|powered by tcpdf|www\.|http|curriculum vitae|resume|nama|name)/gi;
+    let cleaned = raw.replace(blacklist, '');
+    // Hapus tanda baca di awal/akhir dan spasi berlebih
+    cleaned = cleaned.replace(/^\W+|\W+$/g, '').trim();
+    // Jika masih panjang > 50 karakter, potong
+    if(cleaned.length > 50) cleaned = cleaned.substring(0,50);
+    // Hanya ambil maksimal 3 kata pertama
+    let words = cleaned.split(/\s+/);
+    if(words.length > 3) words = words.slice(0,3);
+    return words.join(' ');
 }
 
-function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-
-function showLoading(show, text = 'Memproses...') {
-    if (show) {
-        loadingMsg.innerText = text;
-        loadingFill.style.width = '0%';
-        loadingDetail.innerText = '';
-        loadingOverlay.classList.add('active');
-    } else {
-        loadingOverlay.classList.remove('active');
-    }
-}
-
-function updateLoadingProgress(current, total, filename) {
-    let percent = (current / total) * 100;
-    loadingFill.style.width = percent + '%';
-    loadingDetail.innerText = `${current}/${total} - ${filename}`;
-}
-
-// Simpan requirement ke localStorage
-function saveJobRequirement() {
-    let title = jobTitleInput.value.trim();
-    let req = jobReqTextarea.value.trim();
-    if (!title || !req) {
-        toast('Isi nama posisi dan kualifikasi!', 'error');
-        return;
-    }
-    jobData = { title, requirement: req };
-    localStorage.setItem('ats_job_req', JSON.stringify(jobData));
-    toast(`Requirement "${title}" disimpan`, 'success');
-}
-
-// Load requirement dari localStorage
-function loadJobRequirement() {
-    let saved = localStorage.getItem('ats_job_req');
-    if (saved) {
-        try {
-            let j = JSON.parse(saved);
-            jobTitleInput.value = j.title;
-            jobReqTextarea.value = j.requirement;
-            jobData = j;
-        } catch(e) {}
-    }
-}
-
-// API Key management
-function encryptKey(key) { return btoa(key); }
-function decryptKey(enc) { return atob(enc); }
-
-async function testGroqApi(key) {
-    if (!key || !key.startsWith('gsk_')) return false;
-    try {
-        const res = await fetch('https://api.groq.com/openai/v1/models', {
-            headers: { 'Authorization': `Bearer ${key}` },
-            signal: AbortSignal.timeout(5000)
-        });
-        return res.ok;
-    } catch(e) { return false; }
-}
-
-async function saveApiKeyAndTest() {
-    let key = apiKeyInput.value.trim();
-    if (!key) { apiTestMsg.innerHTML = '<span style="color:#ef4444">Masukkan API Key</span>'; return; }
-    if (!key.startsWith('gsk_')) { apiTestMsg.innerHTML = '<span style="color:#ef4444">Format harus gsk_...</span>'; return; }
-    apiTestMsg.innerHTML = '<span>Menguji koneksi...</span>';
-    let ok = await testGroqApi(key);
-    if (ok) {
-        apiKey = key;
-        localStorage.setItem('groq_api_key_enc', encryptKey(key));
-        isApiOnline = true;
-        updateApiStatusUI(true);
-        apiTestMsg.innerHTML = '<span style="color:#10b981">✅ API Key valid, AI aktif!</span>';
-        setTimeout(() => { apiModal.classList.remove('active'); }, 1000);
-        toast('Groq API terhubung!', 'success');
-    } else {
-        isApiOnline = false;
-        updateApiStatusUI(false);
-        apiTestMsg.innerHTML = '<span style="color:#ef4444">❌ API Key tidak valid atau network error</span>';
-    }
-}
-
-function deleteApiKey() {
-    apiKey = '';
-    localStorage.removeItem('groq_api_key_enc');
-    isApiOnline = false;
-    updateApiStatusUI(false);
-    apiModal.classList.remove('active');
-    toast('API Key dihapus, beralih ke keyword scoring', 'warning');
-}
-
-function updateApiStatusUI(online) {
-    if (online) {
-        apiStatusBox.className = 'api-status online';
-        apiStatusBox.innerHTML = `<span><span class="dot"></span> Mode: AI Scoring (Groq) ✅</span>
-            <button class="btn btn-sm btn-primary" id="showApiModalBtn"><i class="fas fa-edit"></i> Ganti Key</button>`;
-    } else {
-        apiStatusBox.className = 'api-status offline';
-        apiStatusBox.innerHTML = `<span><span class="dot"></span> Mode: Keyword Matching (tanpa AI)</span>
-            <button class="btn btn-sm btn-primary" id="showApiModalBtn"><i class="fas fa-key"></i> Set API Key</button>`;
-    }
-    // Reattach event listener karena innerHTML mengganti button
-    document.getElementById('showApiModalBtn')?.addEventListener('click', () => apiModal.classList.add('active'));
-}
-
-// File management
-function addFiles(files) {
-    const MAX_FILES = 20;
-    if (uploadedFiles.length + files.length > MAX_FILES) {
-        toast(`Maksimal ${MAX_FILES} file`, 'error');
-        return;
-    }
-    const valid = [];
-    for (let f of files) {
-        let ext = f.name.split('.').pop().toLowerCase();
-        if (!['pdf','docx','doc'].includes(ext)) {
-            toast(`${f.name} format tidak didukung`, 'error');
-            continue;
-        }
-        if (f.size > 10 * 1024 * 1024) {
-            toast(`${f.name} melebihi 10MB`, 'error');
-            continue;
-        }
-        valid.push(f);
-    }
-    uploadedFiles.push(...valid);
-    renderFileList();
-}
-
-function renderFileList() {
-    if (!uploadedFiles.length) { fileListContainer.innerHTML = ''; return; }
-    fileListContainer.innerHTML = uploadedFiles.map((f, idx) => `
-        <div class="file-item">
-            <div><i class="fas fa-${f.name.endsWith('.pdf')?'file-pdf':'file-word'}"></i> ${escapeHtml(f.name.length>40?f.name.slice(0,40)+'...':f.name)} (${(f.size/1024).toFixed(1)}KB)</div>
-            <button class="remove-file" data-idx="${idx}" style="background:#ef444433; border:none; padding:0.2rem 0.6rem; border-radius:0.5rem; cursor:pointer;">Hapus</button>
-        </div>
-    `).join('');
-    // attach event listener
-    document.querySelectorAll('.remove-file').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            let idx = parseInt(btn.dataset.idx);
-            uploadedFiles.splice(idx, 1);
-            renderFileList();
-            toast('File dihapus', 'info');
-        });
-    });
-}
-
-function clearAllFiles() {
-    if (uploadedFiles.length && confirm('Hapus semua file?')) {
-        uploadedFiles = [];
-        renderFileList();
-        toast('Semua file dihapus', 'info');
-    }
-}
-
-// Ekstraksi teks dari file (support .doc menggunakan fallback sederhana)
-async function extractTextFromFile(file) {
-    let ext = file.name.split('.').pop().toLowerCase();
-    let buf = await file.arrayBuffer();
-    if (ext === 'pdf') {
-        let pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-        let full = '';
-        for (let i=1; i<=pdf.numPages; i++) {
-            let page = await pdf.getPage(i);
-            let content = await page.getTextContent();
-            full += content.items.map(it => it.str).join(' ') + '\n';
-        }
-        return full;
-    } else if (ext === 'docx') {
-        let result = await mammoth.extractRawText({ arrayBuffer: buf });
-        return result.value;
-    } else if (ext === 'doc') {
-        // Untuk .doc kita tidak bisa pakai mammoth, fallback: baca sebagai teks mentah (jarang berhasil) tapi kita beri peringatan
-        // Sebenarnya butuh library tambahan, namun untuk keperluan demo kita tetap coba baca sebagai string
-        // Solusi: konversi via API eksternal? Sederhananya kita beri tahu user .doc tidak optimal, sarankan konversi ke .docx
-        toast('File .doc tidak didukung optimal, konversi ke .docx untuk hasil terbaik', 'warning');
-        // fallback: coba baca sebagai text (biasanya binary garbage)
-        let decoder = new TextDecoder('utf-8');
-        let text = decoder.decode(buf);
-        return text;
-    }
-    return '';
-}
-
-// Advanced parsing CV
-function parseCvAdvanced(text, filename) {
-    let lower = text.toLowerCase();
-    let lines = text.split('\n').map(l=>l.trim()).filter(l=>l);
-    // Nama (prioritas: baris pertama yang mengandung huruf kapital dan panjang 3-50)
-    let name = 'Tidak terdeteksi';
-    for (let i=0; i<Math.min(15, lines.length); i++) {
+function extractNameAdvanced(text){
+    let lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+    // Strategi 1: cari "Nama:" atau "Name:"
+    let namaLabel = text.match(/(?:nama|name)[\s:]+([^\n]{3,60})/i);
+    if(namaLabel) return cleanName(namaLabel[1]);
+    // Strategi 2: scan 15 baris awal, cari baris dengan 2-4 kata, huruf kapital, tidak mengandung angka/email/jabatan
+    for(let i=0;i<Math.min(15,lines.length);i++){
         let line = lines[i];
-        if (line.length>=3 && line.length<=50 && /[A-Z][a-z]/.test(line) && !line.includes('@') && !line.includes('http') && !/^(cv|resume|curriculum|vitae)/i.test(line)) {
-            name = line;
-            break;
+        // minimal 2 kata, maksimal 5 kata
+        let wordCount = line.split(/\s+/).length;
+        if(wordCount<2 || wordCount>6) continue;
+        // harus mengandung huruf kapital
+        if(!/[A-Z]/.test(line)) continue;
+        // tidak boleh mengandung email, http, angka panjang, atau kata posisi
+        if(line.includes('@') || line.includes('http') || line.match(/\d{4,}/)) continue;
+        let lower = line.toLowerCase();
+        if(lower.includes('site coordinator') || lower.includes('project manager') || lower.includes('engineer') || lower.includes('powered by')) continue;
+        // tidak boleh didominasi angka atau simbol
+        if(line.replace(/[^a-zA-Z\s]/g,'').trim().length < line.length*0.6) continue;
+        return cleanName(line);
+    }
+    // Strategi 3: ambil baris pertama yang tidak mengandung kata "cv" atau "resume"
+    for(let line of lines.slice(0,10)){
+        let low = line.toLowerCase();
+        if(!low.includes('cv') && !low.includes('resume') && line.length>3 && line.length<60 && /[A-Z]/.test(line)){
+            return cleanName(line);
         }
     }
-    // Umur
+    return 'Tidak terdeteksi';
+}
+
+function parseCV(text, filename){
+    let lower = text.toLowerCase();
+    let name = extractNameAdvanced(text);
+    // Usia
     let age = 'N/A';
     let ageMatch = text.match(/(?:umur|usia|age)[\s:]*(\d{1,2})/i);
-    if (ageMatch) { let a = parseInt(ageMatch[1]); if (a>=18 && a<=70) age = a; }
+    if(ageMatch){ let a=parseInt(ageMatch[1]); if(a>=18 && a<=70) age=a; }
     // Pendidikan
-    let edu = 'N/A';
-    if (lower.includes('s2') || lower.includes('magister')) edu = 'S2';
-    else if (lower.includes('s1') || lower.includes('sarjana')) edu = 'S1';
-    else if (lower.includes('d4')) edu = 'D4';
-    else if (lower.includes('d3')) edu = 'D3';
-    else if (lower.includes('sma')) edu = 'SMA';
+    let edu='N/A';
+    if(lower.includes('s2')||lower.includes('magister')) edu='S2';
+    else if(lower.includes('s1')||lower.includes('sarjana')) edu='S1';
+    else if(lower.includes('d4')) edu='D4';
+    else if(lower.includes('d3')) edu='D3';
+    else if(lower.includes('sma')) edu='SMA';
     // Jurusan
-    let major = 'N/A';
-    const majors = ['informatika','teknik sipil','akuntansi','manajemen','hukum','ekonomi','psikologi','komunikasi','kedokteran','farmasi','teknik industri','arsitektur'];
-    for (let m of majors) if (lower.includes(m)) { major = m.toUpperCase(); break; }
+    let major='N/A';
+    let majors=['teknik sipil','informatika','akuntansi','manajemen','hukum','ekonomi','psikologi','komunikasi','arsitektur','teknik industri'];
+    for(let m of majors) if(lower.includes(m)){ major=m.toUpperCase(); break;}
     // Lokasi
-    let location = 'N/A';
-    const cities = ['jakarta','surabaya','bandung','medan','semarang','yogyakarta','malang','bali','makassar','tangerang','depok','bekasi'];
-    for (let c of cities) if (lower.includes(c)) { location = c.charAt(0).toUpperCase()+c.slice(1); break; }
+    let loc='N/A';
+    let cities=['jakarta','surabaya','bandung','medan','semarang','yogyakarta','malang','bali','makassar','tangerang','depok','bekasi'];
+    for(let c of cities) if(lower.includes(c)){ loc=c.charAt(0).toUpperCase()+c.slice(1); break;}
     // Pengalaman
-    let experience = 'N/A';
-    let expMatch = text.match(/(?:pengalaman|experience|riwayat pekerjaan)[\s:]*([^\n]{10,200})/i);
-    if (expMatch) experience = expMatch[1].trim();
-    // Skills (ambil kata kunci dari requirement nanti)
-    return { name, age, education: edu, major, location, experience, filename };
+    let exp='N/A';
+    let expMatch=text.match(/(?:pengalaman|experience|riwayat pekerjaan)[\s:]*([^\n]{10,200})/i);
+    if(expMatch) exp=expMatch[1].trim();
+    return {name, age, education:edu, major, location:loc, experience:exp, filename};
 }
 
-// Keyword scoring (bobot tetap sederhana)
-function keywordScore(cv, reqText) {
-    let req = reqText.toLowerCase();
-    let score = 0;
-    if (cv.education === 'S2') score += 30;
-    else if (cv.education === 'S1') score += 25;
-    else if (cv.education === 'D4') score += 20;
-    else if (cv.education === 'D3') score += 15;
-    else if (cv.education !== 'N/A') score += 10;
-    
-    if (cv.major !== 'N/A' && req.includes(cv.major.toLowerCase())) score += 25;
-    if (cv.location !== 'N/A' && req.includes(cv.location.toLowerCase())) score += 20;
-    if (cv.experience !== 'N/A') {
-        let words = req.split(/\s+/);
+function keywordScore(cv, reqText){
+    let req=reqText.toLowerCase();
+    let score=0;
+    if(cv.education==='S2') score+=30;
+    else if(cv.education==='S1') score+=25;
+    else if(cv.education==='D4') score+=20;
+    else if(cv.education==='D3') score+=15;
+    else if(cv.education!=='N/A') score+=10;
+    if(cv.major!=='N/A' && req.includes(cv.major.toLowerCase())) score+=25;
+    if(cv.location!=='N/A' && req.includes(cv.location.toLowerCase())) score+=20;
+    if(cv.experience!=='N/A'){
+        let words=req.split(/\s+/);
         let match=0;
-        for (let w of words) if (w.length>3 && cv.experience.toLowerCase().includes(w)) match++;
-        score += Math.min(25, match*4);
+        for(let w of words) if(w.length>3 && cv.experience.toLowerCase().includes(w)) match++;
+        score+=Math.min(25, match*4);
     }
     return Math.min(100, Math.round(score));
 }
 
-// AI scoring via Groq dengan retry
-async function aiScoreWithRetry(cv, jobReq, retries=2) {
-    if (!isApiOnline || !apiKey) return null;
-    let prompt = `Berikan skor kecocokan CV dengan requirement pekerjaan (0-100). CV: Pendidikan=${cv.education}, Jurusan=${cv.major}, Lokasi=${cv.location}, Pengalaman=${cv.experience.substring(0,200)}. Requirement: ${jobReq.requirement.substring(0,600)}. Hanya angka 0-100.`;
-    for (let attempt=0; attempt<=retries; attempt++) {
-        try {
-            let res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ model: 'llama3-70b-8192', messages: [{ role: 'user', content: prompt }], max_tokens: 10, temperature: 0 }),
-                signal: AbortSignal.timeout(8000)
+async function aiScoreWithRetry(cv, jobReq, retries=2){
+    if(!isApiOnline||!apiKey) return null;
+    let prompt=`Berikan skor kecocokan CV dengan requirement (0-100). CV: Pendidikan=${cv.education}, Jurusan=${cv.major}, Lokasi=${cv.location}, Pengalaman=${cv.experience.substring(0,200)}. Requirement: ${jobReq.requirement.substring(0,600)}. Hanya angka 0-100.`;
+    for(let attempt=0;attempt<=retries;attempt++){
+        try{
+            let res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+                method:'POST',
+                headers:{'Authorization':`Bearer ${apiKey}`,'Content-Type':'application/json'},
+                body:JSON.stringify({model:'llama3-70b-8192',messages:[{role:'user',content:prompt}],max_tokens:10,temperature:0}),
+                signal:AbortSignal.timeout(8000)
             });
-            if (!res.ok) throw new Error();
-            let data = await res.json();
-            let txt = data.choices[0].message.content.trim();
-            let num = parseInt(txt);
-            if (!isNaN(num) && num>=0 && num<=100) return num;
-        } catch(e) {}
-        await new Promise(r => setTimeout(r, 500));
+            if(!res.ok) throw new Error();
+            let data=await res.json();
+            let txt=data.choices[0].message.content.trim();
+            let num=parseInt(txt);
+            if(!isNaN(num) && num>=0 && num<=100) return num;
+        }catch(e){}
+        await new Promise(r=>setTimeout(r,500));
     }
     return null;
 }
 
-// Main analysis
-async function startAnalysis() {
-    if (!jobData) { toast('Simpan requirement terlebih dahulu', 'error'); return; }
-    if (!uploadedFiles.length) { toast('Upload minimal 1 CV', 'error'); return; }
-    analysisResults = [];
-    showLoading(true, 'Menganalisis CV...');
-    let total = uploadedFiles.length;
-    for (let i=0; i<total; i++) {
-        let file = uploadedFiles[i];
-        updateLoadingProgress(i+1, total, file.name);
-        try {
-            let text = await extractTextFromFile(file);
-            let cv = parseCvAdvanced(text, file.name);
-            let score = keywordScore(cv, jobData.requirement);
-            // jika AI online, coba perbaiki skor
-            if (isApiOnline && apiKey) {
-                let aiScore = await aiScoreWithRetry(cv, jobData);
-                if (aiScore !== null) score = aiScore;
+async function startAnalysis(){
+    if(!jobData){toast('Simpan requirement dulu','error');return;}
+    if(!uploadedFiles.length){toast('Upload CV','error');return;}
+    analysisResults=[];
+    showLoading(true,'Menganalisis CV...');
+    let total=uploadedFiles.length;
+    for(let i=0;i<total;i++){
+        let file=uploadedFiles[i];
+        updateLoadingProgress(i+1,total,file.name);
+        try{
+            let text=await extractText(file);
+            let cv=parseCV(text,file.name);
+            let score=keywordScore(cv,jobData.requirement);
+            if(isApiOnline){
+                let ai=await aiScoreWithRetry(cv,jobData);
+                if(ai!==null) score=ai;
             }
-            let recommendation = score >= 75 ? 'High Priority' : (score >= 55 ? 'Layak Interview' : 'Cadangan');
-            analysisResults.push({ ...cv, score, recommendation });
-        } catch(err) {
-            toast(`Gagal parsing ${file.name}: ${err.message}`, 'error');
-        }
+            let rec=score>=75?'High Priority':(score>=55?'Layak Interview':'Cadangan');
+            analysisResults.push({...cv,score,recommendation:rec});
+        }catch(e){toast(`Error ${file.name}`,'error');}
     }
     showLoading(false);
-    analysisResults.sort((a,b) => b.score - a.score);
-    filteredResults = [...analysisResults];
+    analysisResults.sort((a,b)=>b.score-a.score);
+    filteredResults=[...analysisResults];
     renderResults();
-    toast(`Analisis selesai: ${analysisResults.length} CV berhasil${isApiOnline?' (dengan AI)':' (keyword match)'}`, 'success');
+    toast(`Selesai! ${analysisResults.length} CV diproses${isApiOnline?' (dengan AI)':''}`,'success');
 }
 
-function renderResults() {
-    resultCountSpan.innerText = filteredResults.length + ' kandidat';
-    if (!filteredResults.length) {
-        desktopTableDiv.innerHTML = '<div class="empty"><i class="fas fa-inbox"></i><p>Tidak ada hasil</p></div>';
-        mobileCardsDiv.innerHTML = '<div class="empty"><i class="fas fa-inbox"></i><p>Tidak ada hasil</p></div>';
+function renderResults(){
+    document.getElementById('resultCount').innerText=filteredResults.length+' kandidat';
+    let desktop=document.getElementById('desktopTable');
+    let mobile=document.getElementById('mobileCards');
+    if(!filteredResults.length){
+        desktop.innerHTML='<div class="empty"><i class="fas fa-inbox"></i><p>Tidak ada hasil</p></div>';
+        mobile.innerHTML='<div class="empty"><i class="fas fa-inbox"></i><p>Tidak ada hasil</p></div>';
         return;
     }
-    // Desktop table
-    let htmlTable = `<div class="table-wrapper"><table style="width:100%"><thead><tr><th>#</th><th>Nama</th><th>Usia</th><th>Pendidikan</th><th>Jurusan</th><th>Lokasi</th><th>Skor</th><th>Rekomendasi</th></tr></thead><tbody>`;
-    filteredResults.forEach((r,idx) => {
-        let scoreColor = r.score>=75?'#10b981':(r.score>=55?'#f59e0b':'#ef4444');
-        htmlTable += `<tr>
-            <td>${idx+1}</td>
-            <td><strong>${escapeHtml(r.name)}</strong><br><span style="font-size:0.7rem; color:#94a3b8;">${escapeHtml(r.filename).substring(0,35)}</span></td>
-            <td>${r.age}</td>
-            <td>${r.education}</td>
-            <td>${r.major}</td>
-            <td>${r.location}</td>
-            <td><div class="score-bar"><span style="font-weight:bold">${r.score}</span><div class="score-track"><div class="score-fill" style="width:${r.score}%; background:${scoreColor}"></div></div></div></td>
-            <td><span class="badge ${r.recommendation==='High Priority'?'badge-high':(r.recommendation==='Layak Interview'?'badge-mid':'badge-low')}">${r.recommendation}</span></td>
-        </tr>`;
+    let htmlTable=`<div class="table-wrapper"><table style="width:100%"><thead><tr><th>#</th><th>Nama</th><th>Usia</th><th>Pendidikan</th><th>Jurusan</th><th>Lokasi</th><th>Skor</th><th>Rekomendasi</th></tr></thead><tbody>`;
+    filteredResults.forEach((r,idx)=>{
+        let color=r.score>=75?'#10b981':(r.score>=55?'#f59e0b':'#ef4444');
+        htmlTable+=`<tr><td>${idx+1}</td><td><strong>${escapeHtml(r.name)}</strong><br><span style="font-size:0.7rem; color:#94a3b8">${escapeHtml(r.filename).substring(0,35)}</span></td><td>${r.age}</td><td>${r.education}</td><td>${r.major}</td><td>${r.location}</td><td><div class="score-bar"><span style="font-weight:bold">${r.score}</span><div class="score-track"><div class="score-fill" style="width:${r.score}%; background:${color}"></div></div></div></td><td><span class="badge ${r.recommendation==='High Priority'?'badge-high':(r.recommendation==='Layak Interview'?'badge-mid':'badge-low')}">${r.recommendation}</span></td></tr>`;
     });
-    htmlTable += `</tbody></table></div>`;
-    desktopTableDiv.innerHTML = htmlTable;
-    // Mobile cards
-    let mobileHtml = '';
-    filteredResults.forEach((r,idx) => {
-        let scoreColor = r.score>=75?'#10b981':(r.score>=55?'#f59e0b':'#ef4444');
-        mobileHtml += `<div class="mobile-card">
-            <div style="display:flex; justify-content:space-between;"><div><strong>${escapeHtml(r.name)}</strong><div style="font-size:0.7rem;">${escapeHtml(r.filename)}</div></div><div style="font-size:1.4rem; font-weight:bold; color:${scoreColor}">${r.score}</div></div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.5rem;">
-                <div><span style="color:#94a3b8">Usia</span><br>${r.age}</div><div><span style="color:#94a3b8">Pendidikan</span><br>${r.education}</div>
-                <div><span style="color:#94a3b8">Jurusan</span><br>${r.major}</div><div><span style="color:#94a3b8">Lokasi</span><br>${r.location}</div>
-            </div>
-            <div style="margin-top:0.5rem;"><span class="badge ${r.recommendation==='High Priority'?'badge-high':(r.recommendation==='Layak Interview'?'badge-mid':'badge-low')}">${r.recommendation}</span></div>
-        </div>`;
+    htmlTable+=`</tbody></table></div>`;
+    desktop.innerHTML=htmlTable;
+    let mobileHtml='';
+    filteredResults.forEach((r,idx)=>{
+        let color=r.score>=75?'#10b981':(r.score>=55?'#f59e0b':'#ef4444');
+        mobileHtml+=`<div class="mobile-card"><div style="display:flex; justify-content:space-between"><div><strong>${escapeHtml(r.name)}</strong><div style="font-size:0.7rem">${escapeHtml(r.filename)}</div></div><div style="font-size:1.4rem; font-weight:bold; color:${color}">${r.score}</div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.5rem"><div><span style="color:#94a3b8">Usia</span><br>${r.age}</div><div><span style="color:#94a3b8">Pendidikan</span><br>${r.education}</div><div><span style="color:#94a3b8">Jurusan</span><br>${r.major}</div><div><span style="color:#94a3b8">Lokasi</span><br>${r.location}</div></div><div style="margin-top:0.5rem"><span class="badge ${r.recommendation==='High Priority'?'badge-high':(r.recommendation==='Layak Interview'?'badge-mid':'badge-low')}">${r.recommendation}</span></div></div>`;
     });
-    mobileCardsDiv.innerHTML = mobileHtml;
+    mobile.innerHTML=mobileHtml;
 }
+function filterResults(){let s=document.getElementById('searchInput').value.toLowerCase();let rec=document.getElementById('filterRecSelect').value;filteredResults=analysisResults.filter(r=>(r.name.toLowerCase().includes(s)||r.filename.toLowerCase().includes(s))&&(rec==='all'||r.recommendation===rec));renderResults();}
+function resetFilters(){document.getElementById('searchInput').value='';document.getElementById('filterRecSelect').value='all';filteredResults=[...analysisResults];renderResults();}
+function exportToExcel(){if(!analysisResults.length){toast('Tidak ada data','error');return;}let data=analysisResults.map((r,i)=>({No:i+1,Nama:r.name,Usia:r.age,Pendidikan:r.education,Jurusan:r.major,Lokasi:r.location,Pengalaman:r.experience,Skor:r.score,Rekomendasi:r.recommendation,File:r.filename}));let ws=XLSX.utils.json_to_sheet(data);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'CV Ranking');XLSX.writeFile(wb,`CV_Ranking_${new Date().toISOString().slice(0,10)}.xlsx`);toast('Export Excel berhasil','success');}
+async function exportToPdf(){if(!analysisResults.length){toast('Tidak ada data','error');return;}let element=document.createElement('div');element.innerHTML=`<h2 style="color:#2563eb">ATS Ultimate Pro - Laporan Hasil Screening</h2><p>Posisi: ${jobData?.title||'-'} | Tanggal: ${new Date().toLocaleString()}</p>${document.getElementById('desktopTable').innerHTML}`;element.style.padding='20px';try{let opt={margin:0.5,filename:`CV_Ranking_${new Date().toISOString().slice(0,10)}.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2},jsPDF:{unit:'in',format:'a4',orientation:'landscape'}};html2pdf().set(opt).from(element).save();toast('Export PDF berhasil','success');}catch(e){toast('Gagal export PDF','error');}}
+function loadDemoData(){if(!jobData){jobData={title:'Site Coordinator (Demo)',requirement:'S1 Teknik Sipil, pengalaman site coordinator, Jakarta'};document.getElementById('jobTitle').value=jobData.title;document.getElementById('jobRequirement').value=jobData.requirement;localStorage.setItem('ats_job_req',JSON.stringify(jobData));}analysisResults=[{name:'Daniel Hamonangan Silalahi',age:28,education:'S1',major:'TEKNIK SIPIL',location:'Jakarta',experience:'3 tahun site coordinator',filename:'CV_Daniel.pdf',score:75,recommendation:'High Priority'},{name:'Nooreva Viorel Muhammad',age:30,education:'S1',major:'TEKNIK SIPIL',location:'Jakarta',experience:'4 tahun site coordinator',filename:'CV_Nooreva.pdf',score:75,recommendation:'High Priority'},{name:'Jonathan Vivaldy',age:25,education:'SMA',major:'N/A',location:'Medan',experience:'1 tahun',filename:'CV_Jonathan.pdf',score:10,recommendation:'Cadangan'},{name:'Hardipa Yosdi',age:32,education:'N/A',major:'N/A',location:'N/A',experience:'',filename:'CV_Hardipa.pdf',score:4,recommendation:'Cadangan'}];filteredResults=[...analysisResults];renderResults();toast('Data demo dimuat (4 kandidat)','success');}
 
-function filterResults() {
-    let search = searchInput.value.toLowerCase();
-    let rec = filterRecSelect.value;
-    filteredResults = analysisResults.filter(r => {
-        let matchSearch = r.name.toLowerCase().includes(search) || r.filename.toLowerCase().includes(search);
-        let matchRec = rec === 'all' || r.recommendation === rec;
-        return matchSearch && matchRec;
-    });
-    renderResults();
-}
+// Event Listeners
+document.getElementById('saveReqBtn').addEventListener('click',saveJobRequirement);
+document.getElementById('analyzeBtn').addEventListener('click',startAnalysis);
+document.getElementById('clearFilesBtn').addEventListener('click',clearAllFiles);
+document.getElementById('demoBtn').addEventListener('click',loadDemoData);
+document.getElementById('exportExcelBtn').addEventListener('click',exportToExcel);
+document.getElementById('exportPdfBtn').addEventListener('click',exportToPdf);
+document.getElementById('searchInput').addEventListener('input',filterResults);
+document.getElementById('filterRecSelect').addEventListener('change',filterResults);
+document.getElementById('resetFilterBtn').addEventListener('click',resetFilters);
+document.getElementById('showApiModalBtn')?.addEventListener('click',()=>document.getElementById('apiModal').classList.add('active'));
+document.getElementById('closeModalBtn').addEventListener('click',()=>document.getElementById('apiModal').classList.remove('active'));
+document.getElementById('saveApiKeyBtn').addEventListener('click',saveApiKeyAndTest);
+document.getElementById('deleteApiKeyBtn').addEventListener('click',deleteApiKey);
+// Drag & drop
+let area=document.getElementById('uploadArea');
+area.addEventListener('click',()=>document.getElementById('fileInput').click());
+area.addEventListener('dragover',(e)=>{e.preventDefault();area.style.background='rgba(59,130,246,0.1)';});
+area.addEventListener('dragleave',()=>{area.style.background='transparent';});
+area.addEventListener('drop',(e)=>{e.preventDefault();area.style.background='transparent';addFiles(Array.from(e.dataTransfer.files));});
+document.getElementById('fileInput').addEventListener('change',(e)=>addFiles(Array.from(e.target.files)));
 
-function resetFilters() {
-    searchInput.value = '';
-    filterRecSelect.value = 'all';
-    filteredResults = [...analysisResults];
-    renderResults();
-}
-
-// Export Excel
-function exportToExcel() {
-    if (!analysisResults.length) { toast('Tidak ada data', 'error'); return; }
-    let data = analysisResults.map((r,i) => ({
-        'No': i+1, 'Nama': r.name, 'Usia': r.age, 'Pendidikan': r.education,
-        'Jurusan': r.major, 'Lokasi': r.location, 'Pengalaman': r.experience,
-        'Skor': r.score, 'Rekomendasi': r.recommendation, 'File': r.filename
-    }));
-    let ws = XLSX.utils.json_to_sheet(data);
-    let wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'CV Ranking');
-    XLSX.writeFile(wb, `CV_Ranking_${new Date().toISOString().slice(0,10)}.xlsx`);
-    toast('Export Excel selesai', 'success');
-}
-
-// Export PDF sederhana (menggunakan html2pdf dari tabel yang sudah ada)
-async function exportToPdf() {
-    if (!analysisResults.length) { toast('Tidak ada data', 'error'); return; }
-    let element = document.createElement('div');
-    element.innerHTML = `<h2 style="color:#2563eb;">ATS Ultimate - Laporan Hasil Screening</h2>
-        <p>Posisi: ${jobData?.title || '-'} | Tanggal: ${new Date().toLocaleString()}</p>
-        ${desktopTableDiv.innerHTML}`;
-    element.style.padding = '20px';
-    element.style.fontFamily = 'Arial';
-    try {
-        let opt = { margin: 0.5, filename: `CV_Ranking_${new Date().toISOString().slice(0,10)}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } };
-        html2pdf().set(opt).from(element).save();
-        toast('Export PDF berhasil', 'success');
-    } catch(e) { toast('Gagal export PDF', 'error'); }
-}
-
-// Demo data (tanpa upload)
-function loadDemoData() {
-    if (!jobData) {
-        jobData = { title: 'Software Engineer (Demo)', requirement: 'S1 Teknik Informatika, pengalaman 2+ tahun, JavaScript, React, Node.js, lokasi Jakarta' };
-        jobTitleInput.value = jobData.title;
-        jobReqTextarea.value = jobData.requirement;
-        localStorage.setItem('ats_job_req', JSON.stringify(jobData));
-    }
-    analysisResults = [
-        { name: 'Ahmad Rizki', age: 28, education: 'S1', major: 'INFORMATIKA', location: 'Jakarta', experience: '3 tahun fullstack developer, React, Node.js', filename: 'CV_Ahmad.pdf', score: 88, recommendation: 'High Priority' },
-        { name: 'Budi Santoso', age: 32, education: 'S2', major: 'MANAJEMEN', location: 'Bandung', experience: '5 tahun IT project manager', filename: 'CV_Budi.pdf', score: 68, recommendation: 'Layak Interview' },
-        { name: 'Citra Dewi', age: 25, education: 'S1', major: 'AKUNTANSI', location: 'Surabaya', experience: '2 tahun akuntan', filename: 'CV_Citra.pdf', score: 42, recommendation: 'Cadangan' }
-    ];
-    filteredResults = [...analysisResults];
-    renderResults();
-    toast('Data demo dimuat (3 kandidat)', 'success');
-}
-
-// Event listeners
-saveReqBtn.addEventListener('click', saveJobRequirement);
-analyzeBtn.addEventListener('click', startAnalysis);
-clearFilesBtn.addEventListener('click', clearAllFiles);
-demoBtn.addEventListener('click', loadDemoData);
-exportExcelBtn.addEventListener('click', exportToExcel);
-exportPdfBtn.addEventListener('click', exportToPdf);
-searchInput.addEventListener('input', filterResults);
-filterRecSelect.addEventListener('change', filterResults);
-resetFilterBtn.addEventListener('click', resetFilters);
-showApiModalBtn.addEventListener('click', () => apiModal.classList.add('active'));
-closeModalBtn.addEventListener('click', () => apiModal.classList.remove('active'));
-saveApiKeyBtn.addEventListener('click', saveApiKeyAndTest);
-deleteApiKeyBtn.addEventListener('click', deleteApiKey);
-
-// Drag & drop upload
-uploadArea.addEventListener('click', () => fileInput.click());
-uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.background = 'rgba(59,130,246,0.1)'; });
-uploadArea.addEventListener('dragleave', () => { uploadArea.style.background = 'transparent'; });
-uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.style.background = 'transparent';
-    let files = Array.from(e.dataTransfer.files);
-    addFiles(files);
-});
-fileInput.addEventListener('change', (e) => addFiles(Array.from(e.target.files)));
-
-// Initialize
 loadJobRequirement();
-if (apiKey) { testGroqApi(apiKey).then(ok => { isApiOnline = ok; updateApiStatusUI(ok); }); }
-else updateApiStatusUI(false);
+if(apiKey){testGroqApi(apiKey).then(ok=>{isApiOnline=ok;updateApiStatusUI(ok);});}else updateApiStatusUI(false);
 </script>
 </body>
 </html>
