@@ -3,760 +3,1787 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#000000">
-    <meta name="description" content="CV ATS Enterprise Pro - Analisis CV massal dengan AI">
-    <title>CV ATS Enterprise Pro</title>
+    <title>CV Matching System (ATS) - Advanced</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --color-primary: #10a37f;
-            --color-primary-dark: #0d8b68;
-            --color-bg-dark: #0d0d0d;
-            --color-bg-secondary: #1a1a1a;
-            --color-bg-tertiary: #262626;
-            --color-text-primary: #ffffff;
-            --color-text-secondary: #b4b4b8;
-            --color-border: #404040;
-            --color-success: #4ade80;
-            --color-warning: #fbbf24;
-            --color-danger: #ef4444;
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --accent-1: #06b6d4;
+            --accent-2: #8b5cf6;
         }
-        @media (prefers-color-scheme: light) {
-            :root {
-                --color-bg-dark: #ffffff;
-                --color-bg-secondary: #f5f5f5;
-                --color-bg-tertiary: #ebebf0;
-                --color-text-primary: #0d0d0d;
-                --color-text-secondary: #565869;
-                --color-border: #d1d5db;
-            }
-        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--color-bg-dark);
-            color: var(--color-text-primary);
-            line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1f3a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
         }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
         }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--color-border);
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent-2) 100%);
+            padding: 40px 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 50px rgba(37, 99, 235, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        .logo {
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 20px;
-            font-weight: 600;
         }
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--color-primary);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
         }
+
+        /* Main Layout */
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 3fr;
+            grid-template-columns: 1fr 1fr;
             gap: 30px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
-        @media (max-width: 900px) {
-            .main-grid { grid-template-columns: 1fr; }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
         }
-        .upload-section {
-            background: linear-gradient(135deg, rgba(16,163,127,0.1) 0%, rgba(96,165,250,0.05) 100%);
-            border: 2px dashed var(--color-primary);
+
+        /* Card */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 30px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            padding: 25px;
+            backdrop-filter: blur(10px);
         }
-        .upload-section:hover {
-            background: linear-gradient(135deg, rgba(16,163,127,0.15) 0%, rgba(96,165,250,0.1) 100%);
-        }
-        .upload-section.dragging {
-            transform: scale(1.02);
-            background: linear-gradient(135deg, rgba(16,163,127,0.2) 0%, rgba(96,165,250,0.15) 100%);
-        }
-        .upload-section h3 {
-            margin-bottom: 8px;
-        }
-        .upload-section p {
-            color: var(--color-text-secondary);
-            font-size: 14px;
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
         }
-        .btn {
-            padding: 10px 20px;
-            border: none;
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            cursor: pointer;
+            color: var(--text-primary);
             font-size: 14px;
-            font-weight: 500;
             transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
             font-family: inherit;
         }
+
+        /* Button Styles */
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .btn-primary {
-            background: var(--color-primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
         }
+
         .btn-primary:hover {
-            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
         }
+
         .btn-secondary {
-            background: var(--color-bg-secondary);
-            color: var(--color-text-primary);
-            border: 1px solid var(--color-border);
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--accent-2);
+            border: 1px solid var(--accent-2);
         }
+
         .btn-secondary:hover {
-            background: var(--color-bg-tertiary);
+            background: rgba(139, 92, 246, 0.2);
         }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-lg {
+            padding: 12px 24px;
+            font-size: 15px;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none !important;
         }
-        .config-section {
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .form-group {
-            margin-bottom: 16px;
-        }
-        .form-group label {
-            display: block;
+
+        .btn-small {
+            padding: 6px 10px;
             font-size: 12px;
-            color: var(--color-text-secondary);
-            margin-bottom: 8px;
-            font-weight: 500;
         }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            background: var(--color-bg-tertiary);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            color: var(--color-text-primary);
-            font-family: inherit;
-            font-size: 13px;
+
+        /* File Upload */
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 15px;
         }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(16,163,127,0.1);
+
+        .file-input {
+            display: none;
         }
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: 12px;
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            background: rgba(37, 99, 235, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--primary);
+            font-weight: 600;
+            gap: 8px;
+        }
+
+        .file-input-label:hover {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .file-input.drag-over + .file-input-label {
+            background: rgba(37, 99, 235, 0.2);
+            border-color: var(--accent-2);
+        }
+
+        .file-list {
+            margin-top: 10px;
+        }
+
+        .file-item {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid var(--primary);
+            padding: 10px 12px;
+            border-radius: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
         }
-        .stat-value {
-            font-size: 32px;
-            font-weight: 600;
-            color: var(--color-primary);
+
+        .file-item-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
         }
-        .stat-label {
+
+        .file-item-remove {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+        }
+
+        .file-item-remove:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
             font-size: 12px;
-            color: var(--color-text-secondary);
-            text-transform: uppercase;
         }
-        .content-main {
+
+        thead {
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.1), rgba(139, 92, 246, 0.1));
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+        tbody tr:hover {
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-high {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .badge-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-low {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* Score Bar */
+        .score-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .score-number {
+            font-weight: 600;
+            min-width: 30px;
+            text-align: right;
+            font-size: 13px;
+        }
+
+        .score-bar-fill {
+            flex: 1;
+            height: 6px;
+            background: rgba(100, 116, 139, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            min-width: 80px;
+        }
+
+        .score-bar-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--accent-1));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 10px;
+            max-width: 400px;
         }
-        .chart-container {
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: 12px;
-            padding: 20px;
-            height: 300px;
+
+        @media (max-width: 768px) {
+            .toast-container {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
         }
-        .section-header {
+
+        .toast {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease, slideOut 0.3s ease 4.7s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast.info {
+            border-left-color: var(--accent-1);
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 8000;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-content .spinner {
+            width: 50px;
+            height: 50px;
+            border-width: 3px;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+        }
+
+        /* Results Container */
+        .results-container {
+            margin-top: 30px;
+        }
+
+        .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-        }
-        .section-header h2 {
-            font-size: 18px;
-        }
-        .file-item {
-            background: var(--color-bg-tertiary);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .file-item:hover {
-            border-color: var(--color-primary);
-        }
-        .file-info {
-            flex: 1;
-        }
-        .file-name {
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        .file-size {
-            font-size: 12px;
-            color: var(--color-text-secondary);
-        }
-        .file-status {
-            display: flex;
+            flex-wrap: wrap;
             gap: 10px;
-            align-items: center;
         }
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .status-pending {
-            background: rgba(96, 165, 250, 0.2);
-            color: var(--color-primary);
-        }
-        .status-success {
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--color-success);
-        }
-        .status-error {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--color-danger);
-        }
-        .score-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .score-high {
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--color-success);
-        }
-        .score-medium {
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--color-warning);
-        }
-        .score-low {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--color-danger);
-        }
-        .table-container {
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: 12px;
-            padding: 20px;
-            overflow-x: auto;
-        }
-        .table-container table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .table-container th {
-            text-align: left;
-            padding: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--color-text-secondary);
-            border-bottom: 1px solid var(--color-border);
-        }
-        .table-container td {
-            padding: 12px;
-            border-bottom: 1px solid var(--color-border);
+
+        .results-info {
             font-size: 13px;
+            color: var(--text-secondary);
         }
-        .table-container tr:hover {
-            background: var(--color-bg-tertiary);
+
+        .results-info strong {
+            color: var(--primary);
         }
-        .tag {
-            display: inline-block;
-            background: var(--color-bg-tertiary);
-            color: var(--color-text-primary);
-            padding: 4px 12px;
-            border-radius: 6px;
+
+        /* API Key Status */
+        .api-key-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-radius: 4px;
             font-size: 12px;
-            margin: 4px 4px 4px 0;
+            font-weight: 600;
+            margin-bottom: 15px;
         }
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 16px 20px;
-            z-index: 2000;
-            max-width: 400px;
-            animation: slideIn 0.3s ease;
+
+        .api-key-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s ease-in-out infinite;
         }
-        .input-file {
-            display: none;
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
-        .export-buttons {
+
+        .button-group {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        .button-group .btn {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        @media (max-width: 768px) {
+            .button-group .btn {
+                min-width: 120px;
+            }
+            table {
+                font-size: 11px;
+            }
+            th, td {
+                padding: 8px 6px;
+            }
+        }
+
+        /* Debug Panel */
+        .debug-panel {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .debug-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .debug-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: rgba(15, 23, 42, 0.5);
+            border-left: 2px solid var(--accent-1);
+            padding-left: 10px;
+        }
+
+        .debug-label {
+            color: var(--accent-1);
+            font-weight: 600;
+        }
+
+        .debug-value {
+            color: var(--text-primary);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">📄</div>
-                <div>CV ATS Enterprise</div>
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-file-alt"></i>
+                    CV Matching System (Advanced)
+                </h1>
+                <p>AI-powered CV matching dengan intelligent parsing untuk berbagai format CV (ATS, Sidebar, Unstructured)</p>
             </div>
-        </header>
+        </div>
 
+        <!-- Main Content -->
         <div class="main-grid">
-            <div class="upload-section" id="uploadSection">
-                <div style="font-size: 48px; margin-bottom: 16px;">📤</div>
-                <h3>Upload CV</h3>
-                <p>Drag & drop atau klik browse<br><small>(PDF, DOCX, ZIP)</small></p>
-                <button class="btn btn-primary" id="browseBtn">Browse Files</button>
-                <input type="file" id="fileInput" class="input-file" multiple accept=".pdf,.docx,.zip">
-                
-                <div class="config-section">
-                    <h4>⚙️ Konfigurasi</h4>
-                    <div class="form-group">
-                        <label>AI Engine</label>
-                        <select id="aiEngine">
-                            <option value="tfidf">TF-IDF (Offline, Fast)</option>
-                            <option value="groq">Groq API</option>
-                        </select>
+            <!-- Left Column: Input Forms -->
+            <div>
+                <!-- Job Description Card -->
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-briefcase"></i>
+                        Deskripsi Posisi
                     </div>
+
                     <div class="form-group">
-                        <label>Job Description (untuk matching)</label>
-                        <textarea id="jobDesc" placeholder="Paste job description..."></textarea>
+                        <label for="positionName">Nama Posisi <span style="color: var(--danger);">*</span></label>
+                        <input type="text" id="positionName" placeholder="Contoh: Senior Engineer">
                     </div>
+
+                    <div class="form-group">
+                        <label for="requirements">Kualifikasi & Requirement <span style="color: var(--danger);">*</span></label>
+                        <textarea id="requirements" placeholder="Daftar kualifikasi:&#10;- Pendidikan S1 Teknik Sipil&#10;- Pengalaman 3+ tahun&#10;- Menguasai AutoCAD"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="jobDescription">Job Description</label>
+                        <textarea id="jobDescription" placeholder="Deskripsi pekerjaan..."></textarea>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg btn-block" onclick="validateJobInput()">
+                        <i class="fas fa-check"></i>
+                        Simpan Requirement
+                    </button>
+                </div>
+
+                <!-- API Key Card -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-title">
+                        <i class="fas fa-key"></i>
+                        Konfigurasi Groq API
+                    </div>
+
+                    <div id="apiKeyStatus" class="api-key-status error">
+                        <span class="status-dot"></span>
+                        Belum terhubung
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apiKey">API Key Groq <small>(gratis dari groq.com)</small></label>
+                        <input type="password" id="apiKey" placeholder="gsk_...">
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="saveApiKey()">
+                            <i class="fas fa-save"></i>
+                            Simpan
+                        </button>
+                        <button class="btn btn-secondary" onclick="toggleApiKeyVisibility()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);">
+                        <i class="fas fa-lock"></i> API Key aman di localStorage
+                    </p>
                 </div>
             </div>
 
-            <div class="content-main">
-                <div class="dashboard">
-                    <div class="stat-card">
-                        <div>
-                            <div class="stat-label">Total Files</div>
-                            <div class="stat-value" id="totalFiles">0</div>
-                        </div>
-                        <div style="font-size: 32px;">📁</div>
+            <!-- Right Column: CV Upload -->
+            <div>
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fas fa-file-upload"></i>
+                        Upload CV Kandidat
                     </div>
-                    <div class="stat-card">
-                        <div>
-                            <div class="stat-label">Processed</div>
-                            <div class="stat-value" id="processedCount">0</div>
-                        </div>
-                        <div style="font-size: 32px;">✅</div>
+
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">
+                        <i class="fas fa-info-circle"></i> Format: PDF, DOCX (max 10 file, 10MB each)
+                    </p>
+
+                    <div class="file-input-wrapper">
+                        <input type="file" id="cvFiles" class="file-input" multiple accept=".pdf,.docx,.doc">
+                        <label for="cvFiles" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Klik atau drag file CV di sini</span>
+                        </label>
+                        <div class="file-list" id="fileList"></div>
                     </div>
-                    <div class="stat-card">
-                        <div>
-                            <div class="stat-label">Avg Score</div>
-                            <div class="stat-value" id="avgScore">0</div>
-                        </div>
-                        <div style="font-size: 32px;">📊</div>
+
+                    <button class="btn btn-success btn-lg btn-block" onclick="startAnalysis()">
+                        <i class="fas fa-play"></i>
+                        Mulai Analisis CV
+                    </button>
+
+                    <div class="button-group" style="margin-top: 15px;">
+                        <button class="btn btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-redo"></i>
+                            Reset
+                        </button>
+                        <button class="btn btn-primary" onclick="exportToExcel()">
+                            <i class="fas fa-download"></i>
+                            Export
+                        </button>
+                    </div>
+
+                    <label style="margin-top: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="debugMode" onchange="toggleDebugMode()">
+                        <span style="font-size: 12px; color: var(--text-secondary);">Debug Mode (Lihat parsing details)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-container">
+            <div class="card">
+                <div class="results-header">
+                    <div class="card-title" style="margin: 0;">
+                        <i class="fas fa-chart-bar"></i>
+                        Hasil Ranking CV
+                    </div>
+                    <div class="results-info" id="resultsInfo">
+                        Belum ada data
                     </div>
                 </div>
 
-                <div class="chart-container">
-                    <h3 style="margin-bottom: 20px;">Score Distribution</h3>
-                    <canvas id="scoreChart"></canvas>
-                </div>
-
-                <div>
-                    <div class="section-header">
-                        <h2>📋 File Queue</h2>
-                        <div class="export-buttons">
-                            <button class="btn btn-secondary" id="startProcess" disabled>▶️ Start Analysis</button>
-                            <button class="btn btn-secondary" id="exportExcel" disabled>📊 Export Excel</button>
+                <div id="resultsTable">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-inbox"></i>
                         </div>
-                    </div>
-                    <div id="fileList" style="max-height: 400px; overflow-y: auto;"></div>
-                </div>
-
-                <div>
-                    <div class="section-header">
-                        <h2>🏆 Top Candidates</h2>
-                    </div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Score</th>
-                                    <th>Experience</th>
-                                    <th>Skills</th>
-                                </tr>
-                            </thead>
-                            <tbody id="candidateTable">
-                                <tr><td colspan="4" style="text-align: center; color: var(--color-text-secondary); padding: 40px;">No data yet</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="empty-state-text">
+                            Tidak ada hasil. Upload dan analisis CV untuk melihat hasil di sini.
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfjs-dist/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">Menganalisis CV...</div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // Setup PDF worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdfjs-dist/3.11.174/pdf.worker.min.js';
+        // ==========================================
+        // CONFIGURATION & CONSTANTS
+        // ==========================================
+        pdfjsWorker.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        const state = {
-            files: [],
-            results: [],
-            chart: null,
-            isProcessing: false
+        const CONFIG = {
+            DEBUG: false,
+            MAX_FILES: 10,
+            MAX_FILE_SIZE: 10 * 1024 * 1024,
+            MIN_NAME_LENGTH: 3,
+            MAX_NAME_LENGTH: 100,
+            AGE_MIN: 18,
+            AGE_MAX: 70
         };
 
-        // TF-IDF Implementation
-        class TFIDF {
-            constructor() {
-                this.documents = [];
-                this.vocab = new Map();
-            }
-            tokenize(text) {
-                return text.toLowerCase()
-                    .replace(/[^\w\s]/g, '')
-                    .split(/\s+/)
-                    .filter(w => w.length > 2);
-            }
-            addDocument(doc) {
-                const tokens = this.tokenize(doc);
-                this.documents.push(tokens);
-            }
-            calculateScore(query) {
-                const queryTokens = this.tokenize(query);
-                if (this.documents.length === 0) return 0;
-                
-                const docTokens = this.documents[this.documents.length - 1];
-                let matches = 0;
-                queryTokens.forEach(token => {
-                    if (docTokens.includes(token)) matches++;
-                });
-                return (matches / queryTokens.length) * 100;
+        const EDUCATION_LEVELS = {
+            'S2': 2, 'S1': 1, 'D4': 0.8, 'D3': 0.6, 'SMA': 0.2, 'SMK': 0.3
+        };
+
+        const COMMON_EDUCATION = ['S2', 'S1', 'D4', 'D3', 'SMA', 'SMK', 'AK', 'SMP'];
+
+        const MAJOR_KEYWORDS = [
+            'teknik sipil', 'akuntansi', 'manajemen', 'informatika', 'teknik informatika',
+            'engineering', 'accounting', 'business', 'commerce', 'finance', 'hukum', 'law',
+            'kedokteran', 'farmasi', 'psikologi', 'ilmu komunikasi', 'pemasaran', 'marketing',
+            'sumber daya manusia', 'sdm', 'human resources', 'hr', 'sistem informasi',
+            'teknologi informasi', 'it', 'komputer', 'administrasi', 'logistik', 'supply chain'
+        ];
+
+        const CITY_KEYWORDS = [
+            'jakarta', 'surabaya', 'bandung', 'medan', 'semarang', 'makassar', 'tangerang',
+            'depok', 'bekasi', 'bogor', 'yogyakarta', 'malang', 'bali', 'palembang',
+            'balikpapan', 'pekanbaru', 'batam', 'lombok', 'pontianak', 'banjarmasin'
+        ];
+
+        // ==========================================
+        // STATE MANAGEMENT
+        // ==========================================
+        let appState = {
+            jobInfo: null,
+            uploadedFiles: [],
+            analysisResults: [],
+            apiKey: localStorage.getItem('groq_api_key') || '',
+            apiConnected: false,
+            debugLogs: []
+        };
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEventListeners();
+            loadApiKey();
+            setupDragAndDrop();
+        });
+
+        function initializeEventListeners() {
+            const fileInput = document.getElementById('cvFiles');
+            fileInput.addEventListener('change', handleFileSelection);
+        }
+
+        function loadApiKey() {
+            if (appState.apiKey) {
+                document.getElementById('apiKey').value = '••••••••••••••••';
+                updateApiKeyStatus(true);
             }
         }
 
-        // File Input Handler
-        const fileInput = document.getElementById('fileInput');
-        const browseBtn = document.getElementById('browseBtn');
-        const uploadSection = document.getElementById('uploadSection');
+        function setupDragAndDrop() {
+            const fileInput = document.getElementById('cvFiles');
+            const container = fileInput.parentElement;
 
-        browseBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            fileInput.click();
-        });
+            container.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileInput.classList.add('drag-over');
+            });
 
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e);
-        });
+            container.addEventListener('dragleave', () => {
+                fileInput.classList.remove('drag-over');
+            });
 
-        uploadSection.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadSection.classList.add('dragging');
-        });
+            container.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileInput.classList.remove('drag-over');
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelection();
+            });
+        }
 
-        uploadSection.addEventListener('dragleave', () => {
-            uploadSection.classList.remove('dragging');
-        });
+        // ==========================================
+        // DEBUG SYSTEM
+        // ==========================================
+        function toggleDebugMode() {
+            CONFIG.DEBUG = document.getElementById('debugMode').checked;
+        }
 
-        uploadSection.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadSection.classList.remove('dragging');
-            fileInput.files = e.dataTransfer.files;
-            handleFiles({ target: { files: e.dataTransfer.files } });
-        });
-
-        function handleFiles(e) {
-            const files = Array.from(e.target.files);
-            console.log('Files selected:', files.length);
+        function debug(label, value) {
+            if (!CONFIG.DEBUG) return;
             
-            files.forEach(file => {
-                if (file.name.endsWith('.zip')) {
-                    extractZip(file);
-                } else if (file.type === 'application/pdf' || file.name.endsWith('.docx')) {
-                    addFileToQueue(file);
-                }
-            });
-            updateUI();
+            const log = { label, value, timestamp: new Date().toLocaleTimeString() };
+            appState.debugLogs.push(log);
+            console.log(`[DEBUG] ${label}:`, value);
         }
 
-        function addFileToQueue(file) {
-            state.files.push({
-                id: Math.random().toString(36),
-                name: file.name,
-                file: file,
-                size: (file.size / 1024).toFixed(2),
-                status: 'pending',
-                result: null
-            });
-            console.log('File added:', file.name);
-        }
+        // ==========================================
+        // API KEY MANAGEMENT
+        // ==========================================
+        function saveApiKey() {
+            const apiKeyInput = document.getElementById('apiKey');
+            const apiKey = apiKeyInput.value.trim();
 
-        async function extractZip(zipFile) {
-            try {
-                const zip = await JSZip.loadAsync(zipFile);
-                for (const [path, file] of Object.entries(zip.files)) {
-                    if (!file.dir && (path.endsWith('.pdf') || path.endsWith('.docx'))) {
-                        const blob = await file.async('blob');
-                        const newFile = new File([blob], file.name, { type: blob.type });
-                        addFileToQueue(newFile);
-                    }
-                }
-                showToast(`Extracted ${state.files.length} files from ZIP`, 'success');
-            } catch (err) {
-                showToast('Failed to extract ZIP: ' + err.message, 'error');
-            }
-        }
-
-        async function extractTextFromPDF(file) {
-            const pdf = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
-            let text = '';
-            for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
-                const page = await pdf.getPage(i);
-                const content = await page.getTextContent();
-                text += content.items.map(item => item.str).join(' ') + '\n';
-            }
-            return text;
-        }
-
-        async function extractTextFromDocx(file) {
-            const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
-            return result.value;
-        }
-
-        async function extractCVData(text) {
-            const data = {
-                name: 'Unknown',
-                experience: '0 years',
-                skills: [],
-                rawText: text.substring(0, 500)
-            };
-
-            const nameMatch = text.match(/^([A-Za-z\s]{2,})/m);
-            if (nameMatch) data.name = nameMatch[1].trim();
-
-            const expMatch = text.match(/(\d+)\s*(?:year|tahun|yr)/i);
-            if (expMatch) data.experience = expMatch[1] + ' years';
-
-            const skillsMatch = text.match(/(?:skill|keahlian)[:\s]*([^,\n.]+(?:,[^,\n.]+)*)/i);
-            if (skillsMatch) {
-                data.skills = skillsMatch[1].split(',').map(s => s.trim()).slice(0, 3);
-            }
-
-            return data;
-        }
-
-        async function analyzeCV(fileObj) {
-            try {
-                fileObj.status = 'processing';
-                updateUI();
-
-                let text = '';
-                if (fileObj.file.type === 'application/pdf') {
-                    text = await extractTextFromPDF(fileObj.file);
-                } else {
-                    text = await extractTextFromDocx(fileObj.file);
-                }
-
-                const cvData = await extractCVData(text);
-                const jobDesc = document.getElementById('jobDesc').value || text;
-
-                const tfidf = new TFIDF();
-                tfidf.addDocument(jobDesc);
-                tfidf.addDocument(text);
-                const score = tfidf.calculateScore(jobDesc);
-
-                fileObj.result = {
-                    ...cvData,
-                    score: Math.round(score),
-                    timestamp: new Date().toISOString()
-                };
-
-                state.results.push(fileObj.result);
-                fileObj.status = 'success';
-
-            } catch (err) {
-                console.error(err);
-                fileObj.status = 'error';
-                showToast(`Error: ${err.message}`, 'error');
-            }
-
-            updateUI();
-        }
-
-        async function startProcessing() {
-            if (state.files.length === 0) {
-                showToast('No files to process', 'info');
+            if (!apiKey || apiKey.startsWith('•')) {
+                showToast('Masukkan API Key terlebih dahulu', 'error');
                 return;
             }
 
-            state.isProcessing = true;
-            updateUI();
-
-            for (const file of state.files) {
-                if (file.status === 'pending') {
-                    await analyzeCV(file);
-                }
+            if (!apiKey.startsWith('gsk_')) {
+                showToast('Format API Key tidak valid (harus gsk_...)', 'error');
+                return;
             }
 
-            state.isProcessing = false;
-            updateChart();
-            showToast('Analysis complete!', 'success');
-            updateUI();
+            appState.apiKey = apiKey;
+            localStorage.setItem('groq_api_key', apiKey);
+            apiKeyInput.value = '••••••••••••••••';
+            testApiConnection();
         }
 
-        function updateUI() {
-            document.getElementById('totalFiles').textContent = state.files.length;
-            document.getElementById('processedCount').textContent = state.files.filter(f => f.status === 'success').length;
-            
-            const avgScore = state.results.length > 0
-                ? (state.results.reduce((sum, r) => sum + r.score, 0) / state.results.length).toFixed(0)
-                : 0;
-            document.getElementById('avgScore').textContent = avgScore;
-
-            const fileList = document.getElementById('fileList');
-            fileList.innerHTML = state.files.map(f => `
-                <div class="file-item">
-                    <div class="file-info">
-                        <div class="file-name">${f.name}</div>
-                        <div class="file-size">${f.size} KB</div>
-                    </div>
-                    <div class="file-status">
-                        ${f.result ? `<span class="score-badge ${f.result.score >= 70 ? 'score-high' : f.result.score >= 40 ? 'score-medium' : 'score-low'}">${f.result.score}</span>` : ''}
-                        <span class="status-badge status-${f.status}">${f.status}</span>
-                    </div>
-                </div>
-            `).join('');
-
-            const topCandidates = state.results.sort((a, b) => b.score - a.score).slice(0, 10);
-            const tableBody = document.getElementById('candidateTable');
-            tableBody.innerHTML = topCandidates.length > 0 ? topCandidates.map(r => `
-                <tr>
-                    <td><strong>${r.name}</strong></td>
-                    <td><span class="score-badge ${r.score >= 70 ? 'score-high' : r.score >= 40 ? 'score-medium' : 'score-low'}">${r.score}</span></td>
-                    <td>${r.experience}</td>
-                    <td>${r.skills.map(s => `<span class="tag">${s}</span>`).join('')}</td>
-                </tr>
-            `).join('') : '<tr><td colspan="4" style="text-align: center; color: var(--color-text-secondary); padding: 40px;">No data yet</td></tr>';
-
-            document.getElementById('startProcess').disabled = !state.files.length || state.isProcessing;
-            document.getElementById('exportExcel').disabled = !state.results.length;
+        function toggleApiKeyVisibility() {
+            const apiKeyInput = document.getElementById('apiKey');
+            if (apiKeyInput.type === 'password') {
+                apiKeyInput.type = 'text';
+                apiKeyInput.value = appState.apiKey || '••••••••••••••••';
+            } else {
+                apiKeyInput.type = 'password';
+                apiKeyInput.value = '••••••••••••••••';
+            }
         }
 
-        function updateChart() {
-            const ctx = document.getElementById('scoreChart').getContext('2d');
-            const scores = state.results.map(r => r.score);
-            const distribution = [
-                scores.filter(s => s < 20).length,
-                scores.filter(s => s >= 20 && s < 40).length,
-                scores.filter(s => s >= 40 && s < 60).length,
-                scores.filter(s => s >= 60 && s < 80).length,
-                scores.filter(s => s >= 80).length
-            ];
-
-            if (state.chart) state.chart.destroy();
-
-            state.chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['0-20', '20-40', '40-60', '60-80', '80-100'],
-                    datasets: [{
-                        label: 'Candidates',
-                        data: distribution,
-                        backgroundColor: '#10a37f'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true }
+        async function testApiConnection() {
+            showLoading(true, 'Menguji koneksi API...');
+            try {
+                const response = await fetch('https://api.groq.com/openai/v1/models', {
+                    headers: {
+                        'Authorization': `Bearer ${appState.apiKey}`
                     }
+                });
+
+                if (response.ok) {
+                    appState.apiConnected = true;
+                    updateApiKeyStatus(true);
+                    showToast('API Groq berhasil terhubung!', 'success');
+                } else {
+                    throw new Error('API Key tidak valid');
                 }
+            } catch (error) {
+                appState.apiConnected = false;
+                updateApiKeyStatus(false);
+                showToast('Koneksi API gagal. Menggunakan scoring keyword.', 'warning');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateApiKeyStatus(connected) {
+            const statusEl = document.getElementById('apiKeyStatus');
+            if (connected) {
+                statusEl.className = 'api-key-status';
+                statusEl.innerHTML = '<span class="status-dot"></span> API Groq Terhubung';
+            } else {
+                statusEl.className = 'api-key-status error';
+                statusEl.innerHTML = '<span class="status-dot"></span> Mode Fallback (Keyword)';
+            }
+        }
+
+        // ==========================================
+        // JOB INPUT VALIDATION
+        // ==========================================
+        function validateJobInput() {
+            const positionName = document.getElementById('positionName').value.trim();
+            const requirements = document.getElementById('requirements').value.trim();
+
+            if (!positionName) {
+                showToast('Nama posisi tidak boleh kosong', 'error');
+                return;
+            }
+
+            if (!requirements) {
+                showToast('Kualifikasi tidak boleh kosong', 'error');
+                return;
+            }
+
+            appState.jobInfo = {
+                position: positionName,
+                requirements: requirements,
+                jobDescription: document.getElementById('jobDescription').value.trim()
+            };
+
+            showToast(`Job info disimpan: "${positionName}"`, 'success');
+        }
+
+        // ==========================================
+        // FILE HANDLING
+        // ==========================================
+        function handleFileSelection() {
+            const fileInput = document.getElementById('cvFiles');
+            const files = Array.from(fileInput.files);
+
+            if (files.length === 0) {
+                appState.uploadedFiles = [];
+                updateFileList();
+                return;
+            }
+
+            if (files.length > CONFIG.MAX_FILES) {
+                showToast(`Maksimal ${CONFIG.MAX_FILES} file sekaligus`, 'error');
+                fileInput.value = '';
+                return;
+            }
+
+            const validFiles = files.filter(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!['pdf', 'doc', 'docx'].includes(ext)) {
+                    showToast(`File "${file.name}" tidak didukung`, 'error');
+                    return false;
+                }
+                if (file.size > CONFIG.MAX_FILE_SIZE) {
+                    showToast(`File "${file.name}" terlalu besar`, 'error');
+                    return false;
+                }
+                return true;
+            });
+
+            appState.uploadedFiles = validFiles;
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            appState.uploadedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-item-name">
+                        <i class="fas fa-${file.name.endsWith('.pdf') ? 'file-pdf' : 'file-word'}"></i>
+                        <span>${file.name}</span>
+                    </div>
+                    <button class="file-item-remove" onclick="removeFile(${index})">Hapus</button>
+                `;
+                fileList.appendChild(fileItem);
             });
         }
 
+        function removeFile(index) {
+            appState.uploadedFiles.splice(index, 1);
+            updateFileList();
+            document.getElementById('cvFiles').value = '';
+        }
+
+        // ==========================================
+        // TEXT EXTRACTION
+        // ==========================================
+        async function extractCVText(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+
+            try {
+                if (ext === 'pdf') {
+                    return await extractPDFText(file);
+                } else if (['doc', 'docx'].includes(ext)) {
+                    return await extractDocxText(file);
+                }
+            } catch (error) {
+                console.error(`Error extracting ${file.name}:`, error);
+                throw new Error(`Gagal membaca file ${file.name}`);
+            }
+        }
+
+        async function extractPDFText(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let text = '';
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                text += textContent.items.map(item => item.str).join(' ');
+            }
+
+            return text;
+        }
+
+        async function extractDocxText(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            return result.value;
+        }
+
+        // ==========================================
+        // ADVANCED CV PARSING ENGINE
+        // ==========================================
+        function parseCV(text, fileName) {
+            debug('Raw Text Length', text.length);
+            
+            const cvData = {
+                fileName: fileName,
+                name: extractNameAdvanced(text),
+                age: extractAgeAdvanced(text),
+                education: extractEducationAdvanced(text),
+                major: extractMajorAdvanced(text),
+                address: extractAddressAdvanced(text),
+                experience: extractExperienceAdvanced(text),
+                confidenceScores: {}
+            };
+
+            // Hitung confidence untuk setiap field
+            cvData.confidenceScores = {
+                name: calculateNameConfidence(text, cvData.name),
+                age: calculateAgeConfidence(text, cvData.age),
+                education: calculateEducationConfidence(text, cvData.education),
+                major: calculateMajorConfidence(text, cvData.major),
+                address: calculateAddressConfidence(text, cvData.address)
+            };
+
+            debug('Parsed CV Data', cvData);
+            return cvData;
+        }
+
+        // ===== NAME EXTRACTION (ULTRA ADVANCED) =====
+        function extractNameAdvanced(text) {
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+
+            // Strategy 1: Pattern "Nama: ..." atau "Name: ..."
+            const namaPattern = /(?:nama|name|full\s+name)\s*[:=]\s*([^\n,]+)/i;
+            const namaMatch = text.match(namaPattern);
+            if (namaMatch) {
+                const name = sanitizeName(namaMatch[1]);
+                if (isValidName(name)) {
+                    debug('Name Strategy 1', `Found via pattern: ${name}`);
+                    return name;
+                }
+            }
+
+            // Strategy 2: Scan sebelum section headers (BEST untuk ATS & unstructured)
+            const sectionHeaderPattern = /^(SUMMARY|OBJECTIVE|RIWAYAT|PENGALAMAN|EXPERIENCE|EDUCATION|PENDIDIKAN|SKILL|KEAHLIAN|SERTIFIKASI|CONTACT|KONTAK|PORTOFOLIO|PORTFOLIO|PROJECT|PROYEK|TECHNICAL|BAHASA|LANGUAGE)/i;
+            
+            let candidateNames = [];
+            for (let i = 0; i < Math.min(50, lines.length); i++) {
+                const line = lines[i];
+                if (sectionHeaderPattern.test(line)) break;
+                if (isValidNameCandidate(line)) {
+                    candidateNames.push(line);
+                }
+            }
+
+            if (candidateNames.length > 0) {
+                const bestName = candidateNames[0];
+                debug('Name Strategy 2', `Found via section scan: ${bestName}`);
+                return bestName;
+            }
+
+            // Strategy 3: Score-based approach untuk 20 baris pertama
+            let scoredNames = [];
+            for (let i = 0; i < Math.min(20, lines.length); i++) {
+                const line = lines[i];
+                const score = scoreNameLikelihood(line);
+                if (score > 40) {
+                    scoredNames.push({ line, score });
+                }
+            }
+
+            if (scoredNames.length > 0) {
+                scoredNames.sort((a, b) => b.score - a.score);
+                const bestName = scoredNames[0].line;
+                debug('Name Strategy 3', `Found via scoring (score: ${scoredNames[0].score}): ${bestName}`);
+                return bestName;
+            }
+
+            // Strategy 4: Fallback - ambil baris pertama yang valid
+            for (let i = 0; i < Math.min(10, lines.length); i++) {
+                const line = lines[i];
+                if (isValidName(line)) {
+                    debug('Name Strategy 4', `Fallback: ${line}`);
+                    return line;
+                }
+            }
+
+            debug('Name Strategy 5', 'No name found, returning N/A');
+            return 'N/A';
+        }
+
+        function isValidNameCandidate(line) {
+            if (line.length < 3 || line.length > 100) return false;
+            if (line.includes('@') || line.includes('http') || line.includes('www')) return false;
+            if (/^\d+[-\s]?\d+/.test(line)) return false; // Phone number
+            if (line.toLowerCase().includes('cv') || line.toLowerCase().includes('resume')) return false;
+            
+            // Harus ada minimal 1 uppercase dan 1 lowercase
+            if (!/[A-Z]/.test(line) || !/[a-z]/.test(line)) return false;
+            
+            const wordCount = line.split(/\s+/).length;
+            return wordCount >= 1 && wordCount <= 5;
+        }
+
+        function sanitizeName(str) {
+            return str.trim()
+                .replace(/,.*$/, '')
+                .replace(/\(.*?\)/g, '')
+                .replace(/^\d+\.\s*/, '')
+                .trim();
+        }
+
+        function isValidName(name) {
+            if (!name || name.length < CONFIG.MIN_NAME_LENGTH || name.length > CONFIG.MAX_NAME_LENGTH) return false;
+            if (name.includes('@') || name.includes('http')) return false;
+            if (!/[A-Z]/.test(name) || !/[a-z]/.test(name)) return false;
+            if (/^\d+$/.test(name)) return false;
+            return true;
+        }
+
+        function scoreNameLikelihood(line) {
+            let score = 0;
+            if (!isValidNameCandidate(line)) return 0;
+
+            score += 50; // Base score
+
+            if (/^[A-Z][a-z]+(\s+[A-Z][a-z]+)*$/.test(line)) score += 30;
+
+            const wordCount = line.split(/\s+/).length;
+            if (wordCount === 2) score += 15;
+            if (wordCount === 3) score += 10;
+
+            if (line.length > 50) score -= 10;
+            if (/[^a-zA-Z\s'-]/.test(line)) score -= 5;
+
+            return Math.max(0, score);
+        }
+
+        function calculateNameConfidence(text, name) {
+            if (name === 'N/A') return 0;
+            const pattern = new RegExp(`\\b${name.replace(/\s+/g, '\\s+')}\\b`, 'i');
+            return pattern.test(text) ? 95 : 60;
+        }
+
+        // ===== AGE EXTRACTION (INTELLIGENT) =====
+        function extractAgeAdvanced(text) {
+            // Strategy 1: Direct age mention "Usia: 28" atau "Age: 30"
+            const ageDirectPattern = /(?:umur|usia|age|thn|tahun)\s*[:=]?\s*(\d+)\s*(?:thn|tahun|tahun|years|yr)?/i;
+            const ageMatch = text.match(ageDirectPattern);
+            if (ageMatch) {
+                const age = parseInt(ageMatch[1]);
+                if (age >= CONFIG.AGE_MIN && age <= CONFIG.AGE_MAX) {
+                    debug('Age Strategy 1', `Direct match: ${age}`);
+                    return age;
+                }
+            }
+
+            // Strategy 2: Date of birth patterns
+            const datePatterns = [
+                /(?:tanggal\s+lahir|date\s+of\s+birth|dob|lahir)\s*[:=]?\s*(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/i,
+                /(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/
+            ];
+
+            for (const pattern of datePatterns) {
+                const dateMatch = text.match(pattern);
+                if (dateMatch) {
+                    const year = parseInt(dateMatch[3]);
+                    if (year >= 1950 && year <= 2010) {
+                        const age = new Date().getFullYear() - year;
+                        if (age >= CONFIG.AGE_MIN && age <= CONFIG.AGE_MAX) {
+                            debug('Age Strategy 2', `From birthdate: ${age}`);
+                            return age;
+                        }
+                    }
+                }
+            }
+
+            // Strategy 3: Context-based extraction "Berusia 25 tahun"
+            const contextPattern = /berusia\s+(\d+)\s*(?:tahun)?/i;
+            const contextMatch = text.match(contextPattern);
+            if (contextMatch) {
+                const age = parseInt(contextMatch[1]);
+                if (age >= CONFIG.AGE_MIN && age <= CONFIG.AGE_MAX) {
+                    debug('Age Strategy 3', `Context-based: ${age}`);
+                    return age;
+                }
+            }
+
+            debug('Age Strategy 4', 'No age found');
+            return 'N/A';
+        }
+
+        function calculateAgeConfidence(text, age) {
+            if (age === 'N/A') return 0;
+            return 90; // Jika ada, confidence tinggi
+        }
+
+        // ===== EDUCATION EXTRACTION =====
+        function extractEducationAdvanced(text) {
+            const normalized = text.toLowerCase();
+
+            for (const edu of COMMON_EDUCATION) {
+                if (normalized.includes(edu.toLowerCase())) {
+                    debug('Education Found', edu);
+                    return edu;
+                }
+            }
+
+            debug('Education', 'Not found, returning N/A');
+            return 'N/A';
+        }
+
+        function calculateEducationConfidence(text, edu) {
+            if (edu === 'N/A') return 0;
+            const count = (text.match(new RegExp(edu, 'gi')) || []).length;
+            return Math.min(100, 70 + (count * 10));
+        }
+
+        // ===== MAJOR EXTRACTION =====
+        function extractMajorAdvanced(text) {
+            const normalized = text.toLowerCase();
+
+            // Strategy 1: Direct keyword matching
+            for (const major of MAJOR_KEYWORDS) {
+                if (normalized.includes(major.toLowerCase())) {
+                    debug('Major Strategy 1', major);
+                    return major.toUpperCase();
+                }
+            }
+
+            // Strategy 2: Pattern "Jurusan: ..." atau "Prodi: ..."
+            const majorPattern = /(?:jurusan|prodi|program\s+studi|major|specialization)\s*[:=]?\s*([^\n,]+)/i;
+            const majorMatch = text.match(majorPattern);
+            if (majorMatch) {
+                const major = majorMatch[1].trim();
+                if (major.length > 2 && major.length < 100) {
+                    debug('Major Strategy 2', major);
+                    return major.toUpperCase();
+                }
+            }
+
+            debug('Major', 'Not found');
+            return 'N/A';
+        }
+
+        function calculateMajorConfidence(text, major) {
+            if (major === 'N/A') return 0;
+            return 75;
+        }
+
+        // ===== ADDRESS EXTRACTION =====
+        function extractAddressAdvanced(text) {
+            // Strategy 1: City matching
+            const normalized = text.toLowerCase();
+            for (const city of CITY_KEYWORDS) {
+                if (normalized.includes(city)) {
+                    debug('Address Strategy 1', city);
+                    return city.charAt(0).toUpperCase() + city.slice(1);
+                }
+            }
+
+            // Strategy 2: Pattern "Alamat: ..." atau "Address: ..."
+            const addressPattern = /(?:alamat|address|kota|city)\s*[:=]?\s*([^\n,]+)/i;
+            const addressMatch = text.match(addressPattern);
+            if (addressMatch) {
+                const address = addressMatch[1].trim();
+                if (address.length > 2 && address.length < 100) {
+                    debug('Address Strategy 2', address);
+                    return address;
+                }
+            }
+
+            debug('Address', 'Not found');
+            return 'N/A';
+        }
+
+        function calculateAddressConfidence(text, address) {
+            if (address === 'N/A') return 0;
+            return 70;
+        }
+
+        // ===== EXPERIENCE EXTRACTION =====
+        function extractExperienceAdvanced(text) {
+            // Strategy 1: Pattern "Perusahaan (tahun-tahun)"
+            const companyPattern = /([A-Z][a-zA-Z\s&.,-]+?)\s*\((\d{4})\s*[-–]\s*(\d{4}|sekarang|present|now)\)/;
+            const companyMatch = text.match(companyPattern);
+            if (companyMatch) {
+                const experience = `${companyMatch[1].trim()} (${companyMatch[2]}-${companyMatch[3]})`;
+                debug('Experience Strategy 1', experience);
+                return experience;
+            }
+
+            // Strategy 2: Pattern "Pengalaman: ..." atau "Experience: ..."
+            const expPattern = /(?:pengalaman|experience|riwayat\s+pekerjaan)\s*[:=]?\s*([^\n]+)/i;
+            const expMatch = text.match(expPattern);
+            if (expMatch) {
+                const exp = expMatch[1].trim();
+                if (exp.length > 2) {
+                    debug('Experience Strategy 2', exp);
+                    return exp;
+                }
+            }
+
+            // Strategy 3: Cari baris dengan tahun (pattern: 2020-2023)
+            const yearPattern = /(\d{4})\s*[-–]\s*(\d{4})/;
+            const yearMatch = text.match(yearPattern);
+            if (yearMatch) {
+                const fullContext = text.split('\n').find(line => line.match(yearPattern));
+                if (fullContext) {
+                    debug('Experience Strategy 3', fullContext);
+                    return fullContext.trim().substring(0, 100);
+                }
+            }
+
+            debug('Experience', 'Not found');
+            return 'N/A';
+        }
+
+        // ==========================================
+        // SCORING SYSTEM
+        // ==========================================
+        async function scoreCandidate(cvData, jobInfo) {
+            if (appState.apiConnected && appState.apiKey) {
+                return await scoreWithGroq(cvData, jobInfo);
+            } else {
+                return scoreWithKeywords(cvData, jobInfo);
+            }
+        }
+
+        async function scoreWithGroq(cvData, jobInfo) {
+            const prompt = `
+Anda adalah HR Expert. Berikan skor kecocokan CV dengan requirement pekerjaan.
+
+KANDIDAT:
+- Nama: ${cvData.name}
+- Usia: ${cvData.age}
+- Pendidikan: ${cvData.education}
+- Jurusan: ${cvData.major}
+- Alamat: ${cvData.address}
+- Pengalaman: ${cvData.experience}
+
+POSISI: ${jobInfo.position}
+
+REQUIREMENT:
+${jobInfo.requirements}
+
+Berikan HANYA skor 0-100 di baris terakhir, tanpa penjelasan lain.
+
+SKOR:`;
+
+            try {
+                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${appState.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        messages: [{ role: 'user', content: prompt }],
+                        max_tokens: 100,
+                        temperature: 0.3
+                    })
+                });
+
+                if (!response.ok) throw new Error('API request failed');
+
+                const data = await response.json();
+                const content = data.choices[0].message.content.trim();
+                const scoreMatch = content.match(/(\d+)/);
+                const score = scoreMatch ? Math.min(100, Math.max(0, parseInt(scoreMatch[1]))) : scoreWithKeywords(cvData, jobInfo);
+
+                debug('Groq Score', score);
+                return score;
+            } catch (error) {
+                console.warn('Groq API failed:', error);
+                return scoreWithKeywords(cvData, jobInfo);
+            }
+        }
+
+        function scoreWithKeywords(cvData, jobInfo) {
+            let score = 0;
+            const requirements = jobInfo.requirements.toLowerCase();
+            const cvText = JSON.stringify(cvData).toLowerCase();
+
+            // Education scoring (40 points)
+            if (cvData.education !== 'N/A') {
+                score += (EDUCATION_LEVELS[cvData.education] || 0.3) * 40;
+            }
+
+            // Major relevance (30 points)
+            if (cvData.major !== 'N/A') {
+                const majorWords = cvData.major.toLowerCase().split(/\s+/);
+                const matchCount = majorWords.filter(word => word.length > 2 && requirements.includes(word)).length;
+                score += Math.min(30, matchCount * 10);
+            }
+
+            // Experience relevance (20 points)
+            if (cvData.experience !== 'N/A') {
+                const expWords = cvData.experience.toLowerCase().split(/\s+/);
+                const matchCount = expWords.filter(word => word.length > 3 && requirements.includes(word)).length;
+                score += Math.min(20, matchCount * 5);
+            }
+
+            // Address (10 points)
+            if (cvData.address !== 'N/A') score += 5;
+            if (cvData.age !== 'N/A') score += 5;
+
+            const finalScore = Math.round(Math.min(100, score));
+            debug('Keyword Score', finalScore);
+            return finalScore;
+        }
+
+        function getRecommendation(score) {
+            if (score >= 75) return 'High Priority';
+            if (score >= 50) return 'Layak Interview';
+            return 'Cadangan';
+        }
+
+        // ==========================================
+        // ANALYSIS WORKFLOW
+        // ==========================================
+        async function startAnalysis() {
+            if (!appState.jobInfo) {
+                showToast('Lengkapi informasi posisi terlebih dahulu', 'error');
+                return;
+            }
+
+            if (appState.uploadedFiles.length === 0) {
+                showToast('Upload minimal 1 file CV', 'error');
+                return;
+            }
+
+            appState.analysisResults = [];
+            appState.debugLogs = [];
+            const totalFiles = appState.uploadedFiles.length;
+
+            for (let i = 0; i < totalFiles; i++) {
+                const file = appState.uploadedFiles[i];
+
+                try {
+                    showLoading(true, `Menganalisis ${i + 1}/${totalFiles}: ${file.name}`);
+
+                    const text = await extractCVText(file);
+                    const cvData = parseCV(text, file.name);
+                    const score = await scoreCandidate(cvData, appState.jobInfo);
+
+                    appState.analysisResults.push({
+                        fileName: file.name,
+                        ...cvData,
+                        score: score,
+                        recommendation: getRecommendation(score)
+                    });
+
+                    showToast(`✓ ${file.name}`, 'success');
+                } catch (error) {
+                    showToast(`✗ ${file.name}: ${error.message}`, 'error');
+                    console.error(error);
+                }
+            }
+
+            showLoading(false);
+            sortAndDisplayResults();
+            showToast(`Analisis selesai! ${appState.analysisResults.length}/${totalFiles} CV berhasil.`, 'success');
+        }
+
+        function sortAndDisplayResults() {
+            appState.analysisResults.sort((a, b) => b.score - a.score);
+            displayResults();
+        }
+
+        function displayResults() {
+            const container = document.getElementById('resultsTable');
+            const resultsInfo = document.getElementById('resultsInfo');
+
+            if (appState.analysisResults.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <div class="empty-state-text">Tidak ada hasil</div>
+                    </div>
+                `;
+                resultsInfo.innerHTML = 'Belum ada data';
+                return;
+            }
+
+            resultsInfo.innerHTML = `<strong>${appState.analysisResults.length}</strong> kandidat`;
+
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Usia</th>
+                        <th>Pendidikan</th>
+                        <th>Jurusan</th>
+                        <th>Alamat</th>
+                        <th style="max-width: 150px;">Pengalaman</th>
+                        <th>Skor</th>
+                        <th>Rekomendasi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${appState.analysisResults.map((result, idx) => `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><strong>${result.name}</strong></td>
+                            <td>${result.age}</td>
+                            <td>${result.education}</td>
+                            <td>${result.major}</td>
+                            <td>${result.address}</td>
+                            <td style="font-size: 11px; max-width: 150px; white-space: normal;">${result.experience}</td>
+                            <td>
+                                <div class="score-bar">
+                                    <span class="score-number">${result.score}</span>
+                                    <div class="score-bar-fill">
+                                        <div class="score-bar-progress" style="width: ${result.score}%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-${getRecommendationClass(result.recommendation)}">
+                                    ${result.recommendation}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-wrapper';
+            wrapper.appendChild(table);
+
+            container.innerHTML = '';
+            container.appendChild(wrapper);
+
+            // Debug panel jika mode debug aktif
+            if (CONFIG.DEBUG && appState.debugLogs.length > 0) {
+                const debugPanel = document.createElement('div');
+                debugPanel.className = 'debug-panel';
+                debugPanel.innerHTML = `
+                    <div class="debug-title">📊 Debug Logs (${appState.debugLogs.length} entries)</div>
+                    ${appState.debugLogs.map(log => `
+                        <div class="debug-item">
+                            <span class="debug-label">${log.label}:</span>
+                            <span class="debug-value">${JSON.stringify(log.value)}</span>
+                        </div>
+                    `).join('')}
+                `;
+                container.appendChild(debugPanel);
+            }
+        }
+
+        function getRecommendationClass(rec) {
+            if (rec === 'High Priority') return 'high';
+            if (rec === 'Layak Interview') return 'medium';
+            return 'low';
+        }
+
+        // ==========================================
+        // EXPORT EXCEL
+        // ==========================================
         function exportToExcel() {
-            const ws_data = state.results.map(r => ({
-                Name: r.name,
-                Score: r.score,
-                Experience: r.experience,
-                Skills: r.skills.join('; ')
+            if (appState.analysisResults.length === 0) {
+                showToast('Tidak ada data untuk diekspor', 'error');
+                return;
+            }
+
+            const data = appState.analysisResults.map((result, idx) => ({
+                'No': idx + 1,
+                'Nama': result.name,
+                'Usia': result.age,
+                'Pendidikan': result.education,
+                'Jurusan': result.major,
+                'Alamat': result.address,
+                'Pengalaman': result.experience,
+                'Skor': result.score,
+                'Rekomendasi': result.recommendation
             }));
 
-            const ws = XLSX.utils.json_to_sheet(ws_data);
+            const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'CVs');
-            XLSX.writeFile(wb, `cv-analysis-${new Date().toISOString().split('T')[0]}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, ws, 'CV Ranking');
+
+            ws['!cols'] = [{ wch: 5 }, { wch: 20 }, { wch: 8 }, { wch: 15 }, { wch: 20 }, { wch: 15 }, { wch: 25 }, { wch: 10 }, { wch: 15 }];
+
+            const fileName = `CV_Ranking_${appState.jobInfo.position.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+
+            showToast(`Export: ${fileName}`, 'success');
+        }
+
+        // ==========================================
+        // UI UTILITIES
+        // ==========================================
+        function showLoading(show, text = 'Memproses...') {
+            const overlay = document.getElementById('loadingOverlay');
+            if (show) {
+                document.getElementById('loadingText').textContent = text;
+                overlay.classList.add('active');
+            } else {
+                overlay.classList.remove('active');
+            }
         }
 
         function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            toast.className = `toast`;
-            toast.style.borderLeft = type === 'success' ? '4px solid #4ade80' : type === 'error' ? '4px solid #ef4444' : '4px solid #60a5fa';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            toast.className = `toast ${type}`;
+
+            const icons = { success: 'check-circle', error: 'times-circle', warning: 'exclamation-circle', info: 'info-circle' };
+
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fas fa-${icons[type]}"></i></div>
+                <div class="toast-message">${message}</div>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
         }
 
-        // Event Listeners
-        document.getElementById('startProcess').addEventListener('click', startProcessing);
-        document.getElementById('exportExcel').addEventListener('click', exportToExcel);
-
-        // Initialize
-        updateUI();
+        function resetForm() {
+            if (confirm('Reset semua data CV? (Requirement & API Key akan tetap tersimpan)')) {
+                document.getElementById('cvFiles').value = '';
+                appState.uploadedFiles = [];
+                appState.analysisResults = [];
+                appState.debugLogs = [];
+                updateFileList();
+                displayResults();
+                showToast('Form direset', 'info');
+            }
+        }
     </script>
 </body>
 </html>
