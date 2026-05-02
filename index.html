@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rexvin CV Screener - Fixed Edition</title>
+    <title>Rexvin CV Screener - Offline Smart Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.min.js"></script>
@@ -150,28 +150,31 @@
         .score-high {
             background: #dcfce7;
             color: #166534;
-            padding: 6px 12px;
+            padding: 8px 12px;
             border-radius: 6px;
             font-weight: bold;
             text-align: center;
+            min-width: 60px;
         }
         
         .score-medium {
             background: #fef3c7;
             color: #92400e;
-            padding: 6px 12px;
+            padding: 8px 12px;
             border-radius: 6px;
             font-weight: bold;
             text-align: center;
+            min-width: 60px;
         }
         
         .score-low {
             background: #fee2e2;
             color: #991b1b;
-            padding: 6px 12px;
+            padding: 8px 12px;
             border-radius: 6px;
             font-weight: bold;
             text-align: center;
+            min-width: 60px;
         }
         
         .rec-pass {
@@ -329,6 +332,17 @@
             color: #2563eb;
         }
         
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 0;
@@ -356,36 +370,40 @@
             <div class="header">
                 <div class="header-title">
                     <h1>REXVIN <span class="accent-blue">RECRUITMENT AI</span></h1>
-                    <p>Sistem Skrining CV Otomatis • Verified 2026</p>
+                    <p>Sistem Skrining CV Offline (Tanpa API Limit) • Verified 2026</p>
                 </div>
                 <button onclick="downloadExcel()" id="btnDownload" class="hidden btn-success" style="background: #10b981;">
                     📥 Download Excel
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div class="badge">⚡ Mode Offline (Unlimited Processing • No Rate Limit)</div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                    <label class="label">API Key Groq</label>
-                    <input type="password" id="apiKey" class="input-field" placeholder="gsk_...">
-                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">
-                        Gratis dari <a href="https://groq.com" target="_blank" style="color: #2563eb; text-decoration: underline;">groq.com</a>
-                    </div>
+                    <label class="label">Job Description</label>
+                    <textarea id="jobDesc" class="input-field" style="min-height: 100px;" placeholder="Contoh: WAJIB pengalaman Property Developer 3 tahun, WAJIB menguasai AutoCAD, WAJIB S1 Teknik Sipil, Lokasi Jakarta"></textarea>
                 </div>
 
                 <div>
                     <label class="label">Upload CV (PDF/DOCX)</label>
                     <input type="file" id="fileInput" multiple accept=".pdf,.docx,.doc" class="input-field" style="padding: 6px 12px;">
-                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">Max 10 file, 20MB each</div>
+                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">Max 20 file, unlimited processing</div>
                 </div>
 
                 <div>
-                    <label class="label">Job Description</label>
-                    <textarea id="jobDesc" class="input-field" style="min-height: 42px;" placeholder="Tulis kriteria WAJIB di sini..."></textarea>
+                    <label class="label">Scoring Mode</label>
+                    <select id="scoreMode" class="input-field">
+                        <option value="smart">🧠 Smart Parsing (Recommended)</option>
+                        <option value="strict">🔒 Strict Matching</option>
+                        <option value="loose">⚡ Lenient Matching</option>
+                    </select>
+                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">Adjusted untuk akurasi berbeda</div>
                 </div>
             </div>
 
             <button onclick="processFiles()" id="btnRun" class="btn-primary w-full mt-8">
-                🚀 MULAI ANALISA KANDIDAT
+                🚀 MULAI ANALISA KANDIDAT (Unlimited)
             </button>
 
             <div id="progressBox" class="progress-container">
@@ -428,6 +446,213 @@
 
         let allResults = [];
 
+        // ========== SMART PARSING ENGINE ==========
+
+        // Dictionary untuk keahlian property
+        const propertyKeywords = [
+            'developer', 'property', 'real estate', 'realestate',
+            'developer property', 'property developer', 'property consultant',
+            'estate', 'residential', 'commercial', 'retail',
+            'marketing property', 'sales consultant'
+        ];
+
+        const technicalSkills = [
+            'autocad', 'sketchup', 'lumion', '3d', 'archicad',
+            'revit', 'cad', 'bim', 'photoshop', 'autocad 2d',
+            'microsoft office', 'excel', 'powerpoint'
+        ];
+
+        const educationLevels = {
+            's2': 90, 's1': 100, 'd3': 70, 'd4': 80,
+            'sarjana': 100, 'master': 90, 'diploma': 70,
+            'magister': 90, 'bachelor': 100, 'teknik': 50
+        };
+
+        const cities = [
+            'jakarta', 'bandung', 'surabaya', 'medan', 'semarang',
+            'makassar', 'tangerang', 'depok', 'bekasi', 'bogor',
+            'yogyakarta', 'malang', 'bali'
+        ];
+
+        // Extract text dari PDF
+        async function extractPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let text = '';
+                
+                for (let i = 1; i <= Math.min(pdf.numPages, 10); i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    text += content.items.map(item => item.str).join(' ') + ' ';
+                }
+                
+                return text;
+            } catch (error) {
+                throw new Error(`Gagal membaca PDF: ${error.message}`);
+            }
+        }
+
+        // Extract text dari DOCX
+        async function extractDocx(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                return result.value;
+            } catch (error) {
+                throw new Error(`Gagal membaca DOCX: ${error.message}`);
+            }
+        }
+
+        // ========== SMART PARSING LOGIC ==========
+        function parseCV(text) {
+            const lower = text.toLowerCase();
+            
+            return {
+                name: extractName(text),
+                email: extractEmail(text),
+                phone: extractPhone(text),
+                age: extractAge(text),
+                city: extractCity(lower),
+                education: extractEducation(lower),
+                experience: extractExperience(text),
+                skills: extractSkills(lower)
+            };
+        }
+
+        function extractName(text) {
+            const lines = text.split('\n').filter(l => l.trim().length > 0);
+            for (let i = 0; i < Math.min(5, lines.length); i++) {
+                const line = lines[i].trim();
+                if (line.length > 5 && line.length < 100 && /^[A-Z]/.test(line)) {
+                    if (!line.match(/^(SUMMARY|OBJECTIVE|PROFESSIONAL|EXPERIENCE|EDUCATION|SKILL)/i)) {
+                        return line;
+                    }
+                }
+            }
+            return 'N/A';
+        }
+
+        function extractEmail(text) {
+            const match = text.match(/[\w\.-]+@[\w\.-]+\.\w+/);
+            return match ? match[0] : 'N/A';
+        }
+
+        function extractPhone(text) {
+            const match = text.match(/(\+62|0)[0-9\s\-]{8,}/);
+            return match ? match[0].trim() : 'N/A';
+        }
+
+        function extractAge(text) {
+            const ageMatch = text.match(/(?:age|usia|umur)\s*[:=]?\s*(\d{2})/i);
+            if (ageMatch) return ageMatch[1];
+            
+            const birthMatch = text.match(/(?:1[89]|20)\d{2}/);
+            if (birthMatch) {
+                const year = parseInt(birthMatch[0]);
+                return Math.max(18, Math.min(70, 2026 - year)).toString();
+            }
+            return 'N/A';
+        }
+
+        function extractCity(text) {
+            for (const city of cities) {
+                if (text.includes(city)) return city.charAt(0).toUpperCase() + city.slice(1);
+            }
+            return 'N/A';
+        }
+
+        function extractEducation(text) {
+            for (const [edu, score] of Object.entries(educationLevels)) {
+                if (text.includes(edu)) return edu.toUpperCase();
+            }
+            return 'N/A';
+        }
+
+        function extractExperience(text) {
+            const lines = text.split('\n');
+            for (const line of lines) {
+                if (line.match(/\d{4}\s*[-–]\s*(\d{4}|sekarang|present)/i)) {
+                    return line.trim().substring(0, 100);
+                }
+            }
+            
+            const expMatch = text.match(/(?:pengalaman|experience)[\s:]+([^.\n]+)/i);
+            return expMatch ? expMatch[1].trim().substring(0, 100) : 'N/A';
+        }
+
+        function extractSkills(text) {
+            let found = [];
+            for (const skill of technicalSkills) {
+                if (text.includes(skill)) found.push(skill);
+            }
+            return found.length > 0 ? found.slice(0, 3).join(', ') : 'N/A';
+        }
+
+        // ========== SMART SCORING ==========
+        function scoreCandidate(cvData, jobDesc, mode) {
+            let score = 0;
+            const jdLower = jobDesc.toLowerCase();
+            const maxScore = 100;
+
+            // 1. Education scoring (30%)
+            const eduMatch = educationLevels[cvData.education.toLowerCase()];
+            if (eduMatch) {
+                score += (eduMatch / 100) * 30;
+            }
+
+            // 2. Experience relevance (40%)
+            const expKeywords = jdLower.match(/(\d+)\s*(?:tahun|year|thn)/g) || [];
+            if (expKeywords.length > 0) {
+                const requiredExp = parseInt(expKeywords[0]);
+                // Simplified: if "property developer" mentioned, add points
+                if (cvData.experience && cvData.experience.toLowerCase().includes('property')) {
+                    score += 25;
+                } else if (cvData.experience !== 'N/A') {
+                    score += 15;
+                }
+            }
+
+            // 3. Skills match (20%)
+            if (cvData.skills !== 'N/A') {
+                for (const keyword of technicalSkills) {
+                    if (cvData.skills.toLowerCase().includes(keyword)) {
+                        score += 10;
+                        break;
+                    }
+                }
+            }
+
+            // 4. Location bonus (10%)
+            if (cvData.city !== 'N/A' && jdLower.includes(cvData.city.toLowerCase())) {
+                score += 10;
+            }
+
+            // Apply mode multiplier
+            if (mode === 'strict') {
+                score *= 0.8;
+            } else if (mode === 'loose') {
+                score = Math.min(100, score * 1.2);
+            }
+
+            return Math.round(Math.min(maxScore, Math.max(0, score)));
+        }
+
+        // ========== RECOMMENDATION LOGIC ==========
+        function getRecommendation(score, jobDesc, cvData) {
+            const hasMustHave = jobDesc.toLowerCase().includes('wajib');
+            
+            if (score >= 75) {
+                return 'SANGAT DISARANKAN';
+            } else if (score >= 60) {
+                return 'LAYAK INTERVIEW';
+            } else if (score >= 40) {
+                return 'PERLU PERTIMBANGAN';
+            } else {
+                return 'TIDAK DISARANKAN';
+            }
+        }
+
         // Toast notification
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
@@ -439,156 +664,6 @@
                 toast.style.animation = 'slideOut 0.3s ease';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
-        }
-
-        // Extract PDF text
-        async function extractPDF(file) {
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let text = '';
-                
-                for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
-                    const page = await pdf.getPage(i);
-                    const content = await page.getTextContent();
-                    text += content.items.map(item => item.str).join(' ') + ' ';
-                }
-                
-                return text;
-            } catch (error) {
-                console.error('PDF extraction error:', error);
-                throw new Error(`Gagal membaca PDF: ${error.message}`);
-            }
-        }
-
-        // Extract DOCX text
-        async function extractDocx(file) {
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const result = await mammoth.extractRawText({ arrayBuffer });
-                return result.value;
-            } catch (error) {
-                console.error('DOCX extraction error:', error);
-                throw new Error(`Gagal membaca DOCX: ${error.message}`);
-            }
-        }
-
-        // Call Groq API
-        async function callGroq(key, jd, cv) {
-            const prompt = `Anda adalah Senior HR Auditor profesional untuk PT Rexvin.
-
-TUGAS:
-1. Ekstrak: nama, usia (hitung di 2026), HP, email, domisili, pendidikan dari CV
-2. Ringkas pengalaman relevan dengan JD (fokus pada match)
-3. CATATAN KRITIS: Identifikasi gap atau masalah
-4. SCORING: Berikan score 0-100 berdasarkan kecocokan JD
-5. REKOMENDASI: 
-   - Jika ada kriteria WAJIB di JD yang tidak ada di CV → TIDAK DISARANKAN
-   - Jika score < 50 → PERLU PERTIMBANGAN
-   - Jika score >= 80 → SANGAT DISARANKAN
-   - Jika 50-79 → LAYAK INTERVIEW
-
-CRITICAL RULE: Jika CV tidak mencantumkan informasi, tuliskan "N/A" dengan jelas.
-
-Return HANYA JSON tanpa markup lain:
-{
-  "name": "Nama Lengkap",
-  "usia": "28",
-  "hp": "+62-xxx",
-  "email": "email@domain.com",
-  "domisili": "Jakarta, Indonesia",
-  "pendidikan": "S1 Teknik Sipil - ITB",
-  "pengalaman": "Developer 3 tahun di PT A, 2 tahun di PT B",
-  "catatan": "Pengalaman sesuai, skill match",
-  "rekomendasi": "SANGAT DISARANKAN",
-  "score": 85
-}`;
-
-            const systemPrompt = `${prompt}\n\nJD:\n${jd}`;
-
-            try {
-                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${key}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'llama-3.3-70b-versatile',
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: `CV:\n${cv.substring(0, 8000)}` }
-                        ],
-                        temperature: 0.3,
-                        max_tokens: 1200
-                    })
-                });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(`API Error: ${error.error?.message || response.statusText}`);
-                }
-
-                const data = await response.json();
-                const content = data.choices[0].message.content;
-                
-                // Extract JSON from response
-                const jsonMatch = content.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) {
-                    console.error('Response content:', content);
-                    throw new Error('Respons API tidak valid (bukan JSON)');
-                }
-
-                const result = JSON.parse(jsonMatch[0]);
-                
-                // Validate required fields
-                result.name = result.name || 'N/A';
-                result.usia = result.usia || 'N/A';
-                result.hp = result.hp || 'N/A';
-                result.email = result.email || 'N/A';
-                result.domisili = result.domisili || 'N/A';
-                result.pendidikan = result.pendidikan || 'N/A';
-                result.pengalaman = result.pengalaman || 'N/A';
-                result.catatan = result.catatan || '-';
-                result.rekomendasi = result.rekomendasi || 'PERLU PERTIMBANGAN';
-                result.score = parseInt(result.score) || 50;
-
-                return result;
-            } catch (error) {
-                console.error('Groq API error:', error);
-                throw new Error(`API Call Failed: ${error.message}`);
-            }
-        }
-
-        // Render table row
-        function renderRow(data) {
-            const scoreClass = data.score >= 75 ? 'score-high' : (data.score >= 50 ? 'score-medium' : 'score-low');
-            const recClass = data.rekomendasi.includes('DISARANKAN') ? 'rec-pass' : (data.rekomendasi.includes('TIDAK') ? 'rec-fail' : 'rec-maybe');
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>
-                    <div style="font-weight: 700; color: #0f172a;">${escapeHtml(data.name)}</div>
-                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">${escapeHtml(data.hp)}</div>
-                    <div style="font-size: 10px; color: #94a3b8;">${escapeHtml(data.email)}</div>
-                </td>
-                <td style="text-align: center; font-weight: 700;">${escapeHtml(data.usia)}</td>
-                <td>
-                    <div style="font-weight: 600; color: #0f172a;">${escapeHtml(data.domisili)}</div>
-                    <div style="font-size: 10px; color: #64748b; margin-top: 4px; font-style: italic;">${escapeHtml(data.pendidikan)}</div>
-                </td>
-                <td style="line-height: 1.5; white-space: pre-wrap;">${escapeHtml(data.pengalaman)}</td>
-                <td style="font-size: 11px; line-height: 1.5; color: #475569; font-style: italic;">${escapeHtml(data.catatan)}</td>
-                <td style="text-align: center;">
-                    <div class="${recClass}">${escapeHtml(data.rekomendasi)}</div>
-                </td>
-                <td style="text-align: center;">
-                    <div class="${scoreClass}">${data.score}%</div>
-                </td>
-            `;
-
-            document.getElementById('resultTable').appendChild(row);
-            document.getElementById('emptyState').style.display = 'none';
         }
 
         // Escape HTML
@@ -603,6 +678,37 @@ Return HANYA JSON tanpa markup lain:
             return String(text).replace(/[&<>"']/g, m => map[m]);
         }
 
+        // Render table row
+        function renderRow(data) {
+            const scoreClass = data.score >= 75 ? 'score-high' : (data.score >= 60 ? 'score-medium' : 'score-low');
+            const recClass = data.rekomendasi.includes('SANGAT') ? 'rec-pass' : (data.rekomendasi.includes('TIDAK') ? 'rec-fail' : 'rec-maybe');
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <div style="font-weight: 700; color: #0f172a;">${escapeHtml(data.name)}</div>
+                    <div style="font-size: 10px; color: #64748b; margin-top: 4px;">${escapeHtml(data.phone)}</div>
+                    <div style="font-size: 10px; color: #94a3b8;">${escapeHtml(data.email)}</div>
+                </td>
+                <td style="text-align: center; font-weight: 700;">${escapeHtml(data.age)}</td>
+                <td>
+                    <div style="font-weight: 600; color: #0f172a;">${escapeHtml(data.city)}</div>
+                    <div style="font-size: 10px; color: #64748b; margin-top: 4px; font-style: italic;">${escapeHtml(data.education)}</div>
+                </td>
+                <td style="line-height: 1.5; white-space: pre-wrap;">${escapeHtml(data.experience)}</td>
+                <td style="font-size: 11px; line-height: 1.5; color: #475569; font-style: italic;">${escapeHtml(data.skills)}</td>
+                <td style="text-align: center;">
+                    <div class="${recClass}">${escapeHtml(data.rekomendasi)}</div>
+                </td>
+                <td style="text-align: center;">
+                    <div class="${scoreClass}">${data.score}%</div>
+                </td>
+            `;
+
+            document.getElementById('resultTable').appendChild(row);
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
         // Update progress
         function updateProgress(current, total, label) {
             const percent = (current / total) * 100;
@@ -611,23 +717,13 @@ Return HANYA JSON tanpa markup lain:
             document.getElementById('statusLabel').textContent = label;
         }
 
-        // Process files
+        // ========== MAIN PROCESS ==========
         async function processFiles() {
-            const apiKey = document.getElementById('apiKey').value.trim();
             const jd = document.getElementById('jobDesc').value.trim();
+            const mode = document.getElementById('scoreMode').value;
             const files = Array.from(document.getElementById('fileInput').files);
 
             // Validation
-            if (!apiKey) {
-                showToast('❌ Masukkan API Key Groq terlebih dahulu', 'error');
-                return;
-            }
-
-            if (!apiKey.startsWith('gsk_')) {
-                showToast('❌ API Key harus dimulai dengan "gsk_"', 'error');
-                return;
-            }
-
             if (!jd) {
                 showToast('❌ Masukkan Job Description terlebih dahulu', 'error');
                 return;
@@ -646,7 +742,7 @@ Return HANYA JSON tanpa markup lain:
             document.getElementById('btnRun').disabled = true;
             document.getElementById('btnDownload').classList.add('hidden');
 
-            showToast(`✅ Memulai analisis ${files.length} CV...`, 'success');
+            showToast(`✅ Memulai analisis ${files.length} CV (Mode Offline)...`, 'success');
 
             // Process files
             for (let i = 0; i < files.length; i++) {
@@ -658,36 +754,49 @@ Return HANYA JSON tanpa markup lain:
                     let text;
                     if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
                         text = await extractPDF(file);
-                    } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
-                        text = await extractDocx(file);
                     } else {
-                        showToast(`⚠️ File ${file.name} format tidak didukung`, 'warning');
-                        continue;
+                        text = await extractDocx(file);
                     }
 
                     if (!text || text.trim().length === 0) {
-                        showToast(`⚠️ File ${file.name} kosong atau tidak terbaca`, 'warning');
+                        showToast(`⚠️ File ${file.name} kosong`, 'warning');
                         continue;
                     }
 
                     updateProgress(i, files.length, `Analisis: ${file.name}`);
 
-                    // Call AI
-                    const result = await callGroq(apiKey, jd, text);
+                    // Parse CV
+                    const cvData = parseCV(text);
+                    
+                    // Score
+                    const score = scoreCandidate(cvData, jd, mode);
+                    const rekomendasi = getRecommendation(score, jd, cvData);
+
+                    const result = {
+                        name: cvData.name,
+                        email: cvData.email,
+                        phone: cvData.phone,
+                        age: cvData.age,
+                        city: cvData.city,
+                        education: cvData.education,
+                        experience: cvData.experience,
+                        skills: cvData.skills,
+                        score: score,
+                        rekomendasi: rekomendasi
+                    };
+
                     allResults.push(result);
                     renderRow(result);
 
-                    showToast(`✅ ${file.name} selesai`, 'success');
-
-                    // Rate limiting
-                    if ((i + 1) % 2 === 0) {
-                        await new Promise(r => setTimeout(r, 2000));
-                    }
+                    showToast(`✅ ${file.name}`, 'success');
 
                 } catch (error) {
-                    console.error(`Error processing ${file.name}:`, error);
+                    console.error(`Error: ${error.message}`);
                     showToast(`❌ ${file.name}: ${error.message}`, 'error');
                 }
+
+                // Small delay untuk smoothness
+                await new Promise(r => setTimeout(r, 200));
             }
 
             updateProgress(files.length, files.length, 'Selesai!');
@@ -696,8 +805,6 @@ Return HANYA JSON tanpa markup lain:
             if (allResults.length > 0) {
                 document.getElementById('btnDownload').classList.remove('hidden');
                 showToast(`✅ Analisis selesai! ${allResults.length}/${files.length} berhasil`, 'success');
-            } else {
-                showToast('❌ Tidak ada CV yang berhasil diproses', 'error');
             }
 
             setTimeout(() => {
@@ -718,21 +825,20 @@ Return HANYA JSON tanpa markup lain:
             
             worksheet['!cols'] = [
                 { wch: 25 },
-                { wch: 10 },
                 { wch: 25 },
-                { wch: 35 },
+                { wch: 20 },
+                { wch: 10 },
+                { wch: 15 },
+                { wch: 20 },
                 { wch: 30 },
                 { wch: 20 },
-                { wch: 10 }
+                { wch: 10 },
+                { wch: 20 }
             ];
 
             XLSX.writeFile(workbook, `CV_Screening_Rexvin_${new Date().toISOString().split('T')[0]}.xlsx`);
             showToast('✅ Excel berhasil didownload', 'success');
         }
-
-        // Prevent drag-drop issues
-        document.addEventListener('dragover', (e) => e.preventDefault());
-        document.addEventListener('drop', (e) => e.preventDefault());
     </script>
 </body>
 </html>
