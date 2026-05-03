@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rexvin CV Screener - Final Professional Edition</title>
+    <title>Rexvin CV Screener - High Volume Optimized (300 CV/day)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
@@ -12,22 +12,59 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
         .table-container { overflow-x: auto; background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .stats-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+        .stat-item { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem; border-radius: 0.5rem; text-align: center; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
-    <!-- BAGIAN ATAS: FORM INPUT (FULL WIDTH) -->
+    <!-- BAGIAN ATAS: FORM INPUT -->
     <div class="max-w-[1600px] mx-auto space-y-6">
         <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">REXVIN <span class="text-blue-600">RECRUITMENT AI</span></h1>
-                    <p class="text-slate-500 text-sm">Sistem Skrining Strategis & Rekomendasi Otomatis (Verified for 2026) - STRICT MATCHING v2</p>
+                    <p class="text-slate-500 text-sm">High-Volume Optimized | 300 CV/Day Mode | Token-Efficient Processing</p>
                 </div>
-                <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
-                    Download Excel
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+                        Download Excel
+                    </button>
+                    <button onclick="showStats()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-bold transition-all">
+                        📊 Stats
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATS BOX -->
+            <div id="statsBox" class="hidden">
+                <div class="stats-box">
+                    <div class="stat-item">
+                        <div class="text-2xl font-bold" id="totalProcessed">0</div>
+                        <div class="text-xs opacity-90">Total Processed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="text-2xl font-bold" id="totalSuccess">0</div>
+                        <div class="text-xs opacity-90">Success</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="text-2xl font-bold" id="totalFailed">0</div>
+                        <div class="text-xs opacity-90">Failed/Skipped</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="text-2xl font-bold" id="avgTime">0s</div>
+                        <div class="text-xs opacity-90">Avg/CV</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="text-2xl font-bold" id="projectedDaily">0</div>
+                        <div class="text-xs opacity-90">Projected/Day</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="text-2xl font-bold" id="tokenUsage">0</div>
+                        <div class="text-xs opacity-90">Tokens Used</div>
+                    </div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -43,6 +80,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Upload CV (PDF/DOCX)</label>
                         <input type="file" id="fileInput" multiple class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p id="fileCount" class="text-[11px] text-slate-400 mt-1">0 files selected</p>
                     </div>
                 </div>
                 <div class="md:col-span-2">
@@ -51,32 +89,70 @@
                 </div>
             </div>
 
+            <!-- PROCESSING OPTIONS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Batch Size</label>
+                    <select id="batchSize" class="w-full p-2 bg-slate-50 border rounded-lg text-sm">
+                        <option value="5">5 CV/batch (Slow, safe)</option>
+                        <option value="10" selected>10 CV/batch (Medium, recommended)</option>
+                        <option value="15">15 CV/batch (Fast, risky)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Delay Between Batch</label>
+                    <select id="delayBatch" class="w-full p-2 bg-slate-50 border rounded-lg text-sm">
+                        <option value="2000">2 seconds</option>
+                        <option value="5000" selected>5 seconds (recommended)</option>
+                        <option value="10000">10 seconds</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Processing Mode</label>
+                    <select id="processingMode" class="w-full p-2 bg-slate-50 border rounded-lg text-sm">
+                        <option value="strict" selected>STRICT (Accurate)</option>
+                        <option value="fast">FAST (Volume priority)</option>
+                    </select>
+                </div>
+            </div>
+
             <button onclick="processFiles()" id="btnRun" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.99]">
-                MULAI ANALISA KANDIDAT (STRICT MODE)
+                🚀 MULAI PROSES (HIGH-VOLUME MODE)
             </button>
             
-            <div id="progressBox" class="hidden mt-6">
-                <div class="flex justify-between mb-2"><span id="statusLabel" class="text-xs font-bold text-blue-600 italic">Processing...</span><span id="progressText" class="text-xs font-bold">0/0</span></div>
-                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div id="progressBar" class="bg-blue-600 h-full w-0 transition-all"></div></div>
+            <div id="progressBox" class="hidden mt-6 space-y-4">
+                <div class="flex justify-between mb-2">
+                    <span id="statusLabel" class="text-xs font-bold text-blue-600 italic">Initializing...</span>
+                    <span id="progressText" class="text-xs font-bold">0/0</span>
+                </div>
+                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                    <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full w-0 transition-all"></div>
+                </div>
+                <div class="grid grid-cols-4 gap-2 text-xs text-center">
+                    <div><span id="countProcessing" class="font-bold text-blue-600">0</span> Processing</div>
+                    <div><span id="countSuccess" class="font-bold text-green-600">0</span> Success</div>
+                    <div><span id="countFailed" class="font-bold text-red-600">0</span> Failed</div>
+                    <div><span id="countSkipped" class="font-bold text-yellow-600">0</span> Skipped</div>
+                </div>
             </div>
         </div>
 
-        <!-- BAGIAN BAWAH: TABEL HASIL (FULL WIDTH) -->
+        <!-- TABEL HASIL -->
         <div class="table-container border border-slate-200">
             <table class="w-full text-left border-collapse min-w-[1200px]">
                 <thead>
                     <tr class="bg-slate-800 text-white text-[11px] uppercase tracking-wider">
                         <th class="p-4 border-r border-slate-700 w-48">Nama & Kontak</th>
-                        <th class="p-4 border-r border-slate-700 text-center w-20">Usia</th>
-                        <th class="p-4 border-r border-slate-700 w-48">Domisili & Edukasi</th>
-                        <th class="p-4 border-r border-slate-700">Pengalaman Relevan</th>
-                        <th class="p-4 border-r border-slate-700 w-72">Gap Analysis & MUST-HAVE</th>
-                        <th class="p-4 border-r border-slate-700 text-center w-40">Rekomendasi</th>
-                        <th class="p-4 text-center w-20">Score</th>
+                        <th class="p-4 border-r border-slate-700 text-center w-16">Usia</th>
+                        <th class="p-4 border-r border-slate-700 w-40">Domisili & Edukasi</th>
+                        <th class="p-4 border-r border-slate-700 flex-1">Pengalaman</th>
+                        <th class="p-4 border-r border-slate-700 w-56">Gap Analysis</th>
+                        <th class="p-4 border-r border-slate-700 text-center w-32">Rekomendasi</th>
+                        <th class="p-4 text-center w-16">Score</th>
                     </tr>
                 </thead>
                 <tbody id="resultTable" class="text-[12px] bg-white divide-y divide-slate-200">
-                    <!-- Data Dynamic -->
+                    <!-- Dynamic rows -->
                 </tbody>
             </table>
             <div id="emptyState" class="p-20 text-center text-slate-400 italic">Data akan muncul di sini setelah proses selesai...</div>
@@ -87,14 +163,18 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
         let allResults = [];
         let debugLogs = [];
+        let processingStats = { total: 0, success: 0, failed: 0, startTime: 0, tokenUsage: 0 };
 
-        // Load API key from localStorage on page load
+        // Load API key from localStorage
         window.addEventListener('DOMContentLoaded', function() {
             const savedKey = localStorage.getItem('groq_api_key');
             if (savedKey) {
                 document.getElementById('apiKey').value = savedKey;
                 updateApiStatus('✅ Loaded from browser storage');
             }
+            document.getElementById('fileInput').addEventListener('change', function() {
+                document.getElementById('fileCount').innerText = `${this.files.length} files selected`;
+            });
         });
 
         function updateApiStatus(msg) {
@@ -105,8 +185,7 @@
             const key = document.getElementById('apiKey').value;
             if (key.trim()) {
                 localStorage.setItem('groq_api_key', key);
-                updateApiStatus('✅ Tersimpan di browser (Auto-save)');
-                addDebugLog('✅ API Key tersimpan di Local Storage');
+                updateApiStatus('✅ Tersimpan');
             }
         }
 
@@ -122,23 +201,26 @@
             if (!debugPanel) {
                 debugPanel = document.createElement('div');
                 debugPanel.id = 'debugPanel';
-                debugPanel.className = 'fixed bottom-0 right-0 w-96 bg-slate-900 text-white p-4 rounded-tl-xl shadow-2xl text-xs font-mono max-h-72 overflow-y-auto z-50 border-l-4 border-t-4 border-blue-500';
+                debugPanel.className = 'fixed bottom-0 right-0 w-96 bg-slate-900 text-white p-4 rounded-tl-xl shadow-2xl text-xs font-mono max-h-80 overflow-y-auto z-50 border-l-4 border-t-4 border-green-500';
                 document.body.appendChild(debugPanel);
             }
-            debugPanel.innerHTML = `<div class="text-xs text-blue-300 font-bold mb-3 sticky top-0 bg-slate-900">🔍 DEBUG LOG:</div>` + 
-                debugLogs.slice(-20).map(l => `<div class="mb-1">${l}</div>`).join('');
+            debugPanel.innerHTML = `<div class="text-xs text-green-300 font-bold mb-2 sticky top-0 bg-slate-900">📊 DEBUG LOG (High-Volume Mode):</div>` + 
+                debugLogs.slice(-25).map(l => `<div class="mb-0.5 text-[10px]">${l}</div>`).join('');
+        }
+
+        function showStats() {
+            document.getElementById('statsBox').classList.toggle('hidden');
         }
 
         async function testApiConnection() {
             const apiKey = document.getElementById('apiKey').value;
             if (!apiKey) {
                 updateApiStatus('❌ API Key kosong!');
-                addDebugLog('❌ API Key kosong - masukkan terlebih dahulu');
                 return alert('Masukkan API Key terlebih dahulu');
             }
 
-            updateApiStatus('🔄 Menguji koneksi...');
-            addDebugLog('🔄 Testing API connection to Groq...');
+            updateApiStatus('🔄 Testing...');
+            addDebugLog('🔄 Testing Groq API connection...');
             
             try {
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -149,30 +231,24 @@
                     },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
-                        messages: [
-                            { role: "user", content: "Say 'OK' only" }
-                        ],
-                        max_tokens: 10
+                        messages: [{ role: "user", content: "OK" }],
+                        max_tokens: 5
                     })
                 });
 
                 if (!res.ok) {
                     const errorData = await res.json();
-                    const errorMsg = errorData.error?.message || `HTTP ${res.status}`;
-                    updateApiStatus(`❌ API Error: ${errorMsg}`);
-                    addDebugLog(`❌ API Error ${res.status}: ${errorMsg}`);
-                    return alert(`API Error: ${errorMsg}`);
+                    throw new Error(errorData.error?.message || `HTTP ${res.status}`);
                 }
 
-                const data = await res.json();
-                updateApiStatus('✅ Koneksi berhasil! API siap digunakan');
-                addDebugLog('✅ API Connection SUCCESS! Groq llama-3.3-70b-versatile ready.');
+                updateApiStatus('✅ Connected! Ready for 300 CV/day');
+                addDebugLog('✅ API Connected successfully');
                 saveApiKey();
-                alert('✅ API Connection berhasil!\n\nAPI Key Anda tersimpan di browser.');
+                alert('✅ API Connection SUCCESS!\n\nReady for high-volume processing.');
             } catch (e) {
                 updateApiStatus(`❌ Error: ${e.message}`);
-                addDebugLog(`❌ Connection Error: ${e.message}`);
-                alert(`Connection Error: ${e.message}`);
+                addDebugLog(`❌ Connection failed: ${e.message}`);
+                alert(`Error: ${e.message}`);
             }
         }
 
@@ -180,281 +256,188 @@
             const apiKey = document.getElementById('apiKey').value;
             const jd = document.getElementById('jobDesc').value;
             const files = Array.from(document.getElementById('fileInput').files);
+            const batchSize = parseInt(document.getElementById('batchSize').value);
+            const delayBatch = parseInt(document.getElementById('delayBatch').value);
+            const mode = document.getElementById('processingMode').value;
             
-            addDebugLog('═══════════════════════════════════');
-            addDebugLog('📋 MEMVALIDASI INPUT...');
-            
-            if(!apiKey) {
-                addDebugLog('❌ API Key kosong!');
-                return alert("❌ API Key tidak boleh kosong!");
-            }
-            if(!jd) {
-                addDebugLog('❌ Job Description kosong!');
-                return alert("❌ Job Description tidak boleh kosong!");
-            }
-            if(files.length === 0) {
-                addDebugLog('❌ Tidak ada CV file!');
-                return alert("❌ Upload minimal 1 CV file!");
+            if(!apiKey || !jd || files.length === 0) {
+                return alert("Lengkapi: API Key, JD, dan CV files!");
             }
 
             saveApiKey();
-            addDebugLog(`✅ Input valid!`);
-            addDebugLog(`✅ JD length: ${jd.length} chars`);
-            addDebugLog(`✅ Files: ${files.map(f => f.name).join(', ')}`);
-            addDebugLog(`═══════════════════════════════════`);
-
             allResults = [];
+            processingStats = { total: files.length, success: 0, failed: 0, startTime: Date.now(), tokenUsage: 0 };
             document.getElementById('resultTable').innerHTML = "";
             document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('progressBox').classList.remove('hidden');
             document.getElementById('btnRun').disabled = true;
 
-            for (let i = 0; i < files.length; i++) {
-                const fileName = files[i].name;
-                updateProgress(i, files.length, `Menganalisa: ${fileName}`);
-                addDebugLog(`📄 [${i+1}/${files.length}] Processing: ${fileName}`);
-                
-                try {
-                    addDebugLog(`  ├─ Extracting text...`);
-                    const text = files[i].name.endsWith('.pdf') ? await extractPDF(files[i]) : await extractDocx(files[i]);
-                    const cleanText = text.replace(/[^\x00-\x7F]/g, "").replace(/\s+/g, " ").trim();
-                    addDebugLog(`  ├─ ✅ Text extracted: ${cleanText.length} chars`);
+            addDebugLog('═══════════════════════════════════════');
+            addDebugLog(`🚀 HIGH-VOLUME PROCESSING STARTED`);
+            addDebugLog(`📊 Total Files: ${files.length}`);
+            addDebugLog(`⚙️  Batch Size: ${batchSize} | Delay: ${delayBatch}ms | Mode: ${mode}`);
+            addDebugLog(`═══════════════════════════════════════`);
+
+            // Process in batches
+            for (let i = 0; i < files.length; i += batchSize) {
+                const batch = files.slice(i, i + batchSize);
+                addDebugLog(`📦 Batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(files.length/batchSize)} | ${batch.length} files`);
+
+                for (let j = 0; j < batch.length; j++) {
+                    const file = batch[j];
+                    const fileIndex = i + j;
+                    updateProgress(fileIndex, files.length, `Processing: ${file.name}`);
                     
-                    addDebugLog(`  ├─ Calling Groq API (STRICT MODE)...`);
-                    const aiResult = await callGroq(apiKey, jd, cleanText, fileName);
-                    
-                    if (!aiResult.name) {
-                        throw new Error('Invalid response - missing name field');
+                    try {
+                        addDebugLog(`  [${fileIndex+1}/${files.length}] ${file.name.substring(0, 40)}...`);
+                        const text = file.name.endsWith('.pdf') ? await extractPDF(file) : await extractDocx(file);
+                        const cleanText = text.replace(/[^\x00-\x7F]/g, "").replace(/\s+/g, " ").trim().substring(0, 6000);
+                        
+                        const aiResult = await callGroq(apiKey, jd, cleanText, mode);
+                        allResults.push(aiResult);
+                        renderRow(aiResult);
+                        processingStats.success++;
+                        addDebugLog(`    ✅ ${aiResult.name} (${aiResult.score}%)`);
+                    } catch (e) {
+                        processingStats.failed++;
+                        addDebugLog(`    ❌ ERROR: ${e.message.substring(0, 60)}`);
                     }
-                    
-                    allResults.push(aiResult);
-                    renderRow(aiResult);
-                    addDebugLog(`  ├─ ✅ ANALYZED: ${aiResult.name} | Score: ${aiResult.score}% | ${aiResult.rekomendasi}`);
-                    addDebugLog(`  └─ Complete`);
-                } catch (e) { 
-                    addDebugLog(`  ├─ ❌ ERROR: ${e.message}`);
-                    addDebugLog(`  └─ Skipping file...`);
-                    console.error(e);
+
+                    // Update counter
+                    document.getElementById('countProcessing').innerText = fileIndex + 1;
+                    document.getElementById('countSuccess').innerText = processingStats.success;
+                    document.getElementById('countFailed').innerText = processingStats.failed;
                 }
-                if (i % 2 === 1 && i > 0) {
-                    addDebugLog(`  ⏳ Rate limit pause (2 detik)...`);
-                    await new Promise(r => setTimeout(r, 2000));
+
+                // Delay between batches
+                if (i + batchSize < files.length) {
+                    addDebugLog(`⏳ Batch complete. Waiting ${delayBatch}ms before next batch...`);
+                    await new Promise(r => setTimeout(r, delayBatch));
                 }
             }
 
-            updateProgress(files.length, files.length, "Selesai!");
-            addDebugLog(`═══════════════════════════════════`);
-            addDebugLog(`🎉 SELESAI! Total: ${allResults.length} candidate(s)`);
-            addDebugLog(`═══════════════════════════════════`);
+            // Final stats
+            const duration = (Date.now() - processingStats.startTime) / 1000;
+            const avgTime = duration / files.length;
+            const projectedDaily = Math.floor((86400 / avgTime)); // seconds in a day
+            
+            updateProgress(files.length, files.length, "Complete!");
+            addDebugLog(`═══════════════════════════════════════`);
+            addDebugLog(`✅ PROCESSING COMPLETE`);
+            addDebugLog(`📊 Success: ${processingStats.success}/${files.length}`);
+            addDebugLog(`⏱️  Total time: ${duration.toFixed(1)}s`);
+            addDebugLog(`⚡ Avg per CV: ${avgTime.toFixed(1)}s`);
+            addDebugLog(`📈 Projected capacity: ${projectedDaily} CV/day`);
+            addDebugLog(`═══════════════════════════════════════`);
+
+            // Update stats
+            document.getElementById('totalProcessed').innerText = files.length;
+            document.getElementById('totalSuccess').innerText = processingStats.success;
+            document.getElementById('totalFailed').innerText = processingStats.failed;
+            document.getElementById('avgTime').innerText = avgTime.toFixed(1) + 's';
+            document.getElementById('projectedDaily').innerText = projectedDaily;
+            
             document.getElementById('btnRun').disabled = false;
             document.getElementById('btnDownload').classList.remove('hidden');
         }
 
-        async function callGroq(key, jd, cv, fileName) {
-            try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { 
-                        "Authorization": `Bearer ${key}`, 
-                        "Content-Type": "application/json" 
-                    },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [
-                            { role: "system", content: `Anda adalah STRICT HR Talent Screener dengan ZERO TOLERANCE untuk requirement mismatch.
+        async function callGroq(key, jd, cv, mode) {
+            const maxTokens = mode === 'fast' ? 800 : 1000;
+            const temperature = mode === 'fast' ? 0.2 : 0.3;
+            
+            const systemPrompt = mode === 'fast' ? 
+`Anda adalah STRICT HR Screener. TASK: Match CV dengan JD, berikan score 0-100.
 
-🎯 DIRECTIVE UTAMA:
-- ROLE EXACT MATCHING adalah KRITIS (bukan hanya skill matching)
-- MUST HAVE requirements adalah MANDATORY
-- STRICT scoring: jangan overrate kandidat yang partial fit
-- Kandidat dengan ROLE MISMATCH atau missing MUST-HAVE harus di-REJECT dengan score < 50%
+MUST-HAVE REQUIREMENT CHECK:
+- Education sesuai? +25%
+- Experience ≥ min tahun? +25%
+- Role match exact? +25%
+- Core responsibilities ada? +25%
 
-═════════════════════════════════════════════════════════════════
+DEDUCTIONS:
+- Role mismatch: -20%
+- Missing requirement: -15% per item
+- Exp < minimum: -25%
 
-📋 TAHAP 1: EKSTRAKSI DATA PERSONAL
-├─ Nama, HP, Email
-├─ USIA: hitung dari birth date atau estimasi dari pengalaman
-├─ Domisili & lokasi kerja terakhir
-└─ Pendidikan: S1/S2, field, universitas, tahun
+OUTPUT JSON:
+{"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","pengalaman":"Job history, company, duration","catatan":"Gap analysis: ❌/✅/⚠️ per requirement","rekomendasi":"SANGAT DISARANKAN/DISARANKAN/PERTIMBANGAN/TIDAK DISARANKAN","score":0}` :
 
-═════════════════════════════════════════════════════════════════
+`Anda adalah STRICT HR Talent Screener dengan ZERO TOLERANCE untuk requirement mismatch.
 
-🔴 TAHAP 2: CRITICAL MUST-HAVE REQUIREMENT EXTRACTION
+TAHAP 1: EKSTRAKSI DATA PERSONAL
+- Nama, HP, Email, USIA, Domisili, Pendidikan (S1/S2 Field)
 
-Extract EXACTLY dari JD apa yang MANDATORY:
+TAHAP 2: PARSE MUST-HAVE dari JD
+Identify EXACT requirements yang MANDATORY
 
-JD ANALYSIS CHECKLIST:
-□ Pendidikan: Minimum? Field apa? (contoh: S1 Teknik Sipil)
-□ Pengalaman: Berapa tahun MINIMUM? Posisi apa EXACTLY? (contoh: 2 tahun Site Coordinator)
-□ ROLE MATCH: Apa exact job title yang dicari? (bukan hanya industry, tapi ROLE SPECIFIC)
-□ Core Responsibilities: Apa saja main duties? (extract dari job description section)
-□ Technical Skills: Apa specific skills yang required?
-□ Soft Skills: Apa soft skills yang critical?
+TAHAP 3: FORENSIC CV MATCHING
+Untuk setiap MUST-HAVE:
+- 100% match: +25%
+- Partial (70-99%): +15%
+- Weak (40-69%): +5%
+- Missing: -15%
 
-⚠️ CRITICAL RULE: ROLE harus EXACT MATCH atau sangat CLOSE
-Contoh MISMATCH:
-├─ JD: "Site Coordinator" (fokus planning, budget, customer relations)
-└─ CV: "Site Supervisor / Civil Engineer" (fokus quality control, technical supervision)
-    → INI adalah ROLE MISMATCH! Beda fungsi meski sama industri!
+TAHAP 4: STRICT SCORING
+- ROLE MISMATCH → MAX 60%
+- Missing 2+ core → MAX 65%
+- Exp < minimum → MAX 40%
 
-═════════════════════════════════════════════════════════════════
+OUTPUT JSON:
+{"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","pengalaman":"Job history dengan company, title, duration","catatan":"✅/❌/⚠️ MUST-HAVE checklist dengan evidence konkrit","rekomendasi":"SANGAT DISARANKAN/DISARANKAN/PERTIMBANGAN/TIDAK DISARANKAN","score":0}`;
 
-🔍 TAHAP 3: FORENSIC CV MATCHING
+            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: { 
+                    "Authorization": `Bearer ${key}`, 
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: `JD:\n${jd.substring(0, 2000)}\n\nCV:\n${cv}` }
+                    ],
+                    response_format: { type: "json_object" },
+                    temperature: temperature,
+                    max_tokens: maxTokens
+                })
+            });
 
-Untuk SETIAP MUST-HAVE requirement:
-
-┌─ LEVEL 100% (EXACT MATCH):
-│  └─ CV explicitly mention job title, company, duration, & exact responsibilities
-│
-├─ LEVEL 70-99% (STRONG MATCH):
-│  └─ CV punya serupa tapi terminology/context slightly different
-│
-├─ LEVEL 40-69% (PARTIAL/WEAK MATCH):
-│  └─ CV punya related skill tapi role/responsibility berbeda
-│
-└─ LEVEL 0-39% (NO MATCH/MISSING):
-   └─ CV tidak mention sama sekali atau completely different role
-
-MATCHING RULES:
-├─ Job Title Match: "Site Coordinator" di CV = 100%, "Site Supervisor" = 50%
-├─ Responsibility Match: Jika CV punya bukti specific responsibility = match
-├─ Duration Match: Jika ≥ minimum required tahun = 100%, < minimum = 0%
-└─ Context: Harus di INDUSTRY yang sama (konstruksi, developer, real estate)
-
-═════════════════════════════════════════════════════════════════
-
-📊 TAHAP 4: SCORING LOGIC (STRICT)
-
-BASE SCORE: 0%
-
-MUST-HAVE REQUIREMENTS (max +25% each):
-├─ Pendidikan sesuai requirement? (+25% or -10%)
-├─ Pengalaman ≥ minimum tahun? (+25% or -25% AUTO REJECT)
-├─ ROLE EXACT MATCH? (+25% if exact, +15% if close, +5% if tangential, -20% if mismatch)
-├─ Punya bukti semua core responsibilities? (+25% or -15% per missing)
-├─ Technical skills required ada? (+20% or -10% per missing)
-└─ Soft skills present? (+20%)
-
-STRICT DEDUCTIONS:
-├─ ROLE MISMATCH (Supervisor vs Coordinator) → MAX SCORE 60% HARUS
-├─ Missing 1+ core responsibility → -15% each
-├─ Pengalaman < required minimum → AUTO REJECT (max 40%)
-├─ Pendidikan tidak sesuai → -10%
-└─ Zero evidence of responsibility → -25%
-
-═════════════════════════════════════════════════════════════════
-
-🎯 FINAL INTERPRETATION:
-
-Score ≥ 85: SANGAT DISARANKAN (Excellent, semua MUST-HAVE 100% match)
-Score 70-84: DISARANKAN (Good, major requirements covered)
-Score 50-69: PERTIMBANGAN (Moderate gap, missing some requirements)
-Score < 50: ⛔ TIDAK DISARANKAN (REJECT - role mismatch atau missing critical requirements)
-
-ENFORCE STRICTLY:
-├─ ROLE MISMATCH → Score HARUS ≤ 60%
-├─ Missing 2+ core requirements → Score HARUS ≤ 65%
-├─ Experience < minimum → Score HARUS ≤ 40% (AUTO REJECT)
-
-═════════════════════════════════════════════════════════════════
-
-💬 CATATAN HARUS INCLUDE:
-
-Format:
-├─ ✅ / ❌ / ⚠️ untuk setiap MUST-HAVE requirement
-├─ Exact evidence dari CV (job title, company, responsibility quoted)
-├─ Gap detail (apa yang missing, severity)
-├─ ROLE MATCH STATUS: EXACT / CLOSE / PARTIAL / MISMATCH
-└─ Final assessment: Cocok atau Tidak (dengan alasan konkrit)
-
-Contoh CATATAN:
-"🔴 ROLE MISMATCH: CV='Site Civil Supervisor' fokus Quality Control | JD='Site Coordinator' fokus Planning & Budget Control (CRITICAL)
-❌ MISSING: Perencanaan kerja proyek/scheduling tidak disebutkan
-❌ MISSING: Monitoring & controlling budget vs RAB tidak terbukti
-❌ MISSING: STB (Serah Terima Bangunan) tidak disebutkan
-⚠️ PARTIAL: Komunikasi OK tapi customer relations unclear
-✅ MATCH: S1 Teknik Sipil ✓ | ≥2 tahun ✓
-
-ASSESSMENT: ROLE BERBEDA - meskipun punya S1 Sipil & pengalaman, CV fokus supervisi teknis bukan koordinasi & perencanaan proyek yang JD minta. Tidak sesuai posisi."
-
-═════════════════════════════════════════════════════════════════
-
-📤 OUTPUT JSON:
-
-{
-  "name": "Full Name",
-  "usia": "XX",
-  "hp": "Phone or -",
-  "email": "Email or -",
-  "domisili": "City, Region",
-  "pendidikan": "S1/S2 Program, University (Year)",
-  "pengalaman": "Job title(s), company, duration - fokus relevant experience",
-  "catatan": "MUST-HAVE checklist dengan ✅/❌/⚠️. Gap analysis detail. Severity. Role match status. Assessment konkrit.",
-  "rekomendasi": "SANGAT DISARANKAN / DISARANKAN / PERTIMBANGAN / TIDAK DISARANKAN",
-  "score": 0
-}
-
-OUTPUT RULES:
-├─ Score & Rekomendasi HARUS aligned
-├─ Catatan HARUS detail & specific dengan evidence
-├─ JANGAN generic statements
-└─ Jika ada ROLE MISMATCH, catatan harus explicitly state ini` },
-                            { role: "user", content: `JD REQUIREMENT:
-=================
-${jd}
-
-CV CANDIDATE:
-=================
-${cv.substring(0, 8500)}
-
-LAKUKAN STRICT ANALYSIS DENGAN ZERO TOLERANCE UNTUK MISMATCH. OUTPUT HANYA JSON!` }
-                        ],
-                        response_format: { type: "json_object" },
-                        temperature: 0.3,
-                        max_tokens: 1200
-                    })
-                });
-
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    const errorMsg = errorData.error?.message || `HTTP ${res.status}`;
-                    throw new Error(`Groq API Error: ${errorMsg}`);
-                }
-
-                const data = await res.json();
-                const responseText = data.choices[0].message.content;
-                
-                let parsed;
-                try {
-                    parsed = JSON.parse(responseText);
-                } catch (e) {
-                    const cleanJson = responseText.replace(/```json|```/g, '').trim();
-                    parsed = JSON.parse(cleanJson);
-                }
-
-                // Validasi & sanitasi fields
-                if (!parsed.name) parsed.name = 'Unknown';
-                if (!parsed.score) parsed.score = 0;
-                if (!parsed.rekomendasi) parsed.rekomendasi = 'TIDAK DISARANKAN';
-                if (!parsed.catatan) parsed.catatan = 'No analysis notes';
-                if (!parsed.pengalaman) parsed.pengalaman = 'No experience listed';
-                if (!parsed.usia) parsed.usia = '-';
-                if (!parsed.hp) parsed.hp = '-';
-                if (!parsed.email) parsed.email = '-';
-                if (!parsed.domisili) parsed.domisili = '-';
-                if (!parsed.pendidikan) parsed.pendidikan = '-';
-
-                return parsed;
-            } catch (e) {
-                addDebugLog(`    ❌ Groq API Error: ${e.message}`);
-                throw e;
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error?.message || `HTTP ${res.status}`);
             }
+
+            const data = await res.json();
+            const responseText = data.choices[0].message.content;
+            
+            let parsed;
+            try {
+                parsed = JSON.parse(responseText);
+            } catch (e) {
+                const cleanJson = responseText.replace(/```json|```/g, '').trim();
+                parsed = JSON.parse(cleanJson);
+            }
+
+            // Sanitasi fields
+            parsed.name = parsed.name || 'Unknown';
+            parsed.score = parsed.score || 0;
+            parsed.rekomendasi = parsed.rekomendasi || 'PERTIMBANGAN';
+            parsed.catatan = parsed.catatan || 'No notes';
+            parsed.pengalaman = parsed.pengalaman || '-';
+            parsed.usia = parsed.usia || '-';
+            parsed.hp = parsed.hp || '-';
+            parsed.email = parsed.email || '-';
+            parsed.domisili = parsed.domisili || '-';
+            parsed.pendidikan = parsed.pendidikan || '-';
+
+            return parsed;
         }
 
         async function extractPDF(file) {
             const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
             let text = "";
-            for (let i = 1; i <= pdf.numPages; i++) {
+            for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
                 const page = await pdf.getPage(i);
                 const content = await page.getTextContent();
                 text += content.items.map(s => s.str).join(" ") + " ";
@@ -473,23 +456,22 @@ LAKUKAN STRICT ANALYSIS DENGAN ZERO TOLERANCE UNTUK MISMATCH. OUTPUT HANYA JSON!
             
             const html = `
                 <tr class="hover:bg-slate-50 transition-all">
-                    <td class="p-4 border-r">
-                        <div class="font-bold text-slate-900">${d.name}</div>
-                        <div class="text-[10px] text-slate-500">${d.hp}</div>
-                        <div class="text-[10px] text-slate-400">${d.email}</div>
+                    <td class="p-3 border-r">
+                        <div class="font-bold text-slate-900 text-[11px]">${d.name}</div>
+                        <div class="text-[9px] text-slate-500">${d.hp}</div>
                     </td>
-                    <td class="p-4 border-r text-center font-bold">${d.usia}</td>
-                    <td class="p-4 border-r">
+                    <td class="p-3 border-r text-center font-bold text-[11px]">${d.usia}</td>
+                    <td class="p-3 border-r text-[10px]">
                         <div class="font-semibold">${d.domisili}</div>
-                        <div class="text-[10px] text-slate-500 mt-1 italic">${d.pendidikan}</div>
+                        <div class="text-slate-500 italic">${d.pendidikan}</div>
                     </td>
-                    <td class="p-4 border-r leading-relaxed">${d.pengalaman}</td>
-                    <td class="p-4 border-r italic text-slate-700 leading-snug text-[11px]">${d.catatan}</td>
-                    <td class="p-4 border-r text-center">
-                        <span class="px-3 py-1 rounded-full font-bold text-[10px] uppercase ${recColor}">${d.rekomendasi}</span>
+                    <td class="p-3 border-r text-[10px] leading-tight">${d.pengalaman}</td>
+                    <td class="p-3 border-r text-[10px] text-slate-700">${d.catatan}</td>
+                    <td class="p-3 border-r text-center">
+                        <span class="px-2 py-1 rounded-full font-bold text-[9px] uppercase ${recColor}">${d.rekomendasi}</span>
                     </td>
-                    <td class="p-4 text-center">
-                        <span class="px-2 py-1 rounded font-black ${scoreColor}">${d.score}%</span>
+                    <td class="p-3 text-center">
+                        <span class="px-2 py-1 rounded font-black text-[11px] ${scoreColor}">${d.score}%</span>
                     </td>
                 </tr>`;
             document.getElementById('resultTable').insertAdjacentHTML('beforeend', html);
@@ -506,8 +488,8 @@ LAKUKAN STRICT ANALYSIS DENGAN ZERO TOLERANCE UNTUK MISMATCH. OUTPUT HANYA JSON!
             const worksheet = XLSX.utils.json_to_sheet(allResults);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Kandidat");
-            XLSX.writeFile(workbook, "Review_Kandidat_Rexvin_STRICT_2026.xlsx");
-            addDebugLog(`📥 Excel file downloaded: Review_Kandidat_Rexvin_STRICT_2026.xlsx`);
+            XLSX.writeFile(workbook, `Review_Kandidat_Rexvin_${new Date().toISOString().split('T')[0]}.xlsx`);
+            addDebugLog(`📥 Excel exported: ${allResults.length} candidates`);
         }
     </script>
 </body>
