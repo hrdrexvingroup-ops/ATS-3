@@ -3,174 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rexvin CV Screener - High Volume Optimized (300 CV/day)</title>
+    <title>Rexvin v4 ULTIMATE - 300 CV/Day Processor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
-        .table-container { overflow-x: auto; background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        .stats-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-        .stat-item { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem; border-radius: 0.5rem; text-align: center; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { background: white; border-radius: 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 1rem; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
     </style>
 </head>
 <body class="p-4 md:p-8">
-
-    <!-- BAGIAN ATAS: FORM INPUT -->
     <div class="max-w-[1600px] mx-auto space-y-6">
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex justify-between items-center mb-6">
+        
+        <!-- HEADER -->
+        <div class="container p-8">
+            <div class="flex justify-between items-start mb-8">
                 <div>
-                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">REXVIN <span class="text-blue-600">RECRUITMENT AI</span></h1>
-                    <p class="text-slate-500 text-sm">High-Volume Optimized | 300 CV/Day Mode | Token-Efficient Processing</p>
+                    <h1 class="text-4xl font-black text-slate-900 mb-2">REXVIN <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">v4 ULTIMATE</span></h1>
+                    <p class="text-slate-500">Aggressive Rate Limiting | Strict Role Matching | 300 CV/Day Ready</p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
-                        Download Excel
-                    </button>
-                    <button onclick="showStats()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-bold transition-all">
-                        📊 Stats
-                    </button>
+                <div class="text-right">
+                    <button onclick="showStats()" id="statsBtn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-bold mb-2">📊 Stats</button>
+                    <br>
+                    <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-bold">📥 Download Excel</button>
                 </div>
             </div>
 
-            <!-- STATS BOX -->
-            <div id="statsBox" class="hidden">
-                <div class="stats-box">
-                    <div class="stat-item">
-                        <div class="text-2xl font-bold" id="totalProcessed">0</div>
-                        <div class="text-xs opacity-90">Total Processed</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="text-2xl font-bold" id="totalSuccess">0</div>
-                        <div class="text-xs opacity-90">Success</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="text-2xl font-bold" id="totalFailed">0</div>
-                        <div class="text-xs opacity-90">Failed/Skipped</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="text-2xl font-bold" id="avgTime">0s</div>
-                        <div class="text-xs opacity-90">Avg/CV</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="text-2xl font-bold" id="projectedDaily">0</div>
-                        <div class="text-xs opacity-90">Projected/Day</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="text-2xl font-bold" id="tokenUsage">0</div>
-                        <div class="text-xs opacity-90">Tokens Used</div>
-                    </div>
+            <!-- STATS DASHBOARD -->
+            <div id="statsDash" class="hidden grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+                <div class="stat-card text-center">
+                    <div class="text-3xl font-black" id="statTotal">0</div>
+                    <div class="text-xs opacity-90">Total</div>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-3xl font-black success" id="statSuccess">0</div>
+                    <div class="text-xs opacity-90">Success</div>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-3xl font-black error" id="statFailed">0</div>
+                    <div class="text-xs opacity-90">Failed</div>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-3xl font-black" id="statAvgTime">0s</div>
+                    <div class="text-xs opacity-90">Avg/CV</div>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-3xl font-black" id="statCapacity">180</div>
+                    <div class="text-xs opacity-90">CV/Day</div>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-3xl font-black" id="statRate">0%</div>
+                    <div class="text-xs opacity-90">Success Rate</div>
                 </div>
             </div>
 
+            <!-- INPUT FORM -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">API Key Groq</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase">API Key</label>
                         <div class="flex gap-2">
-                            <input type="password" id="apiKey" class="flex-1 p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="gsk_...">
-                            <button onclick="testApiConnection()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs transition">TEST</button>
+                            <input type="password" id="apiKey" class="flex-1 px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:ring-0 outline-none" placeholder="gsk_...">
+                            <button onclick="testApi()" class="px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-sm">TEST</button>
                         </div>
-                        <p id="apiStatus" class="text-[11px] text-slate-400 mt-1">Kosong - silakan masukkan API key</p>
+                        <p id="apiStatus" class="text-[11px] text-slate-400 mt-1">Status: waiting...</p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Upload CV (PDF/DOCX)</label>
-                        <input type="file" id="fileInput" multiple class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <label class="block text-xs font-bold text-slate-600 mb-2 uppercase">Select Files</label>
+                        <input type="file" id="fileInput" multiple accept=".pdf,.docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         <p id="fileCount" class="text-[11px] text-slate-400 mt-1">0 files selected</p>
                     </div>
                 </div>
+
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Job Description (MUST-HAVE Requirements)</label>
-                    <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Paste full JD dengan MUST-HAVE requirements..."></textarea>
+                    <label class="block text-xs font-bold text-slate-600 mb-2 uppercase">Job Description</label>
+                    <textarea id="jobDesc" rows="6" class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:ring-0 outline-none text-sm" placeholder="Paste JD dengan jelas MUST-HAVE requirements..."></textarea>
                 </div>
             </div>
 
-            <!-- PROCESSING OPTIONS -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <!-- SETTINGS -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 p-4 bg-slate-50 rounded-lg">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Batch Size</label>
-                    <select id="batchSize" class="w-full p-2 bg-slate-50 border rounded-lg text-sm">
-                        <option value="5">5 CV/batch (Slow, safe)</option>
-                        <option value="10" selected>10 CV/batch (Medium, recommended)</option>
-                        <option value="15">15 CV/batch (Fast, risky)</option>
+                    <label class="block text-xs font-bold text-slate-600 mb-2">Batch Size</label>
+                    <select id="batchSize" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm">
+                        <option value="3">3 CV (Most Safe)</option>
+                        <option value="5" selected>5 CV (Recommended)</option>
+                        <option value="8">8 CV (Risky)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Delay Between Batch</label>
-                    <select id="delayBatch" class="w-full p-2 bg-slate-50 border rounded-lg text-sm">
-                        <option value="2000">2 seconds</option>
-                        <option value="5000" selected>5 seconds (recommended)</option>
-                        <option value="10000">10 seconds</option>
+                    <label class="block text-xs font-bold text-slate-600 mb-2">Batch Delay</label>
+                    <select id="batchDelay" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm">
+                        <option value="10000">10s (Fast)</option>
+                        <option value="20000" selected>20s (Recommended)</option>
+                        <option value="30000">30s (Very Safe)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Processing Mode</label>
-                    <select id="processingMode" class="w-full p-2 bg-slate-50 border rounded-lg text-sm">
-                        <option value="strict" selected>STRICT (Accurate)</option>
-                        <option value="fast">FAST (Volume priority)</option>
+                    <label class="block text-xs font-bold text-slate-600 mb-2">Processing Mode</label>
+                    <select id="processingMode" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm">
+                        <option value="strict" selected>STRICT (Quality)</option>
+                        <option value="balanced">BALANCED</option>
                     </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="processFiles()" id="btnRun" class="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg transition">
+                        🚀 PROSES CV
+                    </button>
                 </div>
             </div>
 
-            <button onclick="processFiles()" id="btnRun" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.99]">
-                🚀 MULAI PROSES (HIGH-VOLUME MODE)
-            </button>
-            
-            <div id="progressBox" class="hidden mt-6 space-y-4">
-                <div class="flex justify-between mb-2">
-                    <span id="statusLabel" class="text-xs font-bold text-blue-600 italic">Initializing...</span>
-                    <span id="progressText" class="text-xs font-bold">0/0</span>
+            <!-- PROGRESS -->
+            <div id="progressSection" class="hidden mt-6 space-y-3">
+                <div class="flex justify-between items-center">
+                    <span id="statusLabel" class="text-sm font-bold text-blue-600">Initializing...</span>
+                    <span id="progressText" class="text-sm font-bold">0/0</span>
                 </div>
-                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                    <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full w-0 transition-all"></div>
+                <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                    <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-purple-600 h-full w-0 transition-all duration-300"></div>
                 </div>
-                <div class="grid grid-cols-4 gap-2 text-xs text-center">
-                    <div><span id="countProcessing" class="font-bold text-blue-600">0</span> Processing</div>
-                    <div><span id="countSuccess" class="font-bold text-green-600">0</span> Success</div>
-                    <div><span id="countFailed" class="font-bold text-red-600">0</span> Failed</div>
-                    <div><span id="countSkipped" class="font-bold text-yellow-600">0</span> Skipped</div>
+                <div class="grid grid-cols-5 gap-2 text-xs">
+                    <div class="text-center p-2 bg-slate-50 rounded">
+                        <div id="cntTotal" class="font-bold">0</div>
+                        <div class="text-slate-500">Total</div>
+                    </div>
+                    <div class="text-center p-2 bg-emerald-50 rounded">
+                        <div id="cntSuccess" class="font-bold text-emerald-600">0</div>
+                        <div class="text-slate-500">Success</div>
+                    </div>
+                    <div class="text-center p-2 bg-red-50 rounded">
+                        <div id="cntFailed" class="font-bold text-red-600">0</div>
+                        <div class="text-slate-500">Failed</div>
+                    </div>
+                    <div class="text-center p-2 bg-yellow-50 rounded">
+                        <div id="cntRetry" class="font-bold text-yellow-600">0</div>
+                        <div class="text-slate-500">Retried</div>
+                    </div>
+                    <div class="text-center p-2 bg-slate-50 rounded">
+                        <div id="cntSkipped" class="font-bold">0</div>
+                        <div class="text-slate-500">Skipped</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- TABEL HASIL -->
-        <div class="table-container border border-slate-200">
-            <table class="w-full text-left border-collapse min-w-[1200px]">
+        <!-- RESULTS TABLE -->
+        <div class="container overflow-hidden">
+            <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-slate-800 text-white text-[11px] uppercase tracking-wider">
-                        <th class="p-4 border-r border-slate-700 w-48">Nama & Kontak</th>
-                        <th class="p-4 border-r border-slate-700 text-center w-16">Usia</th>
-                        <th class="p-4 border-r border-slate-700 w-40">Domisili & Edukasi</th>
-                        <th class="p-4 border-r border-slate-700 flex-1">Pengalaman</th>
-                        <th class="p-4 border-r border-slate-700 w-56">Gap Analysis</th>
-                        <th class="p-4 border-r border-slate-700 text-center w-32">Rekomendasi</th>
-                        <th class="p-4 text-center w-16">Score</th>
+                    <tr class="bg-gradient-to-r from-slate-800 to-slate-900 text-white text-[11px] uppercase tracking-wider">
+                        <th class="p-3 border-r border-slate-700 w-36">Nama</th>
+                        <th class="p-3 border-r border-slate-700 text-center w-12">Age</th>
+                        <th class="p-3 border-r border-slate-700 w-32">Domisili</th>
+                        <th class="p-3 border-r border-slate-700 w-40">Pendidikan</th>
+                        <th class="p-3 border-r border-slate-700 w-48">Pengalaman</th>
+                        <th class="p-3 border-r border-slate-700 w-40">Gap Analysis</th>
+                        <th class="p-3 border-r border-slate-700 w-32">Rekomendasi</th>
+                        <th class="p-3 text-center w-16">Score</th>
                     </tr>
                 </thead>
-                <tbody id="resultTable" class="text-[12px] bg-white divide-y divide-slate-200">
-                    <!-- Dynamic rows -->
+                <tbody id="resultTable" class="divide-y divide-slate-200">
                 </tbody>
             </table>
-            <div id="emptyState" class="p-20 text-center text-slate-400 italic">Data akan muncul di sini setelah proses selesai...</div>
+            <div id="emptyState" class="p-16 text-center text-slate-400 italic">Hasil akan muncul di sini...</div>
         </div>
     </div>
 
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
         let allResults = [];
         let debugLogs = [];
-        let processingStats = { total: 0, success: 0, failed: 0, startTime: 0, tokenUsage: 0 };
+        let stats = { total: 0, success: 0, failed: 0, retried: 0, skipped: 0, startTime: 0 };
 
-        // Load API key from localStorage
+        // Initialize
         window.addEventListener('DOMContentLoaded', function() {
             const savedKey = localStorage.getItem('groq_api_key');
             if (savedKey) {
                 document.getElementById('apiKey').value = savedKey;
-                updateApiStatus('✅ Loaded from browser storage');
+                updateApiStatus('✅ Loaded');
             }
             document.getElementById('fileInput').addEventListener('change', function() {
                 document.getElementById('fileCount').innerText = `${this.files.length} files selected`;
@@ -182,53 +199,47 @@
         }
 
         function saveApiKey() {
-            const key = document.getElementById('apiKey').value;
-            if (key.trim()) {
-                localStorage.setItem('groq_api_key', key);
-                updateApiStatus('✅ Tersimpan');
-            }
+            const key = document.getElementById('apiKey').value.trim();
+            if (key) localStorage.setItem('groq_api_key', key);
         }
 
-        function addDebugLog(message) {
-            const timestamp = new Date().toLocaleTimeString('id-ID');
-            debugLogs.push(`[${timestamp}] ${message}`);
-            console.log(message);
+        function addLog(msg) {
+            const ts = new Date().toLocaleTimeString('id-ID');
+            debugLogs.push(`[${ts}] ${msg}`);
+            console.log(msg);
             showDebugPanel();
         }
 
         function showDebugPanel() {
-            let debugPanel = document.getElementById('debugPanel');
-            if (!debugPanel) {
-                debugPanel = document.createElement('div');
-                debugPanel.id = 'debugPanel';
-                debugPanel.className = 'fixed bottom-0 right-0 w-96 bg-slate-900 text-white p-4 rounded-tl-xl shadow-2xl text-xs font-mono max-h-80 overflow-y-auto z-50 border-l-4 border-t-4 border-green-500';
-                document.body.appendChild(debugPanel);
+            let panel = document.getElementById('debugPanel');
+            if (!panel) {
+                panel = document.createElement('div');
+                panel.id = 'debugPanel';
+                panel.className = 'fixed bottom-4 right-4 w-96 bg-slate-900 text-white p-4 rounded-lg shadow-2xl text-[10px] font-mono max-h-80 overflow-y-auto z-50 border-2 border-green-500';
+                document.body.appendChild(panel);
             }
-            debugPanel.innerHTML = `<div class="text-xs text-green-300 font-bold mb-2 sticky top-0 bg-slate-900">📊 DEBUG LOG (High-Volume Mode):</div>` + 
-                debugLogs.slice(-25).map(l => `<div class="mb-0.5 text-[10px]">${l}</div>`).join('');
+            panel.innerHTML = `<div class="text-green-400 font-bold mb-2">🔍 DEBUG LOG v4:</div>` + 
+                debugLogs.slice(-30).map(l => `<div class="mb-1">${l}</div>`).join('');
         }
 
         function showStats() {
-            document.getElementById('statsBox').classList.toggle('hidden');
+            document.getElementById('statsDash').classList.toggle('hidden');
         }
 
-        async function testApiConnection() {
-            const apiKey = document.getElementById('apiKey').value;
+        async function testApi() {
+            const apiKey = document.getElementById('apiKey').value.trim();
             if (!apiKey) {
-                updateApiStatus('❌ API Key kosong!');
-                return alert('Masukkan API Key terlebih dahulu');
+                updateApiStatus('❌ API Key empty');
+                return alert('Masukkan API Key!');
             }
 
             updateApiStatus('🔄 Testing...');
-            addDebugLog('🔄 Testing Groq API connection...');
+            addLog('Testing Groq API connection...');
             
             try {
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { 
-                        "Authorization": `Bearer ${apiKey}`, 
-                        "Content-Type": "application/json" 
-                    },
+                    headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
                         messages: [{ role: "user", content: "OK" }],
@@ -236,260 +247,248 @@
                     })
                 });
 
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.error?.message || `HTTP ${res.status}`);
-                }
-
-                updateApiStatus('✅ Connected! Ready for 300 CV/day');
-                addDebugLog('✅ API Connected successfully');
+                if (!res.ok) throw new Error((await res.json()).error?.message);
+                
+                updateApiStatus('✅ Connected!');
+                addLog('✅ API Connected successfully');
                 saveApiKey();
-                alert('✅ API Connection SUCCESS!\n\nReady for high-volume processing.');
+                alert('✅ API Ready for 300 CV/day!');
             } catch (e) {
-                updateApiStatus(`❌ Error: ${e.message}`);
-                addDebugLog(`❌ Connection failed: ${e.message}`);
+                updateApiStatus(`❌ ${e.message.substring(0, 30)}`);
+                addLog(`❌ Connection failed: ${e.message}`);
                 alert(`Error: ${e.message}`);
             }
         }
 
         async function processFiles() {
-            const apiKey = document.getElementById('apiKey').value;
-            const jd = document.getElementById('jobDesc').value;
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const jd = document.getElementById('jobDesc').value.trim();
             const files = Array.from(document.getElementById('fileInput').files);
             const batchSize = parseInt(document.getElementById('batchSize').value);
-            const delayBatch = parseInt(document.getElementById('delayBatch').value);
+            const batchDelay = parseInt(document.getElementById('batchDelay').value);
             const mode = document.getElementById('processingMode').value;
-            
-            if(!apiKey || !jd || files.length === 0) {
-                return alert("Lengkapi: API Key, JD, dan CV files!");
+
+            if (!apiKey || !jd || files.length === 0) {
+                return alert('Lengkapi: API Key, JD, CV files!');
             }
 
             saveApiKey();
             allResults = [];
-            processingStats = { total: files.length, success: 0, failed: 0, startTime: Date.now(), tokenUsage: 0 };
-            document.getElementById('resultTable').innerHTML = "";
+            stats = { total: files.length, success: 0, failed: 0, retried: 0, skipped: 0, startTime: Date.now() };
+            document.getElementById('resultTable').innerHTML = '';
             document.getElementById('emptyState').classList.add('hidden');
-            document.getElementById('progressBox').classList.remove('hidden');
+            document.getElementById('progressSection').classList.remove('hidden');
             document.getElementById('btnRun').disabled = true;
 
-            addDebugLog('═══════════════════════════════════════');
-            addDebugLog(`🚀 HIGH-VOLUME PROCESSING STARTED`);
-            addDebugLog(`📊 Total Files: ${files.length}`);
-            addDebugLog(`⚙️  Batch Size: ${batchSize} | Delay: ${delayBatch}ms | Mode: ${mode}`);
-            addDebugLog(`═══════════════════════════════════════`);
+            addLog('═══════════════════════════════════════');
+            addLog(`🚀 REXVIN v4 STARTING - AGGRESSIVE MODE`);
+            addLog(`📊 Files: ${files.length} | Batch: ${batchSize} | Delay: ${batchDelay}ms | Mode: ${mode}`);
+            addLog('═══════════════════════════════════════');
 
-            // Process in batches
             for (let i = 0; i < files.length; i += batchSize) {
                 const batch = files.slice(i, i + batchSize);
-                addDebugLog(`📦 Batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(files.length/batchSize)} | ${batch.length} files`);
+                const batchNum = Math.floor(i / batchSize) + 1;
+                addLog(`📦 BATCH ${batchNum} [${i+1}-${Math.min(i+batchSize, files.length)}/${files.length}]`);
 
                 for (let j = 0; j < batch.length; j++) {
                     const file = batch[j];
-                    const fileIndex = i + j;
-                    updateProgress(fileIndex, files.length, `Processing: ${file.name}`);
-                    
+                    const idx = i + j;
+                    updateProgress(idx, files.length, `[${idx+1}/${files.length}] ${file.name.substring(0, 30)}`);
+
                     try {
-                        addDebugLog(`  [${fileIndex+1}/${files.length}] ${file.name.substring(0, 40)}...`);
                         const text = file.name.endsWith('.pdf') ? await extractPDF(file) : await extractDocx(file);
-                        const cleanText = text.replace(/[^\x00-\x7F]/g, "").replace(/\s+/g, " ").trim().substring(0, 6000);
+                        const cleanText = text.replace(/[^\x00-\x7F]/g, '').replace(/\s+/g, ' ').trim().substring(0, 5000);
                         
-                        const aiResult = await callGroq(apiKey, jd, cleanText, mode);
-                        allResults.push(aiResult);
-                        renderRow(aiResult);
-                        processingStats.success++;
-                        addDebugLog(`    ✅ ${aiResult.name} (${aiResult.score}%)`);
+                        const result = await callGroqWithRetry(apiKey, jd, cleanText, mode, 0);
+                        allResults.push(result);
+                        renderRow(result);
+                        stats.success++;
+                        document.getElementById('cntSuccess').innerText = stats.success;
+                        addLog(`  ✅ ${result.name.substring(0, 40)} → ${result.score}%`);
                     } catch (e) {
-                        processingStats.failed++;
-                        addDebugLog(`    ❌ ERROR: ${e.message.substring(0, 60)}`);
+                        stats.failed++;
+                        document.getElementById('cntFailed').innerText = stats.failed;
+                        addLog(`  ❌ ${file.name.substring(0, 40)} - ${e.message.substring(0, 50)}`);
                     }
 
-                    // Update counter
-                    document.getElementById('countProcessing').innerText = fileIndex + 1;
-                    document.getElementById('countSuccess').innerText = processingStats.success;
-                    document.getElementById('countFailed').innerText = processingStats.failed;
+                    document.getElementById('cntTotal').innerText = idx + 1;
                 }
 
-                // Delay between batches
+                // AGGRESSIVE DELAY between batches
                 if (i + batchSize < files.length) {
-                    addDebugLog(`⏳ Batch complete. Waiting ${delayBatch}ms before next batch...`);
-                    await new Promise(r => setTimeout(r, delayBatch));
+                    addLog(`⏳ Batch complete. Waiting ${batchDelay}ms before next batch...`);
+                    await new Promise(r => setTimeout(r, batchDelay));
                 }
             }
 
             // Final stats
-            const duration = (Date.now() - processingStats.startTime) / 1000;
+            const duration = (Date.now() - stats.startTime) / 1000;
             const avgTime = duration / files.length;
-            const projectedDaily = Math.floor((86400 / avgTime)); // seconds in a day
-            
-            updateProgress(files.length, files.length, "Complete!");
-            addDebugLog(`═══════════════════════════════════════`);
-            addDebugLog(`✅ PROCESSING COMPLETE`);
-            addDebugLog(`📊 Success: ${processingStats.success}/${files.length}`);
-            addDebugLog(`⏱️  Total time: ${duration.toFixed(1)}s`);
-            addDebugLog(`⚡ Avg per CV: ${avgTime.toFixed(1)}s`);
-            addDebugLog(`📈 Projected capacity: ${projectedDaily} CV/day`);
-            addDebugLog(`═══════════════════════════════════════`);
+            const capacity = Math.floor(86400 / (avgTime + (batchDelay / 1000)));
+            const successRate = Math.round((stats.success / files.length) * 100);
+
+            updateProgress(files.length, files.length, 'Complete!');
+            addLog('═══════════════════════════════════════');
+            addLog(`✅ PROCESSING COMPLETE`);
+            addLog(`📊 Success: ${stats.success}/${files.length} (${successRate}%)`);
+            addLog(`⏱️ Duration: ${duration.toFixed(1)}s`);
+            addLog(`⚡ Avg: ${avgTime.toFixed(1)}s/CV`);
+            addLog(`📈 Realistic Daily Capacity: ${capacity} CV/day`);
+            addLog('═══════════════════════════════════════');
 
             // Update stats
-            document.getElementById('totalProcessed').innerText = files.length;
-            document.getElementById('totalSuccess').innerText = processingStats.success;
-            document.getElementById('totalFailed').innerText = processingStats.failed;
-            document.getElementById('avgTime').innerText = avgTime.toFixed(1) + 's';
-            document.getElementById('projectedDaily').innerText = projectedDaily;
-            
+            document.getElementById('statTotal').innerText = files.length;
+            document.getElementById('statSuccess').innerText = stats.success;
+            document.getElementById('statFailed').innerText = stats.failed;
+            document.getElementById('statAvgTime').innerText = avgTime.toFixed(1) + 's';
+            document.getElementById('statCapacity').innerText = capacity;
+            document.getElementById('statRate').innerText = successRate + '%';
+
             document.getElementById('btnRun').disabled = false;
             document.getElementById('btnDownload').classList.remove('hidden');
         }
 
-        async function callGroq(key, jd, cv, mode) {
-            const maxTokens = mode === 'fast' ? 800 : 1000;
-            const temperature = mode === 'fast' ? 0.2 : 0.3;
+        async function callGroqWithRetry(key, jd, cv, mode, retryCount) {
+            const maxRetries = 2;
             
-            const systemPrompt = mode === 'fast' ? 
-`Anda adalah STRICT HR Screener. TASK: Match CV dengan JD, berikan score 0-100.
+            try {
+                return await callGroq(key, jd, cv, mode);
+            } catch (e) {
+                if (e.message.includes('Rate limit') && retryCount < maxRetries) {
+                    stats.retried++;
+                    const waitTime = 5000 * (retryCount + 1); // 5s, 10s escalation
+                    addLog(`    🔄 RETRY ${retryCount + 1}/${maxRetries} (wait ${waitTime}ms)...`);
+                    await new Promise(r => setTimeout(r, waitTime));
+                    return await callGroqWithRetry(key, jd, cv, mode, retryCount + 1);
+                }
+                throw e;
+            }
+        }
 
-MUST-HAVE REQUIREMENT CHECK:
-- Education sesuai? +25%
-- Experience ≥ min tahun? +25%
-- Role match exact? +25%
-- Core responsibilities ada? +25%
+        async function callGroq(key, jd, cv, mode) {
+            const systemPrompt = `Anda adalah STRICT ROLE MATCHER untuk HR Recruitment.
 
-DEDUCTIONS:
-- Role mismatch: -20%
-- Missing requirement: -15% per item
-- Exp < minimum: -25%
+DIRECTIVE KRITIS:
+- ROLE EXACT MATCHING adalah PRIORITAS UTAMA
+- JIKA ROLE BERBEDA → SCORE TIDAK BOLEH MELAMPAUI 50%
+- JIKA ROLE SAMA TAPI ADA MISSING REQUIREMENT → SCORE ≤ 65%
+- JANGAN OVERRATE - BE CONSERVATIVE
 
-OUTPUT JSON:
-{"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","pengalaman":"Job history, company, duration","catatan":"Gap analysis: ❌/✅/⚠️ per requirement","rekomendasi":"SANGAT DISARANKAN/DISARANKAN/PERTIMBANGAN/TIDAK DISARANKAN","score":0}` :
+SCORING RULES (STRICT):
+├─ Pendidikan match: +20%
+├─ Experience ≥ min: +20%
+├─ ROLE EXACT MATCH: +30% (bukan partial!)
+├─ Core responsibilities: +30%
 
-`Anda adalah STRICT HR Talent Screener dengan ZERO TOLERANCE untuk requirement mismatch.
+DEDUCTIONS (HARD):
+├─ Role mismatch (ex: Supervisor vs Coordinator): -50% (MAX SCORE 50%)
+├─ Missing 1+ core responsibility: -15% each
+├─ Experience < minimum: -30%
 
-TAHAP 1: EKSTRAKSI DATA PERSONAL
-- Nama, HP, Email, USIA, Domisili, Pendidikan (S1/S2 Field)
-
-TAHAP 2: PARSE MUST-HAVE dari JD
-Identify EXACT requirements yang MANDATORY
-
-TAHAP 3: FORENSIC CV MATCHING
-Untuk setiap MUST-HAVE:
-- 100% match: +25%
-- Partial (70-99%): +15%
-- Weak (40-69%): +5%
-- Missing: -15%
-
-TAHAP 4: STRICT SCORING
-- ROLE MISMATCH → MAX 60%
-- Missing 2+ core → MAX 65%
-- Exp < minimum → MAX 40%
-
-OUTPUT JSON:
-{"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","pengalaman":"Job history dengan company, title, duration","catatan":"✅/❌/⚠️ MUST-HAVE checklist dengan evidence konkrit","rekomendasi":"SANGAT DISARANKAN/DISARANKAN/PERTIMBANGAN/TIDAK DISARANKAN","score":0}`;
+OUTPUT JSON (ONLY):
+{"name":"","usia":"","hp":"","email":"","domisili":"","pendidikan":"","pengalaman":"","catatan":"","rekomendasi":"","score":0}`;
 
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
-                headers: { 
-                    "Authorization": `Bearer ${key}`, 
-                    "Content-Type": "application/json" 
-                },
+                headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: [
                         { role: "system", content: systemPrompt },
-                        { role: "user", content: `JD:\n${jd.substring(0, 2000)}\n\nCV:\n${cv}` }
+                        { role: "user", content: `JD:\n${jd.substring(0, 1500)}\n\nCV:\n${cv}` }
                     ],
                     response_format: { type: "json_object" },
-                    temperature: temperature,
-                    max_tokens: maxTokens
+                    temperature: 0.2,
+                    max_tokens: 900
                 })
             });
 
             if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error?.message || `HTTP ${res.status}`);
+                const error = await res.json();
+                throw new Error(error.error?.message || `HTTP ${res.status}`);
             }
 
             const data = await res.json();
-            const responseText = data.choices[0].message.content;
-            
-            let parsed;
-            try {
-                parsed = JSON.parse(responseText);
-            } catch (e) {
-                const cleanJson = responseText.replace(/```json|```/g, '').trim();
-                parsed = JSON.parse(cleanJson);
+            let parsed = JSON.parse(data.choices[0].message.content);
+
+            // Enforce strict rules
+            if (parsed.score > 50 && (parsed.catatan?.includes('ROLE') || parsed.catatan?.includes('mismatch'))) {
+                parsed.score = Math.min(parsed.score, 50);
+                parsed.rekomendasi = 'TIDAK DISARANKAN';
             }
 
-            // Sanitasi fields
+            // Defaults
             parsed.name = parsed.name || 'Unknown';
-            parsed.score = parsed.score || 0;
+            parsed.score = Math.max(0, Math.min(100, parsed.score || 0));
             parsed.rekomendasi = parsed.rekomendasi || 'PERTIMBANGAN';
-            parsed.catatan = parsed.catatan || 'No notes';
-            parsed.pengalaman = parsed.pengalaman || '-';
+            parsed.catatan = parsed.catatan || 'No analysis';
             parsed.usia = parsed.usia || '-';
             parsed.hp = parsed.hp || '-';
             parsed.email = parsed.email || '-';
             parsed.domisili = parsed.domisili || '-';
             parsed.pendidikan = parsed.pendidikan || '-';
+            parsed.pengalaman = parsed.pengalaman || '-';
 
             return parsed;
         }
 
         async function extractPDF(file) {
-            const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
-            let text = "";
-            for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
+            const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+            let text = '';
+            for (let i = 1; i <= Math.min(pdf.numPages, 2); i++) {
                 const page = await pdf.getPage(i);
                 const content = await page.getTextContent();
-                text += content.items.map(s => s.str).join(" ") + " ";
+                text += content.items.map(s => s.str).join(' ') + ' ';
             }
             return text;
         }
 
         async function extractDocx(file) {
-            const res = await mammoth.extractRawText({arrayBuffer: await file.arrayBuffer()});
+            const res = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
             return res.value;
         }
 
         function renderRow(d) {
-            const scoreColor = d.score >= 80 ? 'text-emerald-600 bg-emerald-50' : (d.score >= 60 ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50');
-            const recColor = d.rekomendasi.includes("TIDAK") ? 'text-rose-700 bg-rose-100' : (d.rekomendasi.includes("SANGAT") ? 'text-emerald-700 bg-emerald-100' : 'text-amber-700 bg-amber-100');
-            
+            const scoreColor = d.score >= 80 ? 'bg-emerald-50 text-emerald-700' : 
+                              d.score >= 60 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700';
+            const recColor = d.rekomendasi.includes('TIDAK') ? 'bg-red-100 text-red-800' :
+                            d.rekomendasi.includes('SANGAT') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
+
             const html = `
-                <tr class="hover:bg-slate-50 transition-all">
-                    <td class="p-3 border-r">
-                        <div class="font-bold text-slate-900 text-[11px]">${d.name}</div>
-                        <div class="text-[9px] text-slate-500">${d.hp}</div>
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 border-r border-slate-200">
+                        <div class="font-bold text-[12px]">${d.name}</div>
+                        <div class="text-[10px] text-slate-500">${d.hp}</div>
                     </td>
-                    <td class="p-3 border-r text-center font-bold text-[11px]">${d.usia}</td>
-                    <td class="p-3 border-r text-[10px]">
+                    <td class="p-3 border-r border-slate-200 text-center font-bold text-[12px]">${d.usia}</td>
+                    <td class="p-3 border-r border-slate-200 text-[11px]">
                         <div class="font-semibold">${d.domisili}</div>
-                        <div class="text-slate-500 italic">${d.pendidikan}</div>
+                        <div class="text-slate-500 text-[9px]">${d.pendidikan}</div>
                     </td>
-                    <td class="p-3 border-r text-[10px] leading-tight">${d.pengalaman}</td>
-                    <td class="p-3 border-r text-[10px] text-slate-700">${d.catatan}</td>
-                    <td class="p-3 border-r text-center">
-                        <span class="px-2 py-1 rounded-full font-bold text-[9px] uppercase ${recColor}">${d.rekomendasi}</span>
+                    <td class="p-3 border-r border-slate-200 text-[11px] leading-snug">${d.pengalaman.substring(0, 100)}</td>
+                    <td class="p-3 border-r border-slate-200 text-[10px] leading-snug">${d.catatan.substring(0, 80)}</td>
+                    <td class="p-3 border-r border-slate-200 text-center">
+                        <span class="px-2 py-1 rounded text-[10px] font-bold ${recColor}">${d.rekomendasi}</span>
                     </td>
                     <td class="p-3 text-center">
-                        <span class="px-2 py-1 rounded font-black text-[11px] ${scoreColor}">${d.score}%</span>
+                        <span class="px-3 py-1 rounded font-black text-[13px] ${scoreColor}">${d.score}%</span>
                     </td>
                 </tr>`;
             document.getElementById('resultTable').insertAdjacentHTML('beforeend', html);
         }
 
         function updateProgress(c, t, l) {
-            const p = (c/t)*100;
-            document.getElementById('progressBar').style.width = p+'%';
+            const p = (c / t) * 100;
+            document.getElementById('progressBar').style.width = p + '%';
             document.getElementById('progressText').innerText = `${c}/${t}`;
             document.getElementById('statusLabel').innerText = l;
         }
 
         function downloadExcel() {
-            const worksheet = XLSX.utils.json_to_sheet(allResults);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Kandidat");
-            XLSX.writeFile(workbook, `Review_Kandidat_Rexvin_${new Date().toISOString().split('T')[0]}.xlsx`);
-            addDebugLog(`📥 Excel exported: ${allResults.length} candidates`);
+            const ws = XLSX.utils.json_to_sheet(allResults);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Results');
+            XLSX.writeFile(wb, `Rexvin_v4_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
     </script>
 </body>
