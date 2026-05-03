@@ -22,7 +22,7 @@
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">REXVIN <span class="text-blue-600">RECRUITMENT AI</span></h1>
-                    <p class="text-slate-500 text-sm">Sistem Skrining Strategis & Rekomendasi Otomatis (Verified for 2026)</p>
+                    <p class="text-slate-500 text-sm">Sistem Skrining Strategis & Rekomendasi Otomatis (Verified for 2026) - STRICT MATCHING v2</p>
                 </div>
                 <button onclick="downloadExcel()" id="btnDownload" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
@@ -46,13 +46,13 @@
                     </div>
                 </div>
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Job Description (Tulis kriteria 'WAJIB' di sini)</label>
-                    <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Contoh: WAJIB pengalaman di Developer/Property minimal 2 tahun..."></textarea>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Job Description (MUST-HAVE Requirements)</label>
+                    <textarea id="jobDesc" rows="4" class="w-full p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Paste full JD dengan MUST-HAVE requirements..."></textarea>
                 </div>
             </div>
 
             <button onclick="processFiles()" id="btnRun" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-[0.99]">
-                MULAI ANALISA KANDIDAT
+                MULAI ANALISA KANDIDAT (STRICT MODE)
             </button>
             
             <div id="progressBox" class="hidden mt-6">
@@ -70,7 +70,7 @@
                         <th class="p-4 border-r border-slate-700 text-center w-20">Usia</th>
                         <th class="p-4 border-r border-slate-700 w-48">Domisili & Edukasi</th>
                         <th class="p-4 border-r border-slate-700">Pengalaman Relevan</th>
-                        <th class="p-4 border-r border-slate-700 w-64">Catatan Kritis</th>
+                        <th class="p-4 border-r border-slate-700 w-72">Gap Analysis & MUST-HAVE</th>
                         <th class="p-4 border-r border-slate-700 text-center w-40">Rekomendasi</th>
                         <th class="p-4 text-center w-20">Score</th>
                     </tr>
@@ -172,7 +172,7 @@
             } catch (e) {
                 updateApiStatus(`❌ Error: ${e.message}`);
                 addDebugLog(`❌ Connection Error: ${e.message}`);
-                alert(`Connection Error: ${e.message}\n\nPastikan:\n1. API Key valid\n2. Internet connection stabil\n3. Groq API tidak sedang down`);
+                alert(`Connection Error: ${e.message}`);
             }
         }
 
@@ -199,7 +199,7 @@
 
             saveApiKey();
             addDebugLog(`✅ Input valid!`);
-            addDebugLog(`✅ JD: ${jd.substring(0, 80)}...`);
+            addDebugLog(`✅ JD length: ${jd.length} chars`);
             addDebugLog(`✅ Files: ${files.map(f => f.name).join(', ')}`);
             addDebugLog(`═══════════════════════════════════`);
 
@@ -220,7 +220,7 @@
                     const cleanText = text.replace(/[^\x00-\x7F]/g, "").replace(/\s+/g, " ").trim();
                     addDebugLog(`  ├─ ✅ Text extracted: ${cleanText.length} chars`);
                     
-                    addDebugLog(`  ├─ Calling Groq API (llama-3.3-70b-versatile)...`);
+                    addDebugLog(`  ├─ Calling Groq API (STRICT MODE)...`);
                     const aiResult = await callGroq(apiKey, jd, cleanText, fileName);
                     
                     if (!aiResult.name) {
@@ -236,9 +236,9 @@
                     addDebugLog(`  └─ Skipping file...`);
                     console.error(e);
                 }
-                if (i % 3 === 0 && i > 0) {
-                    addDebugLog(`  ⏳ Rate limit pause (3 detik)...`);
-                    await new Promise(r => setTimeout(r, 3000));
+                if (i % 2 === 1 && i > 0) {
+                    addDebugLog(`  ⏳ Rate limit pause (2 detik)...`);
+                    await new Promise(r => setTimeout(r, 2000));
                 }
             }
 
@@ -261,77 +261,157 @@
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
                         messages: [
-                            { role: "system", content: `Anda adalah Senior HR Recruitment Auditor dengan expertise mendalam di talent assessment & JD matching.
+                            { role: "system", content: `Anda adalah STRICT HR Talent Screener dengan ZERO TOLERANCE untuk requirement mismatch.
 
-TUGAS UTAMA:
-1. ANALISIS MENDALAM CV terhadap JD dengan strict requirement matching
-2. IDENTIFIKASI REQUIREMENT WAJIB dari JD (keywords: WAJIB, HARUS, MUST HAVE, CRITICAL, MINIMUM)
-3. VERIFIKASI setiap requirement di CV dengan detail & evidence konkret
-4. HITUNG RELEVANCE SCORE berdasarkan gap analysis
+🎯 DIRECTIVE UTAMA:
+- ROLE EXACT MATCHING adalah KRITIS (bukan hanya skill matching)
+- MUST HAVE requirements adalah MANDATORY
+- STRICT scoring: jangan overrate kandidat yang partial fit
+- Kandidat dengan ROLE MISMATCH atau missing MUST-HAVE harus di-REJECT dengan score < 50%
 
-METODOLOGI EVALUASI:
-======================
+═════════════════════════════════════════════════════════════════
 
-**TAHAP 1: EKSTRAKSI DATA PERSONAL**
-- Nama lengkap, HP, Email (jika ada)
-- Hitung USIA di tahun 2026 (dari birth date di CV, atau estimasi dari pengalaman kerja)
-- Domisili & lokasi kerja terakhir
-- Pendidikan tertinggi & institusi
+📋 TAHAP 1: EKSTRAKSI DATA PERSONAL
+├─ Nama, HP, Email
+├─ USIA: hitung dari birth date atau estimasi dari pengalaman
+├─ Domisili & lokasi kerja terakhir
+└─ Pendidikan: S1/S2, field, universitas, tahun
 
-**TAHAP 2: PARSING REQUIREMENT WAJIB**
-Baca JD dengan sangat teliti. Identifikasi SEMUA requirement yang mark sebagai WAJIB/HARUS/CRITICAL/MINIMUM.
+═════════════════════════════════════════════════════════════════
 
-**TAHAP 3: DEEP CV ANALYSIS**
-Untuk SETIAP requirement wajib:
-  ✓ Cari bukti EKSPLISIT di CV (job title, company, duration, achievement)
-  ✓ Analisis RELEVANCE (100% match, partial, tidak ada)
-  ✓ Validasi DURATION (if X tahun diperlukan, cek apakah ≥ X tahun)
-  ✓ Catat EXACT EVIDENCE dari CV
+🔴 TAHAP 2: CRITICAL MUST-HAVE REQUIREMENT EXTRACTION
 
-**TAHAP 4: SCORING LOGIC**
-Base: 0%
-- Setiap requirement WAJIB yang 100% match = +20-25%
-- Setiap requirement WAJIB yang partial/50% match = +8-12%
-- Setiap requirement WAJIB yang TIDAK ADA = -15 (CRITICAL FAIL)
-- Bonus pengalaman lebih (5-15%) jika skills melebihi requirement
-- Bonus soft skills alignment (3-5%)
+Extract EXACTLY dari JD apa yang MANDATORY:
 
-FINAL SCORE RULES:
-- Score < 50: TIDAK DISARANKAN (missing critical requirements)
-- Score 50-69: PERTIMBANGAN (beberapa gap, bisa dilatih)
-- Score 70-84: DISARANKAN (mostly fit, minor gap)
-- Score ≥ 85: SANGAT DISARANKAN (excellent fit)
+JD ANALYSIS CHECKLIST:
+□ Pendidikan: Minimum? Field apa? (contoh: S1 Teknik Sipil)
+□ Pengalaman: Berapa tahun MINIMUM? Posisi apa EXACTLY? (contoh: 2 tahun Site Coordinator)
+□ ROLE MATCH: Apa exact job title yang dicari? (bukan hanya industry, tapi ROLE SPECIFIC)
+□ Core Responsibilities: Apa saja main duties? (extract dari job description section)
+□ Technical Skills: Apa specific skills yang required?
+□ Soft Skills: Apa soft skills yang critical?
 
-**TAHAP 5: OUTPUT CRITICAL NOTES**
-- List SEMUA requirement WAJIB yang tidak/partial dipenuhi
-- Identifikasi STRENGTH terbesar kandidat
+⚠️ CRITICAL RULE: ROLE harus EXACT MATCH atau sangat CLOSE
+Contoh MISMATCH:
+├─ JD: "Site Coordinator" (fokus planning, budget, customer relations)
+└─ CV: "Site Supervisor / Civil Engineer" (fokus quality control, technical supervision)
+    → INI adalah ROLE MISMATCH! Beda fungsi meski sama industri!
 
-OUTPUT FORMAT (HANYA JSON, TANPA PREAMBLE):
+═════════════════════════════════════════════════════════════════
+
+🔍 TAHAP 3: FORENSIC CV MATCHING
+
+Untuk SETIAP MUST-HAVE requirement:
+
+┌─ LEVEL 100% (EXACT MATCH):
+│  └─ CV explicitly mention job title, company, duration, & exact responsibilities
+│
+├─ LEVEL 70-99% (STRONG MATCH):
+│  └─ CV punya serupa tapi terminology/context slightly different
+│
+├─ LEVEL 40-69% (PARTIAL/WEAK MATCH):
+│  └─ CV punya related skill tapi role/responsibility berbeda
+│
+└─ LEVEL 0-39% (NO MATCH/MISSING):
+   └─ CV tidak mention sama sekali atau completely different role
+
+MATCHING RULES:
+├─ Job Title Match: "Site Coordinator" di CV = 100%, "Site Supervisor" = 50%
+├─ Responsibility Match: Jika CV punya bukti specific responsibility = match
+├─ Duration Match: Jika ≥ minimum required tahun = 100%, < minimum = 0%
+└─ Context: Harus di INDUSTRY yang sama (konstruksi, developer, real estate)
+
+═════════════════════════════════════════════════════════════════
+
+📊 TAHAP 4: SCORING LOGIC (STRICT)
+
+BASE SCORE: 0%
+
+MUST-HAVE REQUIREMENTS (max +25% each):
+├─ Pendidikan sesuai requirement? (+25% or -10%)
+├─ Pengalaman ≥ minimum tahun? (+25% or -25% AUTO REJECT)
+├─ ROLE EXACT MATCH? (+25% if exact, +15% if close, +5% if tangential, -20% if mismatch)
+├─ Punya bukti semua core responsibilities? (+25% or -15% per missing)
+├─ Technical skills required ada? (+20% or -10% per missing)
+└─ Soft skills present? (+20%)
+
+STRICT DEDUCTIONS:
+├─ ROLE MISMATCH (Supervisor vs Coordinator) → MAX SCORE 60% HARUS
+├─ Missing 1+ core responsibility → -15% each
+├─ Pengalaman < required minimum → AUTO REJECT (max 40%)
+├─ Pendidikan tidak sesuai → -10%
+└─ Zero evidence of responsibility → -25%
+
+═════════════════════════════════════════════════════════════════
+
+🎯 FINAL INTERPRETATION:
+
+Score ≥ 85: SANGAT DISARANKAN (Excellent, semua MUST-HAVE 100% match)
+Score 70-84: DISARANKAN (Good, major requirements covered)
+Score 50-69: PERTIMBANGAN (Moderate gap, missing some requirements)
+Score < 50: ⛔ TIDAK DISARANKAN (REJECT - role mismatch atau missing critical requirements)
+
+ENFORCE STRICTLY:
+├─ ROLE MISMATCH → Score HARUS ≤ 60%
+├─ Missing 2+ core requirements → Score HARUS ≤ 65%
+├─ Experience < minimum → Score HARUS ≤ 40% (AUTO REJECT)
+
+═════════════════════════════════════════════════════════════════
+
+💬 CATATAN HARUS INCLUDE:
+
+Format:
+├─ ✅ / ❌ / ⚠️ untuk setiap MUST-HAVE requirement
+├─ Exact evidence dari CV (job title, company, responsibility quoted)
+├─ Gap detail (apa yang missing, severity)
+├─ ROLE MATCH STATUS: EXACT / CLOSE / PARTIAL / MISMATCH
+└─ Final assessment: Cocok atau Tidak (dengan alasan konkrit)
+
+Contoh CATATAN:
+"🔴 ROLE MISMATCH: CV='Site Civil Supervisor' fokus Quality Control | JD='Site Coordinator' fokus Planning & Budget Control (CRITICAL)
+❌ MISSING: Perencanaan kerja proyek/scheduling tidak disebutkan
+❌ MISSING: Monitoring & controlling budget vs RAB tidak terbukti
+❌ MISSING: STB (Serah Terima Bangunan) tidak disebutkan
+⚠️ PARTIAL: Komunikasi OK tapi customer relations unclear
+✅ MATCH: S1 Teknik Sipil ✓ | ≥2 tahun ✓
+
+ASSESSMENT: ROLE BERBEDA - meskipun punya S1 Sipil & pengalaman, CV fokus supervisi teknis bukan koordinasi & perencanaan proyek yang JD minta. Tidak sesuai posisi."
+
+═════════════════════════════════════════════════════════════════
+
+📤 OUTPUT JSON:
+
 {
   "name": "Full Name",
   "usia": "XX",
   "hp": "Phone or -",
   "email": "Email or -",
-  "domisili": "Kota, Region",
+  "domisili": "City, Region",
   "pendidikan": "S1/S2 Program, University (Year)",
-  "pengalaman": "Job history dengan company, title, duration, relevance ke JD",
-  "catatan": "Critical findings - list requirement WAJIB yang missing/partial dengan bukti dari CV",
+  "pengalaman": "Job title(s), company, duration - fokus relevant experience",
+  "catatan": "MUST-HAVE checklist dengan ✅/❌/⚠️. Gap analysis detail. Severity. Role match status. Assessment konkrit.",
   "rekomendasi": "SANGAT DISARANKAN / DISARANKAN / PERTIMBANGAN / TIDAK DISARANKAN",
   "score": 0
-}` },
+}
+
+OUTPUT RULES:
+├─ Score & Rekomendasi HARUS aligned
+├─ Catatan HARUS detail & specific dengan evidence
+├─ JANGAN generic statements
+└─ Jika ada ROLE MISMATCH, catatan harus explicitly state ini` },
                             { role: "user", content: `JD REQUIREMENT:
 =================
 ${jd}
 
 CV CANDIDATE:
 =================
-${cv.substring(0, 9000)}
+${cv.substring(0, 8500)}
 
-ANALISIS MENDALAM & OUTPUT JSON SAJA!` }
+LAKUKAN STRICT ANALYSIS DENGAN ZERO TOLERANCE UNTUK MISMATCH. OUTPUT HANYA JSON!` }
                         ],
                         response_format: { type: "json_object" },
-                        temperature: 0.5,
-                        max_tokens: 1500
+                        temperature: 0.3,
+                        max_tokens: 1200
                     })
                 });
 
@@ -344,21 +424,19 @@ ANALISIS MENDALAM & OUTPUT JSON SAJA!` }
                 const data = await res.json();
                 const responseText = data.choices[0].message.content;
                 
-                // Parse JSON dengan error handling
                 let parsed;
                 try {
                     parsed = JSON.parse(responseText);
                 } catch (e) {
-                    // Coba clean up markdown backticks jika ada
                     const cleanJson = responseText.replace(/```json|```/g, '').trim();
                     parsed = JSON.parse(cleanJson);
                 }
 
-                // Validasi minimal fields
+                // Validasi & sanitasi fields
                 if (!parsed.name) parsed.name = 'Unknown';
                 if (!parsed.score) parsed.score = 0;
-                if (!parsed.rekomendasi) parsed.rekomendasi = 'PERTIMBANGAN';
-                if (!parsed.catatan) parsed.catatan = 'No notes';
+                if (!parsed.rekomendasi) parsed.rekomendasi = 'TIDAK DISARANKAN';
+                if (!parsed.catatan) parsed.catatan = 'No analysis notes';
                 if (!parsed.pengalaman) parsed.pengalaman = 'No experience listed';
                 if (!parsed.usia) parsed.usia = '-';
                 if (!parsed.hp) parsed.hp = '-';
@@ -405,8 +483,8 @@ ANALISIS MENDALAM & OUTPUT JSON SAJA!` }
                         <div class="font-semibold">${d.domisili}</div>
                         <div class="text-[10px] text-slate-500 mt-1 italic">${d.pendidikan}</div>
                     </td>
-                    <td class="p-4 border-r leading-relaxed whitespace-pre-line">${d.pengalaman}</td>
-                    <td class="p-4 border-r italic text-slate-600 leading-snug">${d.catatan}</td>
+                    <td class="p-4 border-r leading-relaxed">${d.pengalaman}</td>
+                    <td class="p-4 border-r italic text-slate-700 leading-snug text-[11px]">${d.catatan}</td>
                     <td class="p-4 border-r text-center">
                         <span class="px-3 py-1 rounded-full font-bold text-[10px] uppercase ${recColor}">${d.rekomendasi}</span>
                     </td>
@@ -428,8 +506,8 @@ ANALISIS MENDALAM & OUTPUT JSON SAJA!` }
             const worksheet = XLSX.utils.json_to_sheet(allResults);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Kandidat");
-            XLSX.writeFile(workbook, "Review_Kandidat_Rexvin_2026.xlsx");
-            addDebugLog(`📥 Excel file downloaded: Review_Kandidat_Rexvin_2026.xlsx`);
+            XLSX.writeFile(workbook, "Review_Kandidat_Rexvin_STRICT_2026.xlsx");
+            addDebugLog(`📥 Excel file downloaded: Review_Kandidat_Rexvin_STRICT_2026.xlsx`);
         }
     </script>
 </body>
